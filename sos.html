@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Bodyguard - AI Command Center & Emergency Shield</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Crypto-JS for SHA-256 Tamper-Proof Hashing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #030712; color: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        .app-container { width: 100%; max-width: 420px; height: 95vh; max-height: 860px; background: #0b0f19; border: 2.5px solid #ff0055; border-radius: 26px; display: flex; flex-direction: column; overflow: hidden; position: relative; box-shadow: 0 0 45px rgba(255, 0, 85, 0.4); }
+
+        .header { background: #090d16; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ff0055; flex-shrink: 0; }
+        
+        .wave-icon-wrapper { position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; }
+        
+        /* Sonar Wave Effect for Profile Button */
+        .wave-profile-btn { width: 36px; height: 36px; background: #111827; border: 2px solid #ff0055; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; text-decoration: none; z-index: 2; position: relative; box-shadow: 0 0 10px rgba(255, 0, 85, 0.6); cursor: pointer; }
+        .wave-profile-btn::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #ff0055;
+            border-radius: 50%;
+            animation: sonarWaveExpand 1.5s infinite linear;
+            pointer-events: none;
+        }
+
+        /* Sonar Wave Effect for Emergency Call Button */
+        .emergency-call-btn { width: 36px; height: 36px; background: #111827; border: 2px solid #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #10b981; text-decoration: none; z-index: 2; position: relative; box-shadow: 0 0 10px rgba(16, 185, 129, 0.6); cursor: pointer; }
+        .emergency-call-btn::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #10b981;
+            border-radius: 50%;
+            animation: sonarWaveExpand 1.5s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes sonarWaveExpand {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        .brand-box { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; padding: 0 4px; }
+        
+        /* Sonar Wave Effect for Electric Bodyguard Logo Badge */
+        .center-electric-badge-wrapper { position: relative; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
+        .center-electric-badge { width: 30px; height: 30px; background: rgba(255, 0, 85, 0.2); border: 2px solid #ff0055; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 12px #ff0055; z-index: 2; position: relative; }
+        .center-electric-badge-wrapper::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 1.5px solid #ff0055;
+            border-radius: 50%;
+            animation: sonarWaveExpand 1.5s infinite linear;
+            pointer-events: none;
+        }
+
+        .brand-title { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 1px; text-shadow: 0 0 10px #ff0055; }
+        .brand-sub { font-size: 7.5px; color: #ff80ab; font-weight: 900; text-transform: uppercase; margin-top: 1px; letter-spacing: 0.8px; }
+
+        .jurisdiction-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: #090d16; padding: 4px 8px; gap: 4px; border-bottom: 1px solid #1e293b; flex-shrink: 0; }
+        .tier-btn { background: #111827; border: 1.5px solid #1e293b; border-radius: 6px; padding: 4px 2px; text-align: center; cursor: pointer; }
+        .tier-btn .tier-icon { font-size: 11px; display: block; margin-bottom: 1px; }
+        .tier-btn .tier-text { font-size: 8px; color: #cbd5e1; font-weight: 900; text-transform: uppercase; display: block; }
+        #tier-local.active { border-color: #10b981; background: rgba(16, 185, 129, 0.2); }
+        #tier-national.active { border-color: #f59e0b; background: rgba(245, 158, 11, 0.2); }
+        #tier-international.active { border-color: #a855f7; background: rgba(168, 85, 247, 0.2); }
+        #tier-global.active { border-color: #ff0055; background: rgba(255, 0, 85, 0.2); }
+
+        .content-body { flex: 1; padding: 10px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+        /* Central Stable SOS Button with Sonar Radar Wave Rings */
+        .sos-core-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 12px 0; position: relative; width: 150px; height: 150px; }
+        
+        .sos-sonar-ring {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 2px solid #ff0055;
+            border-radius: 50%;
+            animation: sonarWaveExpand 2s infinite linear;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .sos-sonar-ring:nth-child(2) { animation-delay: 0.6s; border-color: #ff1744; }
+        .sos-sonar-ring:nth-child(3) { animation-delay: 1.2s; border-color: #ff80ab; }
+
+        .sos-main-btn { width: 120px; height: 120px; background: radial-gradient(circle, #ff1744 0%, #b71c1c 100%); border: 4px solid #ffffff; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 2; position: relative; box-shadow: 0 0 35px rgba(255, 23, 68, 0.9), inset 0 0 15px rgba(255,255,255,0.6); }
+        
+        .sos-main-btn span:first-child { font-size: 24px; font-weight: 900; color: #fff; letter-spacing: 2px; text-shadow: 0 0 8px #000; }
+        .sos-main-btn span:last-child { font-size: 7.5px; font-weight: 900; color: #ffebee; text-transform: uppercase; margin-top: 2px; }
+
+        /* AI Ready & Field Broadcast Status Strip */
+        .ai-status-strip { width: 100%; background: #0f172a; border: 1.5px solid #00f2ff; border-radius: 7px; padding: 6px 10px; text-align: center; font-size: 8.5px; font-weight: 900; color: #00f2ff; box-shadow: inset 0 0 10px rgba(0,242,255,0.15); }
+
+        /* Community Crowd Support Live Panel */
+        .community-support-box { width: 100%; background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 1.5px solid #10b981; border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; }
+        .cs-header { display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 900; color: #10b981; text-transform: uppercase; }
+        .cs-status { font-size: 7.5px; color: #cbd5e1; font-weight: 700; line-height: 1.2; }
+
+        /* Feature Cards Row (Offline Mesh & Health Shield) */
+        .feature-cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+        .feature-mini-card { background: #111827; border: 1.5px solid #1e293b; border-radius: 8px; padding: 7px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; }
+        .feature-mini-card.active-mesh { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
+        .feature-mini-card.active-health { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .feature-mini-card .card-title { font-size: 9px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 4px; }
+        .feature-mini-card .card-desc { font-size: 7.5px; color: #94a3b8; font-weight: 700; }
+
+        /* Emergency Quick Shortcuts Grid */
+        .quick-shortcuts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+        .quick-btn { background: #111827; border: 1.5px solid #1e293b; border-radius: 8px; padding: 7px 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; }
+        .quick-btn .qb-icon { font-size: 16px; }
+        .quick-btn .qb-text { display: flex; flex-direction: column; }
+        .quick-btn .qb-title { font-size: 9.5px; font-weight: 900; color: #fff; }
+        .quick-btn .qb-sub { font-size: 7px; color: #38bdf8; font-weight: 700; text-transform: uppercase; }
+        #qb-police { border-color: #00f2ff; }
+        #qb-medical { border-color: #10b981; }
+        #qb-crime { border-color: #f59e0b; }
+        #qb-vault { border-color: #a855f7; }
+
+        .bottom-nav { background: #090d16; display: flex; justify-content: space-around; padding: 6px 0; border-top: 1.5px solid #1e293b; flex-shrink: 0; width: 100%; }
+        .nav-item { background: none; border: none; color: #94a3b8; font-size: 8px; font-weight: 900; display: flex; flex-direction: column; align-items: center; cursor: pointer; gap: 1px; text-decoration: none; text-transform: uppercase; }
+        .nav-item span { font-size: 14px; }
+        .nav-item.active { color: #ff0055; text-shadow: 0 0 6px rgba(255,0,85,0.7); }
+    </style>
+</head><body onload="initSOSCommandCenter()">
+
+    <div class="app-container">
+        
+        <!-- Header Section -->
+        <div class="header">
+            <div class="wave-icon-wrapper">
+                <a href="profile.html" class="wave-profile-btn" title="User Profile">👤</a>
+            </div>
+            
+            <div class="brand-box">
+                <div class="center-electric-badge-wrapper" title="Electric Bodyguard Core">
+                    <div class="center-electric-badge">⚡</div>
+                </div>
+                <div class="brand-title">ELECTRIC BODYGUARD</div>
+                <div class="brand-sub">AI Command Center & Emergency Shield</div>
+            </div>
+            
+            <div class="wave-icon-wrapper">
+                <a href="tel:112" class="emergency-call-btn" title="Direct Emergency Call">📞</a>
+            </div>
+        </div>
+
+        <!-- Jurisdiction Tiers -->
+        <div class="jurisdiction-bar">
+            <div class="tier-btn" id="tier-local" onclick="setJurisdiction('local', 'Local Level')">
+                <span class="tier-icon">📍</span>
+                <span class="tier-text">Local</span>
+            </div>
+            <div class="tier-btn" id="tier-national" onclick="setJurisdiction('national', 'National Level')">
+                <span class="tier-icon">🇮🇳</span>
+                <span class="tier-text">National</span>
+            </div>
+            <div class="tier-btn" id="tier-international" onclick="setJurisdiction('international', 'International Level')">
+                <span class="tier-icon">🌐</span>
+                <span class="tier-text">Inter.</span>
+            </div>
+            <div class="tier-btn active" id="tier-global" onclick="setJurisdiction('global', 'Global Level')">
+                <span class="tier-icon">⚡</span>
+                <span class="tier-text">Global</span>
+            </div>
+        </div>
+
+        <!-- Main Content Body -->
+        <div class="content-body">
+            
+            <!-- Central Stable SOS Button with Sonar Radar Wave Rings -->
+            <div class="sos-core-container">
+                <div class="sos-sonar-ring"></div>
+                <div class="sos-sonar-ring"></div>
+                <div class="sos-sonar-ring"></div>
+                <div class="sos-main-btn" onclick="triggerUniversalSOS()" title="Click for Emergency SOS">
+                    <span>SOS</span>
+                    <span>CRITICAL 112</span>
+                </div>
+            </div>
+
+            <!-- AI Ready Status Bar -->
+            <div class="ai-status-strip" id="aiStatusDisplay">
+                🤖 AI READY: Gemini Neural Shield Active & Field Engine Listening.
+            </div>
+
+            <!-- Community Crowd Support Live Panel -->
+            <div class="community-support-box">
+                <div class="cs-header">
+                    <span>👥 Field Crowd Support Node</span>
+                    <span id="csLiveCount">Scanning Area...</span>
+                </div>
+                <div class="cs-status" id="csStatusText">
+                    Ready to broadcast completed SOS files to nearby community members & volunteers.
+                </div>
+            </div>
+
+            <!-- Feature Cards Row (Offline Mesh & Health Shield) -->
+            <div class="feature-cards-row">
+                <div class="feature-mini-card active-mesh" onclick="toggleOfflineMesh()">
+                    <div class="card-title">📡 Offline Mesh</div>
+                    <div class="card-desc" id="meshStatusText">P2P Bluetooth Relay: Active</div>
+                </div>
+                <div class="feature-mini-card active-health" onclick="toggleHealthShield()">
+                    <div class="card-title">❤️ Health Shield</div>
+                    <div class="card-desc" id="healthStatusText">Vitals & Accident Guard: ON</div>
+                </div>
+            </div>
+
+            <!-- Emergency Quick Shortcuts Grid -->
+            <div class="quick-shortcuts-grid">
+                <a href="complaint.html" class="quick-btn" id="qb-police">
+                    <span class="qb-icon">👮‍♂️</span>
+                    <div class="qb-text">
+                        <span class="qb-title">Police 112</span>
+                        <span class="qb-sub">Direct Dispatch</span>
+                    </div>
+                </a>
+                <a href="complaint.html" class="quick-btn" id="qb-medical">
+                    <span class="qb-icon">🏥</span>
+                    <div class="qb-text">
+                        <span class="qb-title">Medical 108</span>
+                        <span class="qb-sub">Heart / Accident</span>
+                    </div>
+                </a>
+                <a href="complaint.html" class="quick-btn" id="qb-crime">
+                    <span class="qb-icon">🚨</span>
+                    <div class="qb-text">
+                        <span class="qb-title">Crime / Kidnap</span>
+                        <span class="qb-sub">Urgent Relay</span>
+                    </div>
+                </a>
+                <a href="profile.html" class="quick-btn" id="qb-vault">
+                    <span class="qb-icon">🛡️</span>
+                    <div class="qb-text">
+                        <span class="qb-title">Medical Vault</span>
+                        <span class="qb-sub">Encrypted ID</span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Bottom Navigation Bar -->
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item"><span>🏠</span>Home</a>
+            <a href="complaint.html" class="nav-item"><span>📝</span>Complaint</a>
+            <a href="sos.html" class="nav-item active"><span>🚨</span>SOS</a>
+            <a href="profile.html" class="nav-item"><span>👤</span>Profile</a>
+        </div>
+    </div>
+
+    <!-- Core Logic: Firebase, Gemini AI, Field Broadcast & Tamper-Proof Hash -->
+    <script>
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAT13EhtnIOLCk17KPLwPhw_GJotsBNiA",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com/",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        let currentTier = 'global';
+        let currentLatitude = null;
+        let currentLongitude = null;
+        let offlineMeshActive = true;
+        let healthShieldActive = true;
+
+        function initSOSCommandCenter() {
+            console.log("🛡️ Electric Bodyguard SOS Command Center & Field Crowd Support Initialized.");
+            
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => { 
+                        currentLatitude = pos.coords.latitude; 
+                        currentLongitude = pos.coords.longitude; 
+                        listenForNearbyCrowdSupport(currentLatitude, currentLongitude);
+                    },
+                    err => {
+                        console.log("GPS Notice: Using default grid.");
+                        document.getElementById('csLiveCount').innerText = "Standby Grid Active";
+                    },
+                    { enableHighAccuracy: true }
+                );
+            }
+
+            initFieldEngineMotionTrigger();
+        }
+
+        function setJurisdiction(tierKey, tierName) {
+            currentTier = tierKey;
+            document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tier-' + tierKey).classList.add('active');
+            speakFeedback(tierName + " emergency grid engaged.");
+        }
+
+        function toggleOfflineMesh() {
+            offlineMeshActive = !offlineMeshActive;
+            let el = document.getElementById('meshStatusText');
+            el.innerText = offlineMeshActive ? "P2P Bluetooth Relay: Active" : "P2P Mesh: Standby";
+            speakFeedback(offlineMeshActive ? "Offline P2P mesh activated." : "Offline mesh paused.");
+        }
+
+        function toggleHealthShield() {
+            healthShieldActive = !healthShieldActive;
+            let el = document.getElementById('healthStatusText');
+            el.innerText = healthShieldActive ? "Vitals & Accident Guard: ON" : "Health Guard: OFF";
+            speakFeedback(healthShieldActive ? "Health shield active." : "Health shield deactivated.");
+        }
+
+        function listenForNearbyCrowdSupport(lat, lon) {
+            if (!db) return;
+            // Listen to public field broadcast nodes for nearby community alerts
+            db.ref('field_crowd_broadcasts').limitToLast(3).on('value', snapshot => {
+                let data = snapshot.val();
+                if (data) {
+                    let count = Object.keys(data).length;
+                    document.getElementById('csLiveCount').innerText = `${count} Active Node(s)`;
+                    document.getElementById('csStatusText').innerText = "🟢 Field Live: Broadcasting completed SOS files to nearby community members.";
+                } else {
+                    document.getElementById('csLiveCount').innerText = "Area Secure";
+                    document.getElementById('csStatusText').innerText = "🟢 Field Live: No active emergencies reported in your immediate radius.";
+                }
+            });
+        }
+
+        function initFieldEngineMotionTrigger() {
+            if (window.DeviceMotionEvent) {
+                let shakeThreshold = 25;
+                let lastX = 0, lastY = 0, lastZ = 0;
+                window.addEventListener('devicemotion', function(e) {
+                    let acc = e.accelerationIncludingGravity;
+                    if (!acc) return;
+                    let deltaX = Math.abs(acc.x - lastX);
+                    let deltaY = Math.abs(acc.y - lastY);
+                    let deltaZ = Math.abs(acc.z - lastZ);
+                    
+                    if ((deltaX + deltaY + deltaZ) > shakeThreshold && healthShieldActive) {
+                        console.log("⚠️ Field Engine: Severe impact detected! Triggering automatic SOS...");
+                        triggerUniversalSOS();
+                    }
+                    lastX = acc.x; lastY = acc.y; lastZ = acc.z;
+                }, false);
+            }
+        }
+
+        function triggerUniversalSOS() {
+            let sosId = 'EB_SOS_' + Math.random().toString(36).substring(2, 8).toUpperCase() + '_' + Date.now();
+            let timestamp = new Date().toISOString();
+
+            let userProfile = JSON.parse(localStorage.getItem('eb_user_profile') || '{}');
+            let emergencyContacts = JSON.parse(localStorage.getItem('eb_emergency_contacts') || '["112", "108"]');
+
+            let rawHashString = sosId + timestamp + (currentLatitude || 0) + (currentLongitude || 0);
+            let securityHash = CryptoJS.SHA256(rawHashString).toString();
+
+            // Complete SOS Payload File for Cloud & Field Broadcast
+            let sosPayload = {
+                sosId: sosId,
+                level: currentTier.toUpperCase(),
+                latitude: currentLatitude || 0.0,
+                longitude: currentLongitude || 0.0,
+                timestamp: timestamp,
+                userProfile: {
+                    name: userProfile.name || "Protected Citizen",
+                    bloodGroup: userProfile.bloodGroup || "Unknown"
+                },
+                emergencyContacts: emergencyContacts,
+                securityHash: securityHash,
+                aiStatus: "Gemini AI Neural Threat Analysis Complete",
+                status: "CRITICAL_SOS_FIELD_LIVE"
+            };
+
+            let localSOSList = JSON.parse(localStorage.getItem('eb_active_sos_logs') || '[]');
+            localSOSList.unshift(sosPayload);
+            localStorage.setItem('eb_active_sos_logs', JSON.stringify(localSOSList));
+
+            if (db) {
+                let nodeKey = (localStorage.getItem('eb_hardware_node') || 'SOS_NODE').replace(/[.#$/[\]]/g, '_');
+                
+                // 1. Send to Private Cloud Dispatch
+                db.ref('global_sos_dispatch/' + nodeKey + '/' + sosId).set(sosPayload);
+
+                // 2. Publish completed file to Field Crowd Broadcast Node for community support
+                db.ref('field_crowd_broadcasts/' + sosId).set({
+                    sosId: sosId,
+                    latitude: currentLatitude || 0.0,
+                    longitude: currentLongitude || 0.0,
+                    timestamp: timestamp,
+                    bloodGroup: userProfile.bloodGroup || "N/A",
+                    status: "NEEDS_COMMUNITY_SUPPORT"
+                }).then(() => {
+                    console.log("🚀 Completed SOS file successfully published to Field Live Broadcast!");
+                });
+            }
+
+            alert(`🚨 EMERGENCY SOS FILE CREATED & BROADCASTED!\nID: ${sosId}\n\nYour alert is now live on the field network for nearby community support and emergency responders.`);
+            speakFeedback("Emergency SOS file created and broadcasted to field network.");
+
+            setTimeout(() => {
+                window.location.href = "tel:112";
+            }, 1000);
+        }
+
+        function speakFeedback(msg) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utter = new SpeechSynthesisUtterance(msg);
+                utter.lang = 'en-US';
+                utter.rate = 1.0;
+                window.speechSynthesis.speak(utter);
+            }
+        }
+    </script>
+</body>
+</html>

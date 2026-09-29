@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Bodyguard - Global Lifeline & Help Hub</title>
+    <!-- Firebase SDK Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #000206;
+            --panel-bg: rgba(2, 6, 17, 0.99);
+            --card-bg: #050d1a;
+            --primary-glow: #00f3ff;
+            --accent-orange: #ff8800;
+            --accent-green: #00ff66;
+            --text-main: #ffffff;
+            --text-muted: #94b8db;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .phone-frame {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            max-height: 700px;
+            background: var(--panel-bg);
+            border: 2.5px solid var(--primary-glow);
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.35);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .app-wrapper {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .app-wrapper::-webkit-scrollbar { width: 3px; }
+        .app-wrapper::-webkit-scrollbar-thumb { background: var(--primary-glow); border-radius: 10px; }
+
+        /* हेडर डिजाइन - समुद्री तरंगों (Sonar Ripples) वाला 3D एनीमेशन */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px dashed rgba(0, 243, 255, 0.4);
+            padding-bottom: 12px;
+            padding-top: 8px;
+        }
+
+        /* वेव कंटेनर ताकि तरंगें बाहर की तरफ फैल सकें */
+        .header-icon-wrapper {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-avatar-btn, .header-radar-icon {
+            width: 38px;
+            height: 38px;
+            border: 2px solid var(--primary-glow);
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 243, 255, 0.2);
+            text-decoration: none;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 15px rgba(0,243,255,0.7);
+        }
+        .profile-avatar-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .header-radar-icon {
+            font-size: 16px;
+        }
+
+        /* समुद्री जहाज जैसी बाहर फैलने वाली गोल तरंगें (Sonar Wave Ripples Effect) */
+        .header-icon-wrapper::before,
+        .header-icon-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 38px;
+            height: 38px;
+            border: 1.5px solid var(--primary-glow);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            animation: sonarWave 2s linear infinite;
+            pointer-events: none;
+        }
+
+        .header-icon-wrapper::after {
+            animation-delay: 1s;
+        }
+
+        @keyframes sonarWave {
+            0% {
+                width: 38px;
+                height: 38px;
+                opacity: 1;
+            }
+            100% {
+                width: 85px;
+                height: 85px;
+                opacity: 0;
+            }
+        }
+
+        .brand-container { text-align: center; flex: 1; padding: 0 4px; }
+        .brand-title {
+            font-size: 13.5px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: #fff;
+            text-shadow: 0 0 8px var(--primary-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .pulsing-bolt {
+            color: var(--primary-glow);
+            font-size: 15px;
+            animation: boltPulse 0.7s ease-in-out infinite alternate;
+        }
+        @keyframes boltPulse {
+            0% { transform: scale(0.85); filter: drop-shadow(0 0 2px var(--primary-glow)); }
+            100% { transform: scale(1.3); filter: drop-shadow(0 0 10px var(--primary-glow)); }
+        }
+        .brand-subtitle { font-size: 7px; color: var(--primary-glow); font-weight: 900; text-transform: uppercase; margin-top: 2px; }
+
+        .help-card {
+            background: var(--card-bg);
+            border: 1.5px solid rgba(0, 243, 255, 0.4);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .help-title { font-size: 11px; font-weight: 900; color: var(--primary-glow); text-transform: uppercase; }
+        .help-desc { font-size: 8.5px; color: var(--text-muted); line-height: 1.2; font-weight: 700; }
+        
+        .action-ticket-btn {
+            background: linear-gradient(135deg, #ff6600, var(--accent-orange));
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 8.5px;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .action-ticket-btn:active { transform: scale(0.98); }
+
+        .terminal-footer {
+            display: flex;
+            justify-content: space-around;
+            background: #000206;
+            padding: 8px;
+            border-top: 1.5px dashed rgba(0, 243, 255, 0.3);
+            flex-shrink: 0;
+        }
+        .terminal-footer a {
+            background: #010409;
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 900;
+        }
+        .terminal-footer a.active { border-color: var(--primary-glow); color: var(--primary-glow); }
+    </style>
+</head>
+<body onload="initHelpDesk()">
+    <div class="phone-frame">
+        <div class="app-wrapper">
+            <!-- अपडेटेड हेडर: दोनों तरफ सोनार तरंगों (Waves) वाला 3D एनीमेशन -->
+            <div class="app-header">
+                <div class="header-icon-wrapper">
+                    <a href="profile.html" class="profile-avatar-btn" title="User Profile">
+                        <img id="header_user_avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f3ff'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" alt="Profile">
+                    </a>
+                </div>
+                
+                <div class="brand-container">
+                    <div class="brand-title">
+                        ELECTRIC <span class="pulsing-bolt">⚡</span> BODYGUARD
+                    </div>
+                    <div class="brand-subtitle">AI LIFELINE HUB</div>
+                </div>
+
+                <div class="header-icon-wrapper">
+                    <a href="sos.html" class="header-radar-icon" title="Satellite SOS Telemetry">📡</a>
+                </div>
+            </div>
+
+            <!-- 1. AI Legal & Crisis Assistant -->
+            <div class="help-card" style="border-color: var(--accent-green);">
+                <div class="help-title" style="color: var(--accent-green);">🛡️ 1. AI Legal & Crisis Assistant</div>
+                <div class="help-desc">Get pinpoint AI solutions for worldwide crises, emergency rights, and legal guidance instantly.</div>
+                <button class="action-ticket-btn" style="background: linear-gradient(135deg, #00aa44, var(--accent-green)); color:#000;" onclick="triggerHelpAction('AI Legal Assistant', 'Opening secure AI global crisis consultant.')">Start AI Crisis Chat</button>
+            </div>
+
+            <!-- 2. General Support Ticket -->
+            <div class="help-card">
+                <div class="help-title">🎫 2. General Support Ticket</div>
+                <div class="help-desc">Generate an official support ticket for general system inquiries, complaints, or grievances.</div>
+                <button class="action-ticket-btn" onclick="triggerHelpAction('Support Ticket', 'Generating general support ticket.')">Create Ticket</button>
+            </div>
+
+            <!-- 3. Phone Theft & Loss Support -->
+            <div class="help-card">
+                <div class="help-title">📱 3. Phone Theft & Loss Support</div>
+                <div class="help-desc">Report device theft or loss. Secure cloud evidence logs and telemetry tracking initiated.</div>
+                <button class="action-ticket-btn" onclick="triggerHelpAction('Phone Theft Support', 'Initiating phone theft secure protocol.')">Request Support</button>
+            </div>
+
+            <!-- 4. Kidnapping & Assault Records -->
+            <div class="help-card">
+                <div class="help-title">🚨 4. Kidnapping & Assault Records</div>
+                <div class="help-desc">Request immediate cloud evidence preservation and legal aid for assault or abduction cases.</div>
+                <button class="action-ticket-btn" onclick="triggerHelpAction('Assault Records', 'Requesting emergency assault record verification.')">Request Records</button>
+            </div>
+
+            <!-- 5. Disaster & Flood Relief Support -->
+            <div class="help-card" style="border-color: #ff3333;">
+                <div class="help-title" style="color: #ff3333;">🚑 5. Disaster & Flood Relief Support</div>
+                <div class="help-desc">Emergency lifeline for floods, fires, natural disasters, or accidents. Dispatches live telemetry.</div>
+                <button class="action-ticket-btn" style="background: linear-gradient(135deg, #ff0033, #ff6600); color:#fff;" onclick="triggerHelpAction('Disaster & Flood Relief', 'Broadcasting global disaster and flood relief SOS request.')">Request Disaster Help</button>
+            </div>
+
+            <!-- 6. Cyber Fraud & Data Copy Request -->
+            <div class="help-card">
+                <div class="help-title">🔒 6. Cyber Fraud & Data Copy Request</div>
+                <div class="help-desc">Secure certified copies of digital evidence and telemetry logs for cyber fraud investigations.</div>
+                <button class="action-ticket-btn" onclick="triggerHelpAction('Cyber Fraud Support', 'Submitting cyber fraud log request.')">Request Data Copy</button>
+            </div>
+        </div>
+
+        <!-- Footer Navigation -->
+        <div class="terminal-footer">
+            <a href="index.html" title="Home">🏠</a>
+            <a href="profile.html" title="Profile">👤</a>
+            <a href="sos.html" title="SOS">🚨</a>
+            <a href="helpdesk.html" class="active" title="Help">❓</a>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAT13EhtnIOLCk17KPLwPhw_GJotsBNiA",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com/",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        const GEMINI_API_KEY = "AIzaSyAT13EhtnIOLCk17KPLwPhw_GJotsBNiA";
+        let currentLatitude = null;
+        let currentLongitude = null;
+
+        function speakHelpGuide(message) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let speech = new SpeechSynthesisUtterance(message);
+                speech.lang = 'hi-IN';
+                window.speechSynthesis.speak(speech);
+            }
+        }
+
+        function initHelpDesk() {
+            let savedProfile = JSON.parse(localStorage.getItem('eb_user_profile') || '{}');
+            if (savedProfile.avatar) {
+                document.getElementById('header_user_avatar').src = savedProfile.avatar;
+            }
+
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        currentLatitude = position.coords.latitude;
+                        currentLongitude = position.coords.longitude;
+                    },
+                    function(error) { console.log("GPS unavailable"); },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            }
+        }
+
+        async function refineWithGeminiAI(userText) {
+            if (!navigator.onLine) return userText;
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            const promptText = `आप एक लीगल एडवाइज़र हैं। इस हेल्प डेस्क टिकट/समस्या को औपचारिक (Formal) और कानूनी रूप में बदलें: "${userText}"`;
+            try {
+                let res = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+                });
+                let data = await res.json();
+                return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || userText;
+            } catch(e) {
+                return userText;
+            }
+        }
+
+        async function triggerHelpAction(moduleName, alertMsg) {
+            speakHelpGuide(alertMsg);
+            let userRemark = prompt("कृपया अपनी समस्या या विवरण दर्ज करें (Optional):", moduleName + " Request");
+            if (userRemark === null) return;
+
+            let refinedText = await refineWithGeminiAI(userRemark);
+
+            let timestamp = new Date().toLocaleString();
+            let postId = 'help_' + Date.now();
+
+            let postData = {
+                id: postId,
+                type: 'help_desk_ticket',
+                text: `[HELP DESK - ${moduleName}] ${refinedText}`,
+                timestamp: timestamp,
+                author: 'Lifeline User',
+                shieldCount: 1,
+                poll: { yes: 0, no: 0 },
+                latitude: currentLatitude || 0.0,
+                longitude: currentLongitude || 0.0,
+                synced: true
+            };
+
+            if (db) {
+                db.ref('global_vault_posts/' + postId).set(postData).catch(err => {
+                    console.log("Firebase sync fallback");
+                });
+            }
+
+            let localPosts = JSON.parse(localStorage.getItem('eb_autonomous_vault_cache') || '[]');
+            localPosts.unshift(postData);
+            localStorage.setItem('eb_autonomous_vault_cache', JSON.stringify(localPosts));
+
+            alert("✅ हेल्प डेस्क टिकट सफलतापूर्व दर्ज हो गया और होम फीड पर लाइव कर दिया गया है!");
+        }
+    </script>
+</body>
+</html>

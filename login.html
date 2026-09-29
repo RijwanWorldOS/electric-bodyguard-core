@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Bodyguard - Unbreakable Secure Portal</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        :root { --bg-device: #010308; --panel-bg: #050a14; --card-bg: #091122; --border-glow: rgba(0, 243, 255, 0.6); --text-main: #e0f7fa; --text-muted: #546e7a; --accent-primary: #00f3ff; --accent-secondary: #0066ff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+        
+        body { 
+            background-color: var(--bg-device); 
+            color: var(--text-main); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            padding: 10px; 
+        }
+        
+        .phone-frame {
+            width: 100%; 
+            max-width: 420px; 
+            height: 100%;
+            max-height: 92vh;
+            background: var(--panel-bg);
+            border: 2px solid var(--accent-primary); 
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.4), inset 0 0 15px rgba(0, 243, 255, 0.1);
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-wrapper {
+            flex: 1;
+            padding: 14px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px;
+            overflow-y: auto;
+        }
+        .app-wrapper::-webkit-scrollbar { width: 4px; }
+        .app-wrapper::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 10px; }
+
+        .premium-header {
+            background: linear-gradient(135deg, rgba(0,102,255,0.2), rgba(0,243,255,0.1));
+            border: 1px solid var(--accent-primary); border-radius: 12px;
+            padding: 10px; text-align: center; position: relative;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.25);
+            flex-shrink: 0;
+        }
+        .electric-logo {
+            font-size: 24px; margin-bottom: 2px; display: inline-block;
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            0% { transform: scale(1); text-shadow: 0 0 5px #00f3ff; }
+            100% { transform: scale(1.12); text-shadow: 0 0 20px #00f3ff, 0 0 35px #ff0033; }
+        }
+        .header-title { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px var(--accent-primary); }
+        .header-subtitle { font-size: 7px; color: #00ff66; font-weight: 800; margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
+
+        .voice-helper-banner {
+            background: rgba(0, 243, 255, 0.08); border-left: 3px solid var(--accent-primary);
+            padding: 6px 8px; font-size: 8.5px; line-height: 1.3; color: #b2ebf2; border-radius: 0 6px 6px 0;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .voice-btn { background: var(--accent-primary); color: #010308; border: none; padding: 3px 6px; border-radius: 4px; font-size: 7.5px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+
+        .input-group { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
+        .input-group label { font-size: 7.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+        
+        .input-field, .select-field {
+            background: rgba(2, 5, 11, 0.95); border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 6px; color: #fff; padding: 8px 10px; font-size: 10.5px; outline: none; width: 100%;
+            transition: 0.3s;
+        }
+        .input-field:focus, .select-field:focus { border-color: var(--accent-primary); box-shadow: 0 0 10px rgba(0, 243, 255, 0.4); }
+
+        .contact-row { display: flex; gap: 5px; }
+        .contact-btn {
+            background: rgba(0, 243, 255, 0.15); border: 1px solid var(--accent-primary);
+            color: var(--accent-primary); padding: 0 10px; border-radius: 6px; font-size: 8.5px;
+            font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.2s;
+        }
+        .contact-btn:active { background: var(--accent-primary); color: #010308; }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            color: #010308; border: none; border-radius: 8px; padding: 11px;
+            font-size: 10.5px; font-weight: 900; text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); transition: 0.3s; margin-top: 4px; letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+        .action-btn:active { transform: scale(0.97); }
+
+        .terminal-footer { display: flex; justify-content: space-around; background: #010308; padding: 8px; border-top: 1px dashed rgba(0, 243, 255, 0.2); flex-shrink: 0; }
+        .terminal-footer a { color: var(--text-muted); font-size: 8.5px; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .terminal-footer a.active { color: var(--accent-primary); text-shadow: 0 0 8px rgba(0,242,255,0.6); }
+    </style>
+</head>
+<body onload="initPortal()">
+
+    <div class="phone-frame">
+        <div class="app-wrapper">
+            
+            <div class="premium-header">
+                <div class="electric-logo">🛡️⚡</div>
+                <div class="header-title">Electric Bodyguard</div>
+                <div class="header-subtitle">Unbreakable Autonomous Shield</div>
+            </div>
+
+            <div class="voice-helper-banner">
+                <span id="voice_msg">🎙️ वॉइस गाइड सक्रिय है...</span>
+                <button class="voice-btn" onclick="playWelcomeVoice()">सुने</button>
+            </div>
+
+            <div class="input-group">
+                <label>1. आपका पूरा नाम (Operator Name)</label>
+                <input type="text" id="reg_name" class="input-field" placeholder="अपना पूरा नाम दर्ज करें">
+            </div>
+
+            <div class="input-group">
+                <label>2. ऑटो-जेनरेटेड सिक्योर नोड आईडी (Auto Node ID)</label>
+                <input type="text" id="reg_node_id" class="input-field" readonly style="color: #00ff66; background: rgba(0,255,102,0.05); font-weight: 900;">
+            </div>
+
+            <div class="input-group">
+                <label>3. 4-अंकों का सिक्योर वॉइस फुटप्रिंट पिन (Voice PIN)</label>
+                <input type="text" id="reg_voice_pin" class="input-field" readonly style="color: #00f3ff; background: rgba(0,243,255,0.05); font-weight: 900;">
+            </div>
+
+            <div class="input-group">
+                <label>4. सुरक्षा श्रेणी (Security Class)</label>
+                <select id="reg_class" class="select-field">
+                    <option value="lower">Lower Class Node (साइबर ब्लू)</option>
+                    <option value="middle">Middle Class Node (एम्बर गोल्ड)</option>
+                    <option value="business">Business Class Node (एमरल्ड ग्रीन)</option>
+                    <option value="vip">VIP Secure Node (रॉयल पर्पल)</option>
+                    <option value="officer">Officer Commander Node (कमांडर रेड)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>5. आपका मोबाइल नंबर (Primary Phone)</label>
+                <input type="tel" id="reg_phone" class="input-field" placeholder="10-अंकों का मुख्य मोबाइल नंबर">
+            </div>
+
+            <div class="input-group">
+                <label>6. ब्लड ग्रुप (वैकल्पिक / Optional)</label>
+                <select id="reg_blood" class="select-field">
+                    <option value="Unknown">पता नहीं / बाद में अपडेट करें</option>
+                    <option value="O+">O Positive (O+)</option>
+                    <option value="O-">O Negative (O-)</option>
+                    <option value="A+">A Positive (A+)</option>
+                    <option value="B+">B Positive (B+)</option>
+                    <option value="AB+">AB Positive (AB+)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>7. मेडिकल नोट्स (बीमारी या एलर्जी)</label>
+                <input type="text" id="reg_medical" class="input-field" placeholder="विशेष मेडिकल स्थिति (खाली भी छोड़ सकते हैं)">
+            </div>
+
+            <div class="input-group">
+                <label>8. 4 SOS इमरजेंसी गार्डियंस (सपोर्ट नेटवर्क)</label>
+                <div class="contact-row" style="margin-bottom:3px;">
+                    <input type="tel" id="g1" class="input-field" placeholder="गार्डियन 1 नंबर">
+                    <button class="contact-btn" onclick="pickContact('g1')">📖 चुनें</button>
+                </div>
+                <div class="contact-row" style="margin-bottom:3px;">
+                    <input type="tel" id="g2" class="input-field" placeholder="गार्डियन 2 नंबर">
+                    <button class="contact-btn" onclick="pickContact('g2')">📖 चुनें</button>
+                </div>
+                <div class="contact-row" style="margin-bottom:3px;">
+                    <input type="tel" id="g3" class="input-field" placeholder="गार्डियन 3 नंबर">
+                    <button class="contact-btn" onclick="pickContact('g3')">📖 चुनें</button>
+                </div>
+                <div class="contact-row">
+                    <input type="tel" id="g4" class="input-field" placeholder="गार्डियन 4 नंबर">
+                    <button class="contact-btn" onclick="pickContact('g4')">📖 चुनें</button>
+                </div>
+            </div>
+
+            <button class="action-btn" onclick="registerUserNode()">🔒 सुरक्षित करें और प्रोफाइल पर चलें</button>
+        </div>
+
+        <div class="terminal-footer">
+            <a href="login.html" class="active">🏠 रजिस्टर</a>
+            <a href="profile.html">👤 प्रोफाइल</a>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyAT13EhtnIOLCk17KPLwPhw_GJotsBNiA", databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com/", projectId: "vendorawaaz-4a0a5", storageBucket: "vendorawaaz-4a0a5.appspot.com" };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        function initPortal() {
+            // अगर पहले से डेटा है तो री-जेनरेट न करें, वही रखें
+            let existingProfile = localStorage.getItem('eb_user_profile');
+            if (existingProfile) {
+                let parsed = JSON.parse(existingProfile);
+                document.getElementById('reg_node_id').value = parsed.nodeId || 'EB-NODE-' + Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('reg_voice_pin').value = parsed.voicePin || 'VPIN-' + Math.floor(1000 + Math.random() * 9000);
+                document.getElementById('reg_name').value = parsed.operatorName || '';
+                document.getElementById('reg_class').value = parsed.securityClass || 'lower';
+                document.getElementById('reg_phone').value = parsed.phone || '';
+                document.getElementById('reg_blood').value = parsed.bloodGroup || 'Unknown';
+                document.getElementById('reg_medical').value = parsed.medical !== 'None' ? parsed.medical : '';
+                if(parsed.sosGuards && parsed.sosGuards.length === 4) {
+                    document.getElementById('g1').value = parsed.sosGuards[0] !== 'N/A' ? parsed.sosGuards[0] : '';
+                    document.getElementById('g2').value = parsed.sosGuards[1] !== 'N/A' ? parsed.sosGuards[1] : '';
+                    document.getElementById('g3').value = parsed.sosGuards[2] !== 'N/A' ? parsed.sosGuards[2] : '';
+                    document.getElementById('g4').value = parsed.sosGuards[3] !== 'N/A' ? parsed.sosGuards[3] : '';
+                }
+            } else {
+                let randomId = 'EB-NODE-' + Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('reg_node_id').value = randomId;
+                let randomVoicePin = 'VPIN-' + Math.floor(1000 + Math.random() * 9000);
+                document.getElementById('reg_voice_pin').value = randomVoicePin;
+            }
+            
+            setTimeout(() => {
+                playWelcomeVoice();
+            }, 1000);
+        }
+
+        function playWelcomeVoice() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let welcomeText = "इलेक्ट्रिक बॉडीगार्ड की दुनिया में आपका स्वागत है। आज से आपकी सुरक्षा की जिम्मेदारी अब मेरी है। यह सिस्टम पूरी तरह आत्मनिर्भर है। चाहे नेटवर्क हो या न हो, आपका डेटा हमेशा सुरक्षित रहेगा। कृपया अपने चारों इमरजेंसी गार्डियन नंबर जरूर जोड़ें।";
+                let speech = new SpeechSynthesisUtterance(welcomeText);
+                speech.lang = 'hi-IN';
+                speech.rate = 0.95;
+                window.speechSynthesis.speak(speech);
+            }
+        }
+
+        async function pickContact(fieldId) {
+            if ('contacts' in navigator && 'select' in navigator.contacts) {
+                try {
+                    const contacts = await navigator.contacts.select(['tel'], { multiple: false });
+                    if (contacts.length > 0 && contacts[0].tel.length > 0) {
+                        document.getElementById(fieldId).value = contacts[0].tel[0];
+                    }
+                } catch (ex) {
+                    alert("⚠️ कांटेक्ट चुनने में असमर्थ, कृपया नंबर टाइप कर लें।");
+                }
+            } else {
+                alert("💡 भाई, आपके ब्राउज़र में डायरेक्ट कांटेक्ट पिकर उपलब्ध नहीं है। आप सीधे नंबर टाइप कर सकते हैं!");
+            }
+        }
+
+        function registerUserNode() {
+            let name = document.getElementById('reg_name').value.trim();
+            let nodeId = document.getElementById('reg_node_id').value.trim();
+            let voicePin = document.getElementById('reg_voice_pin').value.trim();
+            let secClass = document.getElementById('reg_class').value;
+            let phone = document.getElementById('reg_phone').value.trim();
+            let blood = document.getElementById('reg_blood').value;
+            let medical = document.getElementById('reg_medical').value.trim();
+            let g1 = document.getElementById('g1').value.trim();
+            let g2 = document.getElementById('g2').value.trim();
+            let g3 = document.getElementById('g3').value.trim();
+            let g4 = document.getElementById('g4').value.trim();
+
+            if (!name || !phone) {
+                alert("⚠️ भाई, अपना नाम और मुख्य मोबाइल नंबर ज़रूर भरें!");
+                return;
+            }
+
+            let profileData = {
+                operatorName: name,
+                nodeId: nodeId,
+                voicePin: voicePin,
+                securityClass: secClass,
+                phone: phone,
+                bloodGroup: blood,
+                medical: medical || 'None',
+                sosGuards: [g1 || 'N/A', g2 || 'N/A', g3 || 'N/A', g4 || 'N/A'],
+                sosTriggerCount: 0,
+                createdAt: new Date().toISOString()
+            };
+
+            // 1. सबसे पहले ऑफलाइन लोकल स्टोरेज में पक्का सेव करें (भले ही दुनिया का इंटरनेट उड़ जाए)
+            localStorage.setItem('eb_user_profile', JSON.stringify(profileData));
+
+            // 2. बैकग्राउंड में सर्वर पर भेजने की कोशिश करें (Self-Healing / Auto Sync)
+            let safeKey = nodeId.replace(/[.#$[\]]/g, '_');
+            db.ref('security_nodes/' + safeKey).set(profileData, (error) => {
+                if (error) {
+                    console.log("⚠️ सर्वर ऑफलाइन है, लेकिन आपका डेटा लोकल डिवाइस में पूरी तरह सुरक्षित है।");
+                }
+            });
+
+            // तुरंत प्रोफाइल पेज पर भेजें ताकि यूजर अटके नहीं
+            window.location.href = "profile.html";
+        }
+    </script>
+</body>
+</html>

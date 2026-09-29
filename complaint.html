@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Bodyguard - Global Secure Legal Relay</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Crypto-JS for Tamper-Proof SHA-256 Hashing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #030712; color: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        .app-container { width: 100%; max-width: 420px; height: 95vh; max-height: 860px; background: #0b0f19; border: 2.5px solid #00f2ff; border-radius: 26px; display: flex; flex-direction: column; overflow: hidden; position: relative; box-shadow: 0 0 40px rgba(0, 242, 255, 0.35); }
+
+        .header { background: #090d16; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00f2ff; flex-shrink: 0; }
+        
+        .wave-icon-wrapper { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .wave-profile-btn, .wave-scales-box { width: 38px; height: 38px; background: #111827; border: 2px solid #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; text-decoration: none; z-index: 2; position: relative; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+        .wave-scales-box { border-color: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+
+        .wave-icon-wrapper::after {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 38px; height: 38px; border-radius: 50%; border: 2px solid currentColor; transform: translate(-50%, -50%); animation: circularWaveRays 2s infinite linear; pointer-events: none; z-index: 1;
+        }
+        .wave-profile-wrapper::after { border-color: #38bdf8; }
+        .wave-scales-wrapper::after { border-color: #f59e0b; }
+
+        @keyframes circularWaveRays {
+            0% { width: 38px; height: 38px; opacity: 1; }
+            100% { width: 75px; height: 75px; opacity: 0; }
+        }
+
+        .brand-box { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; padding: 0 6px; }
+        .center-electric-badge { width: 32px; height: 32px; background: rgba(0, 242, 255, 0.2); border: 2px solid #00f2ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; margin-bottom: 2px; box-shadow: 0 0 15px #00f2ff; animation: electricPulseGlow 1.2s infinite alternate; }
+
+        @keyframes electricPulseGlow {
+            0% { transform: scale(1); box-shadow: 0 0 8px #00f2ff, inset 0 0 5px #00f2ff; }
+            100% { transform: scale(1.08); box-shadow: 0 0 20px #00f2ff, 0 0 30px rgba(0,242,255,0.8), inset 0 0 10px #ffffff; }
+        }
+
+        .brand-title { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: 1.2px; text-shadow: 0 0 10px #00f2ff; }
+        .brand-sub { font-size: 8px; color: #38bdf8; font-weight: 900; text-transform: uppercase; margin-top: 1px; letter-spacing: 1px; }
+
+        .jurisdiction-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: #090d16; padding: 5px 8px; gap: 5px; border-bottom: 1px solid #1e293b; flex-shrink: 0; }
+        .tier-btn { background: #111827; border: 1.5px solid #1e293b; border-radius: 7px; padding: 5px 3px; text-align: center; cursor: pointer; }
+        .tier-btn .tier-icon { font-size: 12px; display: block; margin-bottom: 1px; }
+        .tier-btn .tier-text { font-size: 9px; color: #cbd5e1; font-weight: 900; text-transform: uppercase; display: block; }
+        #tier-local.active { border-color: #10b981; background: rgba(16, 185, 129, 0.2); }
+        #tier-national.active { border-color: #f59e0b; background: rgba(245, 158, 11, 0.2); }
+        #tier-international.active { border-color: #a855f7; background: rgba(168, 85, 247, 0.2); }
+        #tier-global.active { border-color: #00f2ff; background: rgba(0, 242, 255, 0.2); }
+
+        .department-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 8px 10px; background: #0b0f19; border-bottom: 1px solid #1e293b; flex-shrink: 0; }
+        .cat-ring { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #111827; border: 1.5px solid #1e293b; border-radius: 8px; padding: 5px 2px; cursor: pointer; }
+        .cat-ring .icon-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-bottom: 2px; }
+        .cat-ring span.cat-label { font-size: 9px; color: #e2e8f0; font-weight: 900; text-align: center; text-transform: uppercase; }
+        .cat-ring.selected { border-color: #ffffff; background: #1f2937; box-shadow: 0 0 10px rgba(0, 242, 255, 0.4); }
+
+        .content-body { flex: 1; padding: 8px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+
+        .active-dept-box { background: #0f172a; border: 1.5px solid #00f2ff; border-radius: 7px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: inset 0 0 10px rgba(0,242,255,0.15); }
+        .active-dept-title { font-size: 11px; font-weight: 900; color: #00f2ff; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+        .active-dept-desc { font-size: 8px; color: #38bdf8; font-weight: 700; margin-top: 1px; }
+
+        .form-group { display: flex; flex-direction: column; gap: 3px; }
+        .form-label-row { display: flex; justify-content: space-between; align-items: center; }
+        .form-label { font-size: 10px; font-weight: 900; color: #38bdf8; text-transform: uppercase; }
+        .voice-tts-btn { background: #f59e0b; border: none; border-radius: 4px; padding: 2px 5px; font-size: 8px; font-weight: 900; color: #000; cursor: pointer; }
+
+        .form-textarea { background: #111827; border: 1.5px solid #1e293b; border-radius: 7px; padding: 6px; color: #fff; font-size: 11px; font-weight: 700; outline: none; resize: none; height: 55px; }
+        .form-textarea:focus { border-color: #00f2ff; }
+
+        .evidence-box { background: #111827; border: 1.5px dashed #f59e0b; border-radius: 7px; padding: 6px; text-align: center; }
+        .evidence-box p { font-size: 9px; color: #e2e8f0; font-weight: 700; margin-bottom: 3px; }
+        .upload-file-btn { background: #1e293b; color: #f59e0b; border: 1px solid #f59e0b; padding: 4px 10px; border-radius: 5px; font-size: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+
+        .submit-btn { background: linear-gradient(135deg, #00f2ff, #2563eb); color: #000; font-weight: 900; border: none; border-radius: 8px; padding: 8px; font-size: 11px; cursor: pointer; text-transform: uppercase; text-align: center; letter-spacing: 1px; box-shadow: 0 0 15px rgba(0,242,255,0.4); }
+
+        .bottom-nav { background: #090d16; display: flex; justify-content: space-around; padding: 6px 0; border-top: 1.5px solid #1e293b; flex-shrink: 0; }
+        .nav-item { background: none; border: none; color: #94a3b8; font-size: 8px; font-weight: 900; display: flex; flex-direction: column; align-items: center; cursor: pointer; gap: 1px; text-decoration: none; text-transform: uppercase; }
+        .nav-item span { font-size: 14px; }
+        .nav-item.active { color: #00f2ff; text-shadow: 0 0 6px rgba(0,242,255,0.7); }
+    </style>
+</head><body onload="initPortalCore()">
+
+    <div class="app-container">
+        
+        <!-- Header Section -->
+        <div class="header">
+            <div class="wave-icon-wrapper wave-profile-wrapper">
+                <a href="profile.html" class="wave-profile-btn" title="User Profile">👤</a>
+            </div>
+            
+            <div class="brand-box">
+                <div class="center-electric-badge" title="Electric Bodyguard Core">⚡</div>
+                <div class="brand-title">ELECTRIC BODYGUARD</div>
+                <div class="brand-sub">Global Secure Legal Relay</div>
+            </div>
+            
+            <div class="wave-icon-wrapper wave-scales-wrapper">
+                <div class="wave-scales-box" title="Scales of Justice">⚖️</div>
+            </div>
+        </div>
+
+        <!-- Jurisdiction Tiers -->
+        <div class="jurisdiction-bar">
+            <div class="tier-btn" id="tier-local" onclick="setJurisdiction('local', 'Local Level')">
+                <span class="tier-icon">📍</span>
+                <span class="tier-text">Local</span>
+            </div>
+            <div class="tier-btn" id="tier-national" onclick="setJurisdiction('national', 'National Level')">
+                <span class="tier-icon">🇮🇳</span>
+                <span class="tier-text">National</span>
+            </div>
+            <div class="tier-btn" id="tier-international" onclick="setJurisdiction('international', 'International Level')">
+                <span class="tier-icon">🌐</span>
+                <span class="tier-text">Inter.</span>
+            </div>
+            <div class="tier-btn active" id="tier-global" onclick="setJurisdiction('global', 'Global Level')">
+                <span class="tier-icon">⚡</span>
+                <span class="tier-text">Global</span>
+            </div>
+        </div>
+
+        <!-- Department Grid (AI Guardian Active) -->
+        <div class="department-grid">
+            <div class="cat-ring selected" id="ring-police" onclick="selectDepartment('police', 'Police & Law Order', 'AI Guardian: Activating SHO legal relay & FIR template protocol.')">
+                <div class="icon-circle" style="border-color: #00f2ff; color: #00f2ff;">👮‍♂️</div>
+                <span class="cat-label">Police</span>
+            </div>
+            <div class="cat-ring" id="ring-women" onclick="selectDepartment('women', 'Human & Civil Rights', 'AI Guardian: Activating Street Vendors Act 2014 & civil rights grid.')">
+                <div class="icon-circle" style="border-color: #f59e0b; color: #f59e0b;">⚖️</div>
+                <span class="cat-label">Rights</span>
+            </div>
+            <div class="cat-ring" id="ring-municipal" onclick="selectDepartment('municipal', 'Municipal Corporation', 'AI Guardian: Directing municipal grievance & civic department relay.')">
+                <div class="icon-circle" style="border-color: #10b981; color: #10b981;">🏗️</div>
+                <span class="cat-label">Civic</span>
+            </div>
+            <div class="cat-ring" id="ring-medical" onclick="selectDepartment('medical', 'Medical & Healthcare', 'AI Guardian: Routing emergency healthcare & trauma response nodes.')">
+                <div class="icon-circle" style="border-color: #ef4444; color: #ef4444;">🏥</div>
+                <span class="cat-label">Medical</span>
+            </div>
+            <div class="cat-ring" id="ring-electricity" onclick="selectDepartment('electricity', 'Power & Energy Board', 'AI Guardian: Linking power grid infrastructure safety compliance.')">
+                <div class="icon-circle" style="border-color: #a855f7; color: #a855f7;">💡</div>
+                <span class="cat-label">Power</span>
+            </div>
+            <div class="cat-ring" id="ring-corruption" onclick="selectDepartment('corruption', 'Anti-Corruption Bureau', 'AI Guardian: Activating anti-graft transparency tracking log.')">
+                <div class="icon-circle" style="border-color: #38bdf8; color: #38bdf8;">🔍</div>
+                <span class="cat-label">Anti-Graft</span>
+            </div>
+            <div class="cat-ring" id="ring-rto" onclick="selectDepartment('rto', 'Transport & Traffic RTO', 'AI Guardian: Engaging vehicle and transport regulatory nodes.')">
+                <div class="icon-circle" style="border-color: #ec4899; color: #ec4899;">🚗</div>
+                <span class="cat-label">Transport</span>
+            </div>
+            <div class="cat-ring" id="ring-ai-auto" onclick="selectDepartment('ai-auto', 'AI Smart Auto-Detect', 'AI Guardian: Global law scanner & universal ID intelligence active.')">
+                <div class="icon-circle" style="border-color: #eab308; color: #eab308;">🤖</div>
+                <span class="cat-label">AI Auto</span>
+            </div>
+        </div>
+
+        <!-- Main Form Body -->
+        <div class="content-body">
+            <!-- AI Guardian Dynamic Status -->
+            <div class="active-dept-box">
+                <div>
+                    <div class="active-dept-title" id="selectedDeptName">🛡️ AI Guardian: Police & Law Order</div>
+                    <div class="active-dept-desc" id="aiGuardianStatus">AI Guardian Active: Activating SHO legal relay & FIR template protocol.</div>
+                </div>
+                <span style="font-size: 14px; color: #00f2ff;">⚡</span>
+            </div>
+
+            <div class="form-group">
+                <div class="form-label-row">
+                    <label class="form-label">Enter Incident Description (Voice/Text)</label>
+                    <button class="voice-tts-btn" onclick="speakPortalGuide()" title="Audio Guide">🔊 Audio Guide</button>
+                </div>
+                <textarea class="form-textarea" id="complaintText" placeholder="अपनी समस्या या शिकायत यहाँ दर्ज करें... AI Guardian इसे सैनिटाइज करके कानूनी ड्राफ्ट बनाएगा।"></textarea>
+            </div>
+
+            <div class="evidence-box">
+                <p><b>📸 Mandatory Evidence:</b> Photo, Video or Audio</p>
+                <input type="file" id="evidenceFile" accept="image/*,video/*,audio/*" style="display: none;" onchange="handleFileSelect(event)">
+                <button class="upload-file-btn" onclick="document.getElementById('evidenceFile').click()">📁 Select Evidence File</button>
+                <div id="fileStatus" style="font-size: 8.5px; color: #10b981; margin-top: 3px; font-weight: 900;">No Evidence Attached</div>
+            </div>
+
+            <button class="submit-btn" onclick="generateLegalDraftAndRelay()">⚖️ Generate Legal Draft & 1-Click Mail</button>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item"><span>🏠</span>Home</a>
+            <a href="complaint.html" class="nav-item active"><span>📝</span>Complaint</a>
+            <a href="helpdesk.html" class="nav-item"><span>⚖️</span>Help Desk</a>
+            <a href="profile.html" class="nav-item"><span>👤</span>Profile</a>
+        </div>
+    </div>
+
+    <!-- Core Script Engine with Self-Healing, SHA-256 & Mailto Relay -->
+    <script>
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAT13EhtnIOLCk17KPLwPhw_GJotsBNiA",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com/",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        let selectedDeptNameText = 'Police & Law Order';
+        let aiGuardianProtocol = 'AI Guardian Active: Activating SHO legal relay & FIR template protocol.';
+        let currentTier = 'global';
+        let attachedFileMetadata = null;
+        let currentLatitude = null;
+        let currentLongitude = null;
+
+        function initPortalCore() {
+            console.log("🛡️ AI Guardian Self-Healing Legal Relay Active.");
+            checkOfflineQueueSync(); // Self-healing sync check on load
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => { currentLatitude = pos.coords.latitude; currentLongitude = pos.coords.longitude; },
+                    err => console.log("GPS Location notice skipped."),
+                    { enableHighAccuracy: true }
+                );
+            }
+        }
+
+        function setJurisdiction(tierKey, tierName) {
+            currentTier = tierKey;
+            document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tier-' + tierKey).classList.add('active');
+            speakText(tierName + " mode engaged.");
+        }
+
+        function selectDepartment(deptKey, deptName, protocolDesc) {
+            selectedDeptNameText = deptName;
+            aiGuardianProtocol = protocolDesc;
+            document.querySelectorAll('.cat-ring').forEach(r => r.classList.remove('selected'));
+            document.getElementById('ring-' + deptKey).classList.add('selected');
+            document.getElementById('selectedDeptName').innerText = "🛡️ AI Guardian: " + deptName;
+            document.getElementById('aiGuardianStatus').innerText = protocolDesc;
+            speakText(deptName + " selected. AI Guardian ready.");
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                attachedFileMetadata = { name: file.name, size: file.size, type: file.type };
+                document.getElementById('fileStatus').innerText = "✓ Evidence Attached: " + file.name;
+                speakText("Evidence file attached securely.");
+            } else {
+                attachedFileMetadata = null;
+                document.getElementById('fileStatus').innerText = "No Evidence Attached";
+            }
+        }
+
+        function speakPortalGuide() {
+            speakText("Electric Bodyguard AI Guardian. Enter your complaint details, attach mandatory evidence, and generate your secure legal draft.");
+        }
+
+        function speakText(msg) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utter = new SpeechSynthesisUtterance(msg);
+                utter.lang = 'en-US';
+                utter.rate = 0.95;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // AI Text Sanitizer & Legal Draft Generator
+        function sanitizeAndBuildLegalDraft(rawText) {
+            let cleanText = rawText.trim().replace(/[\r\n]+/g, " ");
+            let legalHeader = `FORMAL LEGAL COMPLAINT / GRIEVANCE SUBMISSION\n`;
+            legalHeader += `--------------------------------------------------\n`;
+            legalHeader += `JURISDICTION TIER: ${currentTier.toUpperCase()}\n`;
+            legalHeader += `DEPARTMENT: ${selectedDeptNameText}\n`;
+            legalHeader += `DATE & TIME: ${new Date().toLocaleString()}\n`;
+            legalHeader += `--------------------------------------------------\n\n`;
+            legalHeader += `Grievance Details:\n"${cleanText}"\n\n`;
+            legalHeader += `Legal Action Requested under statutory provisions & Electric Bodyguard Relay protocols.\n`;
+            return legalHeader;
+        }
+
+        // Main Generation & 1-Click Mailto Trigger with SHA-256 Hashing
+        function generateLegalDraftAndRelay() {
+            const rawText = document.getElementById('complaintText').value.trim();
+            if (!rawText) {
+                alert("कृपया अपनी शिकायत या समस्या का विवरण दर्ज करें!");
+                return;
+            }
+            if (!attachedFileMetadata) {
+                alert("सुरक्षा नियम: बिना सबूत (Evidence) के शिकायत दर्ज नहीं की जा सकती!");
+                return;
+            }
+
+            let trackingId = 'EB_SAFE_' + Math.random().toString(36).substring(2, 8).toUpperCase() + '_' + Date.now();
+            let timestamp = new Date().toISOString();
+            let sanitizedDraft = sanitizeAndBuildLegalDraft(rawText);
+
+            // Tamper-Proof SHA-256 Hash Lock
+            let rawStringForHash = trackingId + timestamp + rawText + (attachedFileMetadata ? attachedFileMetadata.name : '');
+            let securityHash = CryptoJS.SHA256(rawStringForHash).toString();
+
+            let payload = {
+                trackingId: trackingId,
+                level: currentTier.toUpperCase(),
+                department: selectedDeptNameText,
+                aiGuardianProtocol: aiGuardianProtocol,
+                rawDescription: rawText,
+                sanitizedDraft: sanitizedDraft,
+                evidenceAttached: attachedFileMetadata,
+                latitude: currentLatitude || 0.0,
+                longitude: currentLongitude || 0.0,
+                timestamp: timestamp,
+                securityHash: securityHash,
+                escalationStage: 1, // Local Level Stage
+                status: 'PENDING_LOCAL_ACTION'
+            };
+
+            // Save locally for tracking & 1-week timer check
+            let myComplaints = JSON.parse(localStorage.getItem('eb_my_tracked_complaints') || '[]');
+            myComplaints.unshift(payload);
+            localStorage.setItem('eb_my_tracked_complaints', JSON.stringify(myComplaints));
+
+            // Self-Healing Firebase Sync with Retry Mechanism
+            syncToFirebaseWithRetry(payload, trackingId);
+
+            // 1-Click Native Mailto Trigger (User's own phone mail client)
+            let recipientEmail = "authority@gov.in"; // Default official relay email placeholder
+            let emailSubject = encodeURIComponent(`Legal Notice / Grievance [Tracker: ${trackingId}] - ${selectedDeptNameText}`);
+            let emailBody = encodeURIComponent(sanitizedDraft + `\n\n[Tamper-Proof Digital Security Hash: ${securityHash}]`);
+            
+            let mailtoLink = `mailto:${recipientEmail}?subject=${emailSubject}&body=${emailBody}`;
+
+            alert(`✅ लीगल ड्राफ्ट और SHA-256 हैश लॉक तैयार!\nTracking ID: ${trackingId}\n\nअब आपके फोन का ईमेल ऐप खुलेगा जहाँ से आप सीधे संबंधित अधिकारी को भेज सकते हैं।`);
+            speakText("Legal draft generated. Opening secure mail client.");
+
+            // Open user's email client
+            window.location.href = mailtoLink;
+            setTimeout(() => {
+                window.location.href = "profile.html";
+            }, 1500);
+        }
+
+        // Self-Healing Retry Logic for Database Sync
+        function syncToFirebaseWithRetry(payload, trackingId, retries = 3) {
+            if (!db) return;
+            let sanitizedKey = (localStorage.getItem('eb_hardware_node') || 'COMPLAINT_NODE').replace(/[.#$/[\]]/g, '_');
+            
+            let privRef = db.ref('global_complaints/' + sanitizedKey + '/' + trackingId);
+            let pubRef = db.ref('public_pulse_feed/' + currentTier.toLowerCase() + '/' + trackingId);
+
+            Promise.all([
+                privRef.set(payload),
+                pubRef.set({
+                    trackingId: trackingId,
+                    department: selectedDeptNameText,
+                    level: currentTier.toUpperCase(),
+                    timestamp: payload.timestamp,
+                    status: 'PUBLIC_PULSE_ACTIVE'
+                })
+            ]).catch(err => {
+                if (retries > 0) {
+                    console.log(`Sync failed. Retrying... (${retries} left)`);
+                    setTimeout(() => syncToFirebaseWithRetry(payload, trackingId, retries - 1), 2000);
+                } else {
+                    console.log("Offline mode active: Saved locally in queue.");
+                    let offlineQueue = JSON.parse(localStorage.getItem('eb_offline_queue') || '[]');
+                    offlineQueue.push(payload);
+                    localStorage.setItem('eb_offline_queue', JSON.stringify(offlineQueue));
+                }
+            });
+        }
+
+        function checkOfflineQueueSync() {
+            let queue = JSON.parse(localStorage.getItem('eb_offline_queue') || '[]');
+            if (queue.length > 0 && navigator.onLine && db) {
+                console.log("Internet restored. Flushing offline queue...");
+                let sanitizedKey = (localStorage.getItem('eb_hardware_node') || 'COMPLAINT_NODE').replace(/[.#$/[\]]/g, '_');
+                queue.forEach(item => {
+                    db.ref('global_complaints/' + sanitizedKey + '/' + item.trackingId).set(item);
+                });
+                localStorage.removeItem('eb_offline_queue');
+            }
+        }
+    </script>
+</body>
+</html>

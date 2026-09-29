@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ELECTRIC BODYGUARD - GLOBAL POWER NODE</title>
+    <!-- Firebase SDK Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-device: #010409;
+            --panel-bg: #050b14;
+            --card-bg: #091224;
+            --input-bg: #03070e;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-cyan: #00e5ff;
+            --accent-gold: #f59e0b;
+            --alert-red: #ff4444;
+        }
+
+        body {
+            background-color: var(--bg-device);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .mobile-screen {
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            max-height: 880px;
+            background: var(--panel-bg);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 24px;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-wrapper {
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            overflow-y: auto;
+            box-sizing: border-box;
+            padding-bottom: 75px;
+        }
+
+        /* 1. मुख्य ब्रांड हेडर */
+        .main-brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(0, 229, 255, 0.15));
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-radius: 10px;
+        }
+
+        .brand-title-text {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            background: linear-gradient(135deg, #ffffff, var(--accent-gold), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        /* 2. यूजर प्रोफाइल और सोनार वेब सब-हेडर बार */
+        .sub-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(9, 18, 36, 0.8);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 10px;
+            padding: 6px 10px;
+        }
+
+        .user-profile-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1.5px solid var(--accent-cyan);
+            object-fit: cover;
+        }
+
+        .profile-text h4 {
+            font-size: 10px;
+            color: var(--accent-cyan);
+            margin: 0;
+        }
+
+        .profile-text p {
+            font-size: 8px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* सोनार वेब गोल तरंग वाला आइकॉन */
+        .sonar-wrapper {
+            position: relative;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sonar-wave {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1.5px solid var(--accent-cyan);
+            animation: sonarPulse 2s infinite linear;
+            opacity: 0;
+        }
+
+        .sonar-wave:nth-child(2) {
+            animation-delay: 1s;
+        }
+
+        .sonar-core {
+            position: relative;
+            z-index: 2;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-cyan);
+        }
+
+        @keyframes sonarPulse {
+            0% { transform: scale(0.6); opacity: 1; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+
+        /* करेंसी चयन टैब */
+        .currency-selector-bar {
+            display: flex;
+            background: #03070e;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 8px;
+            padding: 3px;
+            gap: 4px;
+        }
+        .curr-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: bold;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .curr-tab.active {
+            background: var(--accent-cyan);
+            color: #000;
+        }
+
+        /* 3. इमोशनल सपोर्ट मैसेज और TTS बटन */
+        .emotional-box {
+            background: rgba(15, 23, 42, 0.95);
+            border-left: 3px solid var(--accent-gold);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 10px;
+            line-height: 1.35;
+            color: #cbd5e1;
+        }
+
+        .tts-audio-btn {
+            background: linear-gradient(135deg, #0d9488, #0284c7);
+            border: none;
+            color: #fff;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .section-heading {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+        }
+
+        .amount-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .amount-btn {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 7px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .amount-btn.active {
+            border-color: var(--accent-gold);
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-gold);
+        }
+
+        .styled-input {
+            width: 100%;
+            padding: 7px;
+            background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 11px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .qr-section-box {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 10px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qr-image-container {
+            background: #ffffff;
+            padding: 4px;
+            border-radius: 6px;
+            min-width: 60px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qr-image-container img { width: 60px; height: 60px; }
+
+        .btn-action {
+            width: 100%;
+            padding: 9px;
+            background: linear-gradient(135deg, #d97706, #92400e);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(180, 83, 9, 0.4);
+        }
+
+        /* बॉटम नेविगेशन बार */
+        .bottom-nav-bar { 
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; 
+            background: #0b111e; border-top: 1px solid rgba(0,255,204,0.3); 
+            display: flex; justify-content: space-around; align-items: center; z-index: 100; 
+        }
+        .nav-item { 
+            color: #8ab4f8; text-decoration: none; font-size: 9px; text-align: center; 
+            display: flex; flex-direction: column; align-items: center; gap: 2px; 
+        }
+        .nav-item span { font-size: 15px; }
+        .nav-item.active { color: var(--accent-cyan); }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-screen">
+        <div class="app-wrapper">
+            <!-- 1. मुख्य ब्रांड हेडर -->
+            <div class="main-brand-header">
+                <div style="font-size: 14px;">⚡</div>
+                <div class="brand-title-text">ELECTRIC BODYGUARD<br>GLOBAL POWER NODE</div>
+                <div style="font-size: 14px;">🛡️</div>
+            </div>
+
+            <!-- 2. यूजर प्रोफाइल और सोनार वेब सब-हेडर -->
+            <div class="sub-header-bar">
+                <div class="user-profile-box">
+                    <img src="https://via.placeholder.com/35" alt="User" class="profile-avatar" id="userAvatar">
+                    <div class="profile-text">
+                        <h4 id="userNameTxt">साथी (Local User)</h4>
+                        <p>Secure Node Active</p>
+                    </div>
+                </div>
+
+                <!-- सोनार वेब गोल तरंग वाला आइकॉन -->
+                <div class="sonar-wrapper" title="Global Sonar Active">
+                    <div class="sonar-wave"></div>
+                    <div class="sonar-wave"></div>
+                    <div class="sonar-core"></div>
+                </div>
+            </div>
+
+            <!-- करेंसी चयन -->
+            <div class="currency-selector-bar">
+                <button class="curr-tab active" onclick="switchCurrency('INR', this)">🇮🇳 Local (INR ₹)</button>
+                <button class="curr-tab" onclick="switchCurrency('USD', this)">🌍 Global (USD $)</button>
+                <button class="curr-tab" onclick="switchCurrency('EUR', this)">🇪🇺 Europe (EUR €)</button>
+            </div>
+
+            <!-- 3. इमोशनल सपोर्ट मैसेज और टेक्स्ट-टू-स्पीच (TTS) -->
+            <div class="emotional-box">
+                <b>संदेश:</b> "मैं एक छोटा आदमी हूँ, छठी क्लास तक पढ़ा हूँ, लेकिन लोगों की सुरक्षा के लिए यह बहुत बड़ा डिजिटल ढांचा खड़ा किया है। क्लाउड और सर्वर का खर्च मेरे बस से बाहर है, पर आपकी सुरक्षा को 24/7 जिंदा रखने के लिए आपका छोटा सा सहयोग (₹100 या जो भी बने) ही इस मिशन की असली खुराक है।"
+                <button class="tts-audio-btn" onclick="playEmotionalVoice()">
+                    🔊 <span>संदेश सुनें (Listen Audio)</span>
+                </button>
+            </div>
+
+            <div class="section-heading">1. Select Support Amount</div>
+            <div class="amount-grid" id="amountGrid">
+                <div class="amount-btn active" onclick="setAmount(100, this)">₹100</div>
+                <div class="amount-btn" onclick="setAmount(500, this)">₹500</div>
+                <div class="amount-btn" onclick="setAmount(1000, this)">₹1000</div>
+            </div>
+            <input type="number" id="custom_amount" class="styled-input" placeholder="Custom amount..." value="100" oninput="updateCustomAmount(this)">
+
+            <!-- QR / Gateway Box -->
+            <div class="qr-section-box">
+                <div class="qr-image-container">
+                    <img id="dynamic_qr_img" alt="Scan QR">
+                </div>
+                <div>
+                    <div style="font-size: 10px; font-weight: bold; color: var(--accent-cyan);" id="gateway_title">Instant UPI Scan & Pay</div>
+                    <div style="font-size: 9px; color: var(--text-muted);" id="gateway_desc">Scan with GPay, PhonePe, Paytm or UPI app.</div>
+                </div>
+            </div>
+
+            <button class="btn-action" onclick="processSecureFund()">Contribute Power Securely ⚡</button>
+        </div>
+
+        <!-- नेविगेशन बार -->
+        <div class="bottom-nav-bar">
+            <a href="index.html" class="nav-item"><span>🏠</span>Home</a>
+            <a href="shield_control.html" class="nav-item"><span>🛡️</span>Shield</a>
+            <a href="cloud-fund.html" class="nav-item active"><span>⚡</span>Power</a>
+            <a href="sos.html" class="nav-item" style="color: var(--alert-red);"><span>🚨</span>SOS</a>
+            <a href="helpdesk.html" class="nav-item"><span>💬</span>Help</a>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com/"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        let currentCurr = 'INR';
+        let selectedAmount = 100;
+        const encodedUpi = "cml6d2FuQG9rYXhpcw=="; 
+
+        function getDecodedUpi() {
+            try { return atob(encodedUpi); } catch(e) { return "rizwan@okaxis"; }
+        }
+
+        // प्रोफाइल डेटा लोड करने का फंक्शन (लोकल स्टोरेज से असली नाम और फोटो उठाएगा)
+        function loadUserProfileData() {
+            const savedName = localStorage.getItem('eb_operator_name');
+            if (savedName) {
+                document.getElementById('userNameTxt').innerText = savedName.toUpperCase();
+            }
+            
+            const savedAvatar = localStorage.getItem('eb_operator_avatar');
+            if (savedAvatar) {
+                document.getElementById('userAvatar').src = savedAvatar;
+            }
+        }
+
+        // टेक्स्ट-टू-स्पीच (TTS) फंक्शन
+        function playEmotionalVoice() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let msgText = "मैं एक छोटा आदमी हूँ, छठी क्लास तक पढ़ा हूँ, लेकिन लोगों की सुरक्षा के लिए यह बहुत बड़ा डिजिटल ढांचा खड़ा किया है। क्लाउड और सर्वर का खर्च मेरे बस से बाहर है, पर आपकी सुरक्षा को चौबीसों घंटे जिंदा रखने के लिए आपका छोटा सा सहयोग ही इस मिशन की असली खुराक है। धन्यवाद!";
+                let utterance = new SpeechSynthesisUtterance(msgText);
+                utterance.lang = 'hi-IN';
+                utterance.rate = 0.95;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Speech synthesis not supported in this browser.");
+            }
+        }
+
+        function switchCurrency(curr, btnElem) {
+            currentCurr = curr;
+            document.querySelectorAll('.curr-tab').forEach(b => b.classList.remove('active'));
+            btnElem.classList.add('active');
+
+            let grid = document.getElementById('amountGrid');
+            if (curr === 'INR') {
+                grid.innerHTML = `<div class="amount-btn active" onclick="setAmount(100, this)">₹100</div><div class="amount-btn" onclick="setAmount(500, this)">₹500</div><div class="amount-btn" onclick="setAmount(1000, this)">₹1000</div>`;
+                setAmount(100, grid.children[0]);
+                document.getElementById('gateway_title').innerText = "Instant UPI Scan & Pay";
+                document.getElementById('gateway_desc').innerText = "Scan with GPay, PhonePe, Paytm or any UPI app.";
+            } else if (curr === 'USD') {
+                grid.innerHTML = `<div class="amount-btn active" onclick="setAmount(5, this)">$5</div><div class="amount-btn" onclick="setAmount(20, this)">$20</div><div class="amount-btn" onclick="setAmount(50, this)">$50</div>`;
+                setAmount(5, grid.children[0]);
+                document.getElementById('gateway_title').innerText = "Global Stripe / PayPal";
+                document.getElementById('gateway_desc').innerText = "International secure card support.";
+            } else {
+                grid.innerHTML = `<div class="amount-btn active" onclick="setAmount(5, this)">€5</div><div class="amount-btn" onclick="setAmount(25, this)">€25</div><div class="amount-btn" onclick="setAmount(50, this)">€50</div>`;
+                setAmount(5, grid.children[0]);
+                document.getElementById('gateway_title').innerText = "European SEPA / Card";
+                document.getElementById('gateway_desc').innerText = "Secure European economic gateway.";
+            }
+        }
+
+        function setAmount(amt, elem) {
+            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+            elem.classList.add('active');
+            selectedAmount = amt;
+            document.getElementById('custom_amount').value = amt;
+            updateQrDisplay(amt);
+        }
+
+        function updateCustomAmount(input) {
+            selectedAmount = Number(input.value) || 0;
+            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+            updateQrDisplay(selectedAmount);
+        }
+
+        function updateQrDisplay(amt) {
+            let identifier = currentCurr === 'INR' ? `upi://pay?pa=${getDecodedUpi()}&pn=ElectricBodyguard&am=${amt}&cu=INR&tn=CloudPowerNode` : `https://pay.example.com/global?amount=${amt}&currency=${currentCurr}`;
+            let qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(identifier)}`;
+            document.getElementById('dynamic_qr_img').src = qrUrl;
+        }
+
+        function processSecureFund() {
+            if (selectedAmount <= 0) {
+                alert("कृपया मान्य राशि दर्ज करें!");
+                return;
+            }
+            try {
+                db.ref('cloud_funds_secure_log').push({
+                    currency: currentCurr,
+                    amount: selectedAmount,
+                    timestamp: new Date().toISOString(),
+                    status: "Initiated_Secure"
+                });
+            } catch(e) {}
+
+            if (currentCurr === 'INR') {
+                window.location.href = `upi://pay?pa=${getDecodedUpi()}&pn=ElectricBodyguard&am=${selectedAmount}&cu=INR&tn=CloudPowerNode`;
+            } else {
+                alert(`Redirecting to secure ${currentCurr} Global Gateway for amount ${selectedAmount}...`);
+            }
+        }
+
+        window.onload = () => { 
+            loadUserProfileData(); // पेज खुलते ही प्रोफाइल डेटा लोड हो जाएगा
+            updateQrDisplay(100); 
+        };
+    </script>
+</body>
+</html>
