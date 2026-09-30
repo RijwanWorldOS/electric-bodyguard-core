@@ -19,22 +19,21 @@
         }
 
         * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Courier New', Courier, monospace;
-        }
-        body {
-            background-color: var(--bg-color);
-            color: var(--primary-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            width: 100vw;
-            padding: 10px;
-        }
-        
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+body {
+    background-color: var(--bg-color);
+    color: var(--primary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100vw;
+    padding: 10px;
+}
         .container {
             width: 100%;
             max-width: 440px;
@@ -58,234 +57,251 @@
             padding-right: 2px;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--primary-color);
-            padding-bottom: 5px;
-        }
-        .header-title {
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        .top-badges {
-            display: flex;
-            gap: 4px;
-        }
+        .reader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--primary-color);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+.reader-title {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+.top-badges {
+    display: flex;
+    gap: 8px;
+}
+.badge-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    border: 1px solid var(--primary-color);
+    background: rgba(0, 255, 255, 0.1);
+    color: var(--primary-color);
+    border-radius: 6px;
+    cursor: pointer;
+}
         .badge-btn {
-            font-size: 8px;
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid var(--primary-color);
-            padding: 2px 4px;
-            border-radius: 3px;
-            cursor: pointer;
-            color: var(--primary-color);
-            font-weight: bold;
-        }
+    font-size: 13px;
+    background: rgba(0, 255, 255, 0.1);
+    border: 1px solid var(--primary-color);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--primary-color);
+    font-weight: bold;
+}
 
-        .ai-guardian-bar {
-            background: rgba(0, 255, 128, 0.1);
-            border: 1px solid var(--accent-green);
-            padding: 4px 8px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 9px;
-        }
-        .ai-status {
-            color: var(--accent-green);
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .ai-dot {
-            width: 5px;
-            height: 5px;
-            background-color: var(--accent-green);
-            border-radius: 50%;
-            box-shadow: 0 0 5px var(--accent-green);
-        }
+.ai-guardian-bar {
+    background: rgba(0, 255, 128, 0.1);
+    border: 1px solid var(--accent-green);
+    padding: 12px 14px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.ai-status {
+    color: var(--accent-green);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.ai-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-green);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent-green);
+}
+    
+            
 
         /* प्रोफाइल कार्ड - 3D इफेक्ट और स्पेसिंग फिक्स */
         .profile-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--card-bg);
-            border: 1px solid var(--primary-color);
-            border-radius: 10px;
-            padding: 8px 10px;
-            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1);
-        }
-        
-        /* 3D ग्लोइंग अवतार फिक्स (अब अंडाकार नहीं, एकदम सही और फिक्स्ड) */
-        .profile-avatar-container {
-            position: relative;
-            width: 56px;
-            height: 56px;
-            flex-shrink: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .profile-avatar-img {
-            width: 54px;
-            height: 54px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 0 12px var(--primary-glow), 0 0 5px var(--primary-color);
-            animation: pulseGlow 3s infinite alternate;
-        }
-
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 8px var(--primary-glow); }
-            100% { box-shadow: 0 0 16px var(--primary-color); }
-        }
-
-        .profile-info {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 2px;
-        }
-        .operator-label {
-            font-weight: bold;
-            font-size: 10px;
-            color: #ffffff;
-            letter-spacing: 0.5px;
-        }
-        .node-id {
-            font-size: 8px;
-            color: var(--primary-color);
-            opacity: 0.9;
-        }
-        .privacy-toggle-btn {
-            font-size: 7px;
-            background: rgba(0, 255, 128, 0.2);
-            color: var(--accent-green);
-            border: 1px solid var(--accent-green);
-            padding: 2px 6px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-top: 3px;
-            display: inline-block;
-            font-weight: bold;
-        }
-        .profile-inline-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-        .inline-btn {
-            background: rgba(0, 255, 255, 0.15);
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 4px 8px;
-            text-align: center;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 7px;
-            cursor: pointer;
-        }
-        .inline-btn-danger {
-            background: rgba(255, 75, 75, 0.15);
-            border-color: #ff4b4b;
-            color: #ff4b4b;
-        }
-
-        .activity-container {
-            background: var(--card-bg);
-            border: 1px solid var(--primary-color);
-            border-radius: 8px;
-            padding: 6px 8px;
-        }
-        .section-heading {
-            font-size: 8px;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 4px;
-            border-bottom: 1px dashed var(--primary-color);
-            padding-bottom: 2px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .activity-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 4px;
-        }
-        .activity-box {
-            background: rgba(0, 10, 20, 0.9);
-            border: 1px solid var(--primary-color);
-            border-radius: 5px;
-            padding: 4px 6px;
-        }
-        .activity-label {
-            font-size: 7px;
-            color: var(--primary-color);
-            opacity: 0.8;
-        }
-        .activity-value {
-            font-size: 10px;
-            font-weight: bold;
-            color: #ffffff;
-        }
-
-        .card {
-            border: 1px solid var(--primary-color);
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 6px 8px;
-        }
-        .card-title {
-            font-size: 8px;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 3px;
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px dashed var(--primary-color);
-            padding-bottom: 2px;
-        }
-        .row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 9px;
-            margin-bottom: 2px;
-        }
-        .label { color: var(--primary-color); opacity: 0.8; }
-        .value { font-weight: bold; color: #ffffff; }
-
-        .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            background: rgba(2, 10, 20, 0.95);
-            border-top: 1px solid var(--primary-color);
-            padding: 6px 0;
-            border-radius: 0 0 10px 10px;
-            margin-top: auto;
-        }
-        .nav-btn {
-            background: none;
-            border: none;
-            font-size: 14px;
-            cursor: pointer;
-            padding: 4px 12px;
-            border-radius: 6px;
-        }
-        .nav-btn.active {
-            background: rgba(0, 255, 255, 0.2);
-            box-shadow: 0 0 8px var(--primary-glow);
-        }
-    </style>
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 12px 14px;
+    box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1);
+}
+.profile-avatar-container {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.profile-avatar-img {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 12px var(--primary-glow), 0 0 5px var(--primary-color);
+    animation: pulseGlow 3s infinite alternate;
+}
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 8px var(--primary-glow); }
+    100% { box-shadow: 0 0 16px var(--primary-color); }
+}
+.profile-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+.operator-label {
+    font-weight: bold;
+    font-size: 13px;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+.rode-id {
+    font-size: 12px;
+    color: var(--primary-color);
+    opacity: 0.9;
+}
+.privacy-toggle-btn {
+    font-size: 12px;
+    background: rgba(0, 255, 128, 0.2);
+    color: var(--accent-green);
+    border: 1px solid var(--accent-green);
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 4px;
+    display: inline-block;
+    font-weight: bold;
+}
+.profile-inline-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.inline-btn {
+    background: rgba(0, 255, 255, 0.15);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 6px 10px;
+    text-align: center;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+}
+.inline-btn-danger {
+    background: rgba(255, 75, 75, 0.15);
+    border-color: #ff4b4b;
+    color: #ff4b4b;
+}
+.activity-container {
+    background: var(--card-bg);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+.section-heading {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 6px;
+    border-bottom: 1px dashed var(--primary-color);
+    padding-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+.activity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+.activity-box {
+    background: rgba(0, 10, 20, 0.9);
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    padding: 8px 10px;
+}
+.activity-label {
+    font-size: 11px;
+    color: var(--primary-color);
+    opacity: 0.8;
+}
+.activity-value {
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffffff;
+}
+.card {
+    border: 1px solid var(--primary-color);
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+.card-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed var(--primary-color);
+    padding-bottom: 4px;
+}
+.row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+.label { 
+    color: var(--primary-color); 
+    opacity: 0.8; 
+}
+.value { 
+    font-weight: bold; 
+    color: #ffffff; 
+}
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(2, 10, 20, 0.95);
+    border-top: 1px solid var(--primary-color);
+    padding: 8px 0;
+    border-radius: 0 0 10px 10px;
+    margin-top: auto;
+}
+.nav-btn {
+    background: none;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+.nav-btn.active {
+    background: rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 8px var(--primary-glow);
+}
+</style>
 </head>
 <body><div class="container">
         <!-- टॉप हेडर -->
@@ -319,10 +335,8 @@
                     </div>
                 </div>
                 <div class="profile-inline-actions">
-                    <button class="inline-btn" onclick="openEditMode()">⚙️ EDIT</button>
-                    <button class="inline-btn inline-btn-danger" onclick="triggerShieldControl()">⚡ SHIELD</button>
-                </div>
-            </div>
+    <button class="inline-btn" onclick="openEditProfileModal()">✏️ EDIT PROFILE</button>
+</div>
 
             <!-- Permanent Activity Log -->
             <div class="activity-container">
@@ -391,49 +405,142 @@
         </div>
     </div>
 
-    <script>
-        function navigateToHome() {
-            window.location.href = "index.html"; 
-        }
-        function navigateToProfile() {
-            // वर्तमान पेज प्रोफाइल है
-        }
-        
-        function openSettingsSystem() {
-            const action = prompt("⚙️ ELECTRIC BODYGUARD - SETTINGS SYSTEM:\n1. Update Profile Name\n2. Update Node ID / Phone\n3. Clear Local Cache\n\nEnter option number (1-3):");
-            if (action === "1") {
-                const newName = prompt("Enter new Operator Name:");
-                if(newName) {
-                    localStorage.setItem('eb_operator_name', newName);
-                    document.getElementById('displayName').innerText = newName.toUpperCase();
-                    alert("Operator name updated successfully!");
-                }
-            } else if (action === "2") {
-                const newPhone = prompt("Enter new Secure Contact Phone:");
-                if(newPhone) {
-                    alert("Secure contact updated successfully!");
-                }
-            } else if (action === "3") {
-                if(confirm("Are you sure you want to clear cache?")) {
-                    localStorage.clear();
-                    alert("Cache cleared. Reloading...");
-                    location.reload();
-                }
-            }
+      <script>
+    // 1. वॉइस गाइड और मल्टी-लैंग्वेज बोलने वाला मुख्य फंक्शन (Web Speech API)
+    function speakGuide(messageKey) {
+        if (!('speechSynthesis' in window)) {
+            console.log("Speech synthesis not supported in this browser.");
+            return;
         }
 
-        function togglePrivacyMode() {
-            let isPrivate = localStorage.getItem('eb_privacy_mode') === 'true';
-            isPrivate = !isPrivate;
-            localStorage.setItem('eb_privacy_mode', isPrivate);
-            alert("Privacy mode updated.");
+        window.speechSynthesis.cancel();
+        let textToSpeak = "";
+        
+        switch(messageKey) {
+            case 'edit':
+                textToSpeak = "यह एडिट प्रोफाइल बटन है। इस पर क्लिक करके आप अपनी जानकारी अपडेट कर सकते हैं।";
+                break;
+            case 'sos':
+                textToSpeak = "यह एसओएस काउंटर है। यहाँ आपके द्वारा संकट के समय ट्रिगर किए गए अलर्ट दिखते हैं।";
+                break;
+            case 'complaints':
+                textToSpeak = "यह शिकायत बॉक्स है। यहाँ आपकी दर्ज की गई सभी शिकायतों की संख्या दिखाई देती है।";
+                break;
+            case 'helpdesk':
+                textToSpeak = "यह हेल्पडेस्क है। यहाँ से आपको सहायता और सहयोग की जानकारी मिलती है।";
+                break;
+            case 'medical':
+                textToSpeak = "यह इमरजेंसी मेडिकल प्रोफाइल है। यहाँ आपका ब्लड ग्रुप और जरूरी मेडिकल नोट्स सुरक्षित हैं।";
+                break;
+            case 'home':
+                textToSpeak = "होम पेज पर जाने के लिए क्लिक किया जा रहा है।";
+                break;
+            case 'profile':
+                textToSpeak = "आप अभी अपने प्रोफाइल डैशबोर्ड पर हैं।";
+                break;
+            case 'settings':
+                textToSpeak = "यह सेटिंग्स सिस्टम है। यहाँ से आप अपना डेटा मैनेज और रीसेट कर सकते हैं।";
+                break;
+            default:
+                textToSpeak = messageKey;
         }
-        function openEditMode() {
-            prompt("Enter Operator Security VPIN:");
+
+        let utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.lang = 'hi-IN'; // हिंदी भाषा सपोर्ट के लिए
+        utterance.rate = 0.9; 
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // 2. पेज लोड होते ही लोकल स्टोरेज से डेटा सिंक करना
+    document.addEventListener("DOMContentLoaded", function () {
+        loadUserProfileData();
+        loadActivityDashboardCounts();
+    });
+
+    function loadUserProfileData() {
+        const savedName = localStorage.getItem('eb_operator_name');
+        if (savedName && document.getElementById('displayName')) {
+            document.getElementById('displayName').innerText = savedName.toUpperCase();
         }
-        function triggerShieldControl() {
-            confirm("Initiate Electric Shield Control?");
+        const savedPhone = localStorage.getItem('eb_secure_phone');
+        if (savedPhone && document.getElementById('displaySecurePhone')) {
+            document.getElementById('displaySecurePhone').innerText = savedPhone;
         }
-    </script>
+        const savedBlood = localStorage.getItem('eb_blood_group');
+        if (savedBlood && document.getElementById('displayBlood')) {
+            document.getElementById('displayBlood').innerText = savedBlood;
+        }
+        const savedMedical = localStorage.getItem('eb_medical_notes');
+        if (savedMedical && document.getElementById('displayMedical')) {
+            document.getElementById('displayMedical').innerText = savedMedical;
+        }
+    }
+
+    function loadActivityDashboardCounts() {
+        if (document.getElementById('countSos')) document.getElementById('countSos').innerText = localStorage.getItem('eb_count_sos') || '0';
+        if (document.getElementById('countComplaints')) document.getElementById('countComplaints').innerText = localStorage.getItem('eb_count_complaints') || '0';
+        if (document.getElementById('countHelp')) document.getElementById('countHelp').innerText = localStorage.getItem('eb_count_help') || '0';
+    }
+
+    // 3. नेविगेशन और सेटिंग्स फंक्शन्स
+    function navigateToHome() {
+        speakGuide('home');
+        setTimeout(() => { window.location.href = "index.html"; }, 1000);
+    }
+
+    function navigateToProfile() {
+        speakGuide('profile');
+    }
+
+    function openSettingsSystem() {
+        speakGuide('settings');
+        const action = actionPrompt();
+    }
+
+    function actionPrompt() {
+        const action = prompt("⚡ ELECTRIC BODYGUARD - SETTINGS SYSTEM:\n1. Update Profile Name\n2. Update Secure Contact Phone\n3. Clear Local Cache & Reset\n4. Update Medical Info");
+        
+        if (action === "1") {
+            const newName = prompt("Enter new Operator Name:");
+            if (newName && newName.trim() !== "") {
+                localStorage.setItem('eb_operator_name', newName);
+                document.getElementById('displayName').innerText = newName.toUpperCase();
+                alert("Operator Name updated successfully!");
+            }
+        } else if (action === "2") {
+            const newPhone = prompt("Enter new Secure Contact Phone:");
+            if (newPhone && newPhone.trim() !== "") {
+                localStorage.setItem('eb_secure_phone', newPhone);
+                alert("Secure contact updated successfully!");
+                loadUserProfileData();
+            }
+        } else if (action === "3") {
+            if (confirm("Are you sure you want to clear cache and reset dashboard?")) {
+                localStorage.clear();
+                alert("Cache cleared. Reloading dashboard...");
+                location.reload();
+            }
+        } else if (action === "4") {
+            const newMed = prompt("Enter Allergy / Medical Notes:");
+            if (newMed !== null) {
+                localStorage.setItem('eb_medical_notes', newMed);
+                loadUserProfileData();
+                alert("Medical profile updated!");
+            }
+        }
+    }
+
+    function togglePrivacyMode() {
+        let isPrivate = localStorage.getItem('eb_privacy_mode') === 'true';
+        isPrivate = !isPrivate;
+        localStorage.setItem('eb_privacy_mode', isPrivate);
+        alert(isPrivate ? "Privacy Mode Enabled." : "Privacy Mode Disabled.");
+    }
+
+    function openEditProfileModal() {
+        speakGuide('edit');
+        openSettingsSystem();
+    }
+</script>
 </body>
 </html>
