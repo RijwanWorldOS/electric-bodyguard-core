@@ -1,254 +1,256 @@
- <!DOCTYPE html>
-<html lang="en" id="htmlRoot">
-<script>
-  (function() {
-    const userLang = navigator.language || navigator.userLanguage || 'en';
-    const shortLang = userLang.split('-')[0];
-    document.getElementById('htmlRoot').setAttribute('lang', shortLang);
-  })();
-</script>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Electric Bodyguard - Unbreakable Secure Portal</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-     :root {
-    --bg-device: #010308;
-    --panel-bg: #050a14;
-    --card-bg: #091122;
-    --border-glow: rgba(0, 243, 255, 0.6);
-    --text-main: #e0f7fa;
-    --accent-primary: #00f3ff;
-    --accent-secondary: #0077ff;
-    --text-muted: #8098bc;
-}
+        :root {
+            --bg-device: #010308;
+            --panel-bg: #050a14;
+            --card-bg: #091122;
+            --border-glow: rgba(0, 243, 255, 0.6);
+            --text-main: #e0f7fa;
+            --accent-primary: #00f3ff;
+            --accent-secondary: #0077ff;
+            --text-muted: #8098bc;
+        }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Courier New', Courier, monospace;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
 
-body {
-    background-color: var(--bg-device);
-    color: var(--text-main);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    padding: 10px;
-}
+        body {
+            background-color: var(--bg-device);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            padding: 10px;
+        }
 
-.phone-frame {
-    width: 100%;
-    max-width: 420px;
-    height: 100%;
-    max-height: 92vh;
-    background: var(--panel-bg);
-    border: 2px solid var(--accent-primary);
-    border-radius: 20px;
-    box-shadow: 0 0 40px rgba(0, 243, 255, 0.4), inset 0 0 15px rgba(0, 243, 255, 0.1);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-}
+        .phone-frame {
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            max-height: 94vh;
+            background: var(--panel-bg);
+            border: 2px solid var(--accent-primary);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.4), inset 0 0 15px rgba(0, 243, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden; /* फ्रेम से बाहर कुछ भी न जाने देने के लिए */
+        }
 
-.app-wrapper {
-    flex: 1;
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    overflow-y: auto;
-}
+        .app-wrapper {
+            flex: 1;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            position: relative;
+        }
 
-/* Custom Scrollbar for clean UI */
-.app-wrapper::-webkit-scrollbar {
-    width: 4px;
-}
-.app-wrapper::-webkit-scrollbar-thumb {
-    background: var(--accent-primary);
-    border-radius: 10px;
-}
-        .app-wrapper::-webkit-scrollbar { width: 4px; }
-        .app-wrapper::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 10px; }
+        .app-wrapper::-webkit-scrollbar {
+            width: 4px;
+        }
+        .app-wrapper::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 10px;
+        }
 
         .premium-header {
             background: linear-gradient(135deg, rgba(0,102,255,0.2), rgba(0,243,255,0.1));
-            border: 1px solid var(--accent-primary); border-radius: 12px;
-            padding: 10px; text-align: center; position: relative;
+            border: 1px solid var(--accent-primary);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            position: relative;
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.25);
-            flex-shrink: 0;
         }
+
         .electric-logo {
-            font-size: 24px; margin-bottom: 2px; display: inline-block;
-            animation: pulseGlow 1.5s infinite alternate;
+            font-size: 22px;
+            margin-bottom: 2px;
         }
-        @keyframes pulseGlow {
-            0% { transform: scale(1); text-shadow: 0 0 5px #00f3ff; }
-            100% { transform: scale(1.12); text-shadow: 0 0 20px #00f3ff, 0 0 35px #ff0033; }
+
+        .header-title {
+            font-size: 13px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
-        .header-title { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px var(--accent-primary); }
-        .header-subtitle { font-size: 12px; color: #00ff66; font-weight: 800; margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
 
         .voice-helper-banner {
-            background: rgba(0, 243, 255, 0.08); border-left: 3px solid var(--accent-primary);
-            padding: 6px 8px; font-size: 12px; line-height: 1.3; color: #b2ebf2; border-radius: 0 6px 6px 0;
-            display: flex; align-items: center; justify-content: space-between;
-            flex-shrink: 0;
+            background: rgba(0, 243, 255, 0.08);
+            border-left: 3px solid var(--accent-primary);
+            padding: 8px 10px;
+            font-size: 13px;
+            color: #b2ebf2;
+            border-radius: 0 6px 6px 0;
         }
-        .voice-btn { background: var(--accent-primary); color: #010308; border: none; padding: 3px 6px; border-radius: 4px; font-size: 7.5px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
 
-        .input-group { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
-        .input-group label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
-        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .input-field, .select-field {
-            background: rgba(2, 5, 11, 0.95); border: 1px solid rgba(0, 243, 255, 0.3);
-            border-radius: 6px; color: #fff; padding: 8px 10px; font-size: 14px; outline: none; width: 100%;
-            transition: 0.3s;
-         }
-        .input-field:focus, .select-field:focus { border-color: var(--accent-primary); box-shadow: 0 0 10px rgba(0, 243, 255, 0.4); }
-
-        .contact-row { display: flex; gap: 5px; }
-        .contact-btn {
-            background: rgba(0, 243, 255, 0.15); border: 1px solid var(--accent-primary);
-            color: var(--accent-primary); padding: 0 10px; border-radius: 6px; font-size: 13px;
-            font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.2s;
+            background: rgba(2, 5, 11, 0.95);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 6px;
+            color: #fff;
+            padding: 10px 12px;
+            font-size: 13px;
+            outline: none;
+            width: 100%;
+            z-index: 2;
         }
-        .contact-btn:active { background: var(--accent-primary); color: #010308; }
+
+        .input-field:focus, .select-field:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+        }
 
         .action-btn {
             background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
-            color: #010308; border: none; border-radius: 8px; padding: 11px;
-            font-size: 13px; font-weight: 900; text-transform: uppercase; cursor: pointer;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); transition: 0.3s; margin-top: 4px; letter-spacing: 1px;
-            flex-shrink: 0;
+            color: #010308;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+            text-align: center;
+            width: 100%;
+            margin-top: 5px;
         }
-        .action-btn:active { transform: scale(0.97); }
 
-        .terminal-footer { display: flex; justify-content: space-around; background: #010308; padding: 8px; border-top: 1px dashed rgba(0, 243, 255, 0.2); flex-shrink: 0; }
-        .terminal-footer a { color: var(--text-muted); font-size: 11px; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .terminal-footer a.active { color: var(--accent-primary); text-shadow: 0 0 8px rgba(0,242,255,0.6); }
+        .terminal-footer {
+            display: flex;
+            justify-content: space-around;
+            background: #010308;
+            padding: 10px;
+            border-top: 1px dashed rgba(0, 243, 255, 0.3);
+        }
+
+        .terminal-footer a {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
     </style>
 </head>
-<body onload="initPortal()">
-
+<body>
     <div class="phone-frame">
         <div class="app-wrapper">
-            
+            <!-- Header -->
             <div class="premium-header">
-                <div class="electric-logo">⚡</div>
-                <div class="header-title">Electric Bodyguard</div>
-                <div class="header-subtitle">Unbreakable Autonomous Shield</div>
+                <div class="electric-logo">⚡ 🛡️</div>
+                <div class="header-title">ELECTRIC BODYGUARD</div>
             </div>
 
+            <!-- Voice Helper Banner -->
             <div class="voice-helper-banner">
-                <span id="voice_msg">🎙️ वॉइस गाइड सक्रिय है...</span>
-                <button class="voice-btn" onclick="playWelcomeVoice()">सुने</button>
+                <span>🎤 वॉइस फुटप्रिंट पिन...</span>
             </div>
 
+            <!-- 1. Name -->
             <div class="input-group">
-                <label>1. आपका पूरा नाम (Operator Name)</label>
-                <input type="text" id="reg_name" class="input-field" placeholder="अपना पूरा नाम दर्ज करें">
+                <label>1. आपका पूरा नाम (OPERATOR NAME)</label>
+                <input type="text" class="input-field" placeholder="अपना पूरा नाम दर्ज करें">
             </div>
 
+            <!-- 2. Auto Node ID -->
             <div class="input-group">
-                <label>2. ऑटो-जेनरेटेड सिक्योर नोड आईडी (Auto Node ID)</label>
-                <input type="text" id="reg_node_id" class="input-field" readonly style="color: #00ff66; background: rgba(0,255,102,0.05); font-weight: 900;">
+                <label>2. ऑटो-जेनेरेटेड सिक्यॉर नोड आईडी</label>
+                <input type="text" class="input-field" value="EB-NODE-617531" readonly>
             </div>
 
+            <!-- 3. Voice Pin -->
             <div class="input-group">
-    <label>3. 4-अंकों का सिक्योर वॉइस फुटप्रिंट पिन और बायोमेट्रिक सैंपल (Voice PIN & Print)</label>
-    <div style="display: flex; gap: 10px; align-items: center;">
-        <input type="text" id="reg_voice_pin" class="input-field" readonly placeholder="ऑटो-जेनरेटेड पिन" style="color: #00f3ff; background: rgba(0,243,255,0.1); flex: 1;">
-        <button type="button" id="recordVoiceBtn" onclick="startVoiceBiometricRecording()" style="background: #ff0055; color: #fff; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap;">🎙️ आवाज़ रिकॉर्ड करें</button>
-    </div>
-    <small id="voiceStatus" style="color: #ffaa00; display: block; margin-top: 5px;">⚠️ कृपया सुरक्षा के लिए अपना वॉइस सैंपल रिकॉर्ड करें।</small>
-</div>
-
-            <div class="input-group">
-    <label>4. सुरक्षा श्रेणी और नोड टियर (Security Class & Tier)</label>
-    <select id="reg_class" class="select-field">
-        <option value="lower">🥇Lower Class Node (सिल्वर बैज) - Free</option>
-        <option value="middle">🥈 Middle Class Node (गोल्ड बैज) - Free</option>
-        <option value="business"> 🥉Business Class Node (बिजनेस बैज) - Paid Tier</option>
-        <option value="vip">💎 VIP Secure Node (क्राउन बैज) - Paid Tier</option>
-        <option value="officer">🎖️ Officer Commander Node (कमांडर बैज) - Paid Tier</option>
-    </select>
-</div>
-
-            <div class="input-group">
-                <label>5. आपका मोबाइल नंबर (Primary Phone)</label>
-                <input type="tel" id="reg_phone" class="input-field" placeholder="10-अंकों का मुख्य मोबाइल नंबर">
+                <label>3. 4-अंकों का सिक्यॉर वॉइस पिन</label>
+                <input type="text" class="input-field" value="VPIN-2961" readonly>
             </div>
 
+            <!-- DROPDOWN 1: Security Class -->
             <div class="input-group">
-            <label>6. ब्लड ग्रुप (वैकल्पिक / Optional)</label>
-            <select id="reg_blood" class="select-field">
-                <option value="Unknown">पता नहीं / बाद में अपडेट करें</option>
-                <option value="A+">A Positive (A+)</option>
-                <option value="A-">A Negative (A-)</option>
-                <option value="B+">B Positive (B+)</option>
-                <option value="B-">B Negative (B-)</option>
-                <option value="AB+">AB Positive (AB+)</option>
-                <option value="AB-">AB Negative (AB-)</option>
-                <option value="O+">O Positive (O+)</option>
-                <option value="O-">O Negative (O-)</option>
-            </select>
+                <label>4. सुरक्षा श्रेणी (SECURITY CLASS)</label>
+                <select class="select-field">
+                    <option>Lower Class Node (सिलवर बैज) - Free</option>
+                    <option>Middle Class Node (गोल्ड बैज) - Free</option>
+                    <option>Business Class Node (बिजनेस बैज) - Paid</option>
+                    <option>VIP Secure Node (क्राउन बैज) - Paid</option>
+                </select>
+            </div>
+
+            <!-- 5. Mobile Number -->
+            <div class="input-group">
+                <label>5. आपका मोबाइल नंबर (PRIMARY PHONE)</label>
+                <input type="text" class="input-field" placeholder="10-अंकों का मुख्य मोबाइल नंबर">
+            </div>
+
+            <!-- DROPDOWN 2: Blood Group -->
+            <div class="input-group">
+                <label>6. ब्लड ग्रुप (BLOOD GROUP)</label>
+                <select class="select-field">
+                    <option>पता नहीं / बाद में अपडेट करें</option>
+                    <option>A Positive (A+)</option>
+                    <option>A Negative (A-)</option>
+                    <option>B Positive (B+)</option>
+                    <option>B Negative (B-)</option>
+                    <option>O Positive (O+)</option>
+                    <option>O Negative (O-)</option>
+                </select>
+            </div>
+
+            <!-- DROPDOWN 3: Medical & Allergy Status -->
+            <div class="input-group">
+                <label>7. क्रिटिकल मेडिकल स्टेटस व एलर्जी नोट्स</label>
+                <select class="select-field">
+                    <option>सामान्य स्थिति / कोई गंभीर समस्या नहीं</option>
+                    <option>हार्ट या ब्लड प्रेशर की समस्या</option>
+                    <option>गंभीर एलर्जी (दवा या खाद्य पदार्थ)</option>
+                    <option>अन्य विशेष मेडिकल निर्देश</option>
+                </select>
+            </div>
+
+            <!-- Action Button -->
+            <button type="button" class="action-btn">सुरक्षित करें और प्रोफाइल पर चलें</button>
         </div>
 
-        <!-- क्रिटिकल इमरजेंसी मेडिकल और कंडीशन मॉड्यूल -->
-        <div class="input-group">
-            <label>7. क्रिटिकल मेडिकल स्टेटस व आपातकालीन निर्देश (Emergency Medical Profile)</label>
-            <select id="reg_medical" class="select-field" style="border-left: 3px solid #ff3333; color: #ff3333; font-weight: bold;">
-                <option value="Normal">सामान्य स्थिति / कोई गंभीर समस्या नहीं</option>
-                <option value="Severe_Allergy">गंभीर एलर्जी (दवा या फूड रिएक्शन का खतरा)</option>
-                <option value="Cardiac_Asthma">हृदय रोग या गंभीर दमा (Asthma / Heart Patient)</option>
-                <option value="Blood_Disorder">ब्लडिंग डिसऑर्डर / खून का पतला होने की बीमारी</option>
-            </select>
-        </div>
-
-        
-
-    <!-- अतिरिक्त जानकारी के लिए खुला नोट्स बॉक्स -->
-    <div class="input-group" style="margin-top: 5px;">
-        <input type="text" id="reg_medical_notes" class="input-field" placeholder="डॉक्टर के लिए विशेष निर्देश (जैसे: कौन सी दवा चल रही है)">
-    </div>
-
-            <div class="input-group">
-                <label>8. 4 SOS इमरजेंसी गार्डियंस (सपोर्ट नेटवर्क)</label>
-                <div class="contact-row" style="margin-bottom:3px;">
-                    <input type="tel" id="g1" class="input-field" placeholder="गार्डियन 1 नंबर">
-                    <button class="contact-btn" onclick="pickContact('g1')">📖 चुनें</button>
-                </div>
-                <div class="contact-row" style="margin-bottom:3px;">
-                    <input type="tel" id="g2" class="input-field" placeholder="गार्डियन 2 नंबर">
-                    <button class="contact-btn" onclick="pickContact('g2')">📖 चुनें</button>
-                </div>
-                <div class="contact-row" style="margin-bottom:3px;">
-                    <input type="tel" id="g3" class="input-field" placeholder="गार्डियन 3 नंबर">
-                    <button class="contact-btn" onclick="pickContact('g3')">📖 चुनें</button>
-                </div>
-                <div class="contact-row">
-                    <input type="tel" id="g4" class="input-field" placeholder="गार्डियन 4 नंबर">
-                    <button class="contact-btn" onclick="pickContact('g4')">📖 चुनें</button>
-                </div>
-            </div>
-
-            <button class="action-btn" onclick="registerUserNode()">🔒 सुरक्षित करें और प्रोफाइल पर चलें</button>
-        </div>
-
+        <!-- Footer -->
         <div class="terminal-footer">
-            <a href="login.html" class="active">🏠 रजिस्टर</a>
-            <a href="profile.html">👤 प्रोफाइल</a>
+            <a href="#">रजिस्टर</a>
+            <a href="#">प्रोफाइल</a>
         </div>
     </div>
+</body>
+</html>
 
     <script>
     // ==========================================
