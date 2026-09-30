@@ -1,5 +1,12 @@
-<!DOCTYPE html>
-<html lang="hi">
+ <!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<script>
+  (function() {
+    const userLang = navigator.language || navigator.userLanguage || 'en';
+    const shortLang = userLang.split('-')[0];
+    document.getElementById('htmlRoot').setAttribute('lang', shortLang);
+  })();
+</script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -64,22 +71,22 @@
             100% { transform: scale(1.12); text-shadow: 0 0 20px #00f3ff, 0 0 35px #ff0033; }
         }
         .header-title { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px var(--accent-primary); }
-        .header-subtitle { font-size: 7px; color: #00ff66; font-weight: 800; margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
+        .header-subtitle { font-size: 12px; color: #00ff66; font-weight: 800; margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
 
         .voice-helper-banner {
             background: rgba(0, 243, 255, 0.08); border-left: 3px solid var(--accent-primary);
-            padding: 6px 8px; font-size: 8.5px; line-height: 1.3; color: #b2ebf2; border-radius: 0 6px 6px 0;
+            padding: 6px 8px; font-size: 12px; line-height: 1.3; color: #b2ebf2; border-radius: 0 6px 6px 0;
             display: flex; align-items: center; justify-content: space-between;
             flex-shrink: 0;
         }
         .voice-btn { background: var(--accent-primary); color: #010308; border: none; padding: 3px 6px; border-radius: 4px; font-size: 7.5px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
 
         .input-group { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
-        .input-group label { font-size: 7.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+        .input-group label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
         
         .input-field, .select-field {
             background: rgba(2, 5, 11, 0.95); border: 1px solid rgba(0, 243, 255, 0.3);
-            border-radius: 6px; color: #fff; padding: 8px 10px; font-size: 10.5px; outline: none; width: 100%;
+            border-radius: 6px; color: #fff; padding: 8px 10px; font-size: 14px; outline: none; width: 100%;
             transition: 0.3s;
         }
         .input-field:focus, .select-field:focus { border-color: var(--accent-primary); box-shadow: 0 0 10px rgba(0, 243, 255, 0.4); }
@@ -87,7 +94,7 @@
         .contact-row { display: flex; gap: 5px; }
         .contact-btn {
             background: rgba(0, 243, 255, 0.15); border: 1px solid var(--accent-primary);
-            color: var(--accent-primary); padding: 0 10px; border-radius: 6px; font-size: 8.5px;
+            color: var(--accent-primary); padding: 0 10px; border-radius: 6px; font-size: 13px;
             font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.2s;
         }
         .contact-btn:active { background: var(--accent-primary); color: #010308; }
@@ -95,14 +102,14 @@
         .action-btn {
             background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
             color: #010308; border: none; border-radius: 8px; padding: 11px;
-            font-size: 10.5px; font-weight: 900; text-transform: uppercase; cursor: pointer;
+            font-size: 13px; font-weight: 900; text-transform: uppercase; cursor: pointer;
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); transition: 0.3s; margin-top: 4px; letter-spacing: 1px;
             flex-shrink: 0;
         }
         .action-btn:active { transform: scale(0.97); }
 
         .terminal-footer { display: flex; justify-content: space-around; background: #010308; padding: 8px; border-top: 1px dashed rgba(0, 243, 255, 0.2); flex-shrink: 0; }
-        .terminal-footer a { color: var(--text-muted); font-size: 8.5px; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .terminal-footer a { color: var(--text-muted); font-size: 11px; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
         .terminal-footer a.active { color: var(--accent-primary); text-shadow: 0 0 8px rgba(0,242,255,0.6); }
     </style>
 </head>
@@ -112,7 +119,7 @@
         <div class="app-wrapper">
             
             <div class="premium-header">
-                <div class="electric-logo">🛡️⚡</div>
+                <div class="electric-logo">⚡</div>
                 <div class="header-title">Electric Bodyguard</div>
                 <div class="header-subtitle">Unbreakable Autonomous Shield</div>
             </div>
@@ -133,20 +140,24 @@
             </div>
 
             <div class="input-group">
-                <label>3. 4-अंकों का सिक्योर वॉइस फुटप्रिंट पिन (Voice PIN)</label>
-                <input type="text" id="reg_voice_pin" class="input-field" readonly style="color: #00f3ff; background: rgba(0,243,255,0.05); font-weight: 900;">
-            </div>
+    <label>3. 4-अंकों का सिक्योर वॉइस फुटप्रिंट पिन और बायोमेट्रिक सैंपल (Voice PIN & Print)</label>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" id="reg_voice_pin" class="input-field" readonly placeholder="ऑटो-जेनरेटेड पिन" style="color: #00f3ff; background: rgba(0,243,255,0.1); flex: 1;">
+        <button type="button" id="recordVoiceBtn" onclick="startVoiceBiometricRecording()" style="background: #ff0055; color: #fff; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap;">🎙️ आवाज़ रिकॉर्ड करें</button>
+    </div>
+    <small id="voiceStatus" style="color: #ffaa00; display: block; margin-top: 5px;">⚠️ कृपया सुरक्षा के लिए अपना वॉइस सैंपल रिकॉर्ड करें।</small>
+</div>
 
             <div class="input-group">
-                <label>4. सुरक्षा श्रेणी (Security Class)</label>
-                <select id="reg_class" class="select-field">
-                    <option value="lower">Lower Class Node (साइबर ब्लू)</option>
-                    <option value="middle">Middle Class Node (एम्बर गोल्ड)</option>
-                    <option value="business">Business Class Node (एमरल्ड ग्रीन)</option>
-                    <option value="vip">VIP Secure Node (रॉयल पर्पल)</option>
-                    <option value="officer">Officer Commander Node (कमांडर रेड)</option>
-                </select>
-            </div>
+    <label>4. सुरक्षा श्रेणी और नोड टियर (Security Class & Tier)</label>
+    <select id="reg_class" class="select-field">
+        <option value="lower">🥇Lower Class Node (सिल्वर बैज) - Free</option>
+        <option value="middle">🥈 Middle Class Node (गोल्ड बैज) - Free</option>
+        <option value="business"> 🥉Business Class Node (बिजनेस बैज) - Paid Tier</option>
+        <option value="vip">💎 VIP Secure Node (क्राउन बैज) - Paid Tier</option>
+        <option value="officer">🎖️ Officer Commander Node (कमांडर बैज) - Paid Tier</option>
+    </select>
+</div>
 
             <div class="input-group">
                 <label>5. आपका मोबाइल नंबर (Primary Phone)</label>
@@ -154,21 +165,48 @@
             </div>
 
             <div class="input-group">
-                <label>6. ब्लड ग्रुप (वैकल्पिक / Optional)</label>
-                <select id="reg_blood" class="select-field">
-                    <option value="Unknown">पता नहीं / बाद में अपडेट करें</option>
-                    <option value="O+">O Positive (O+)</option>
-                    <option value="O-">O Negative (O-)</option>
-                    <option value="A+">A Positive (A+)</option>
-                    <option value="B+">B Positive (B+)</option>
-                    <option value="AB+">AB Positive (AB+)</option>
-                </select>
-            </div>
+            <label>6. ब्लड ग्रुप (वैकल्पिक / Optional)</label>
+            <select id="reg_blood" class="select-field">
+                <option value="Unknown">पता नहीं / बाद में अपडेट करें</option>
+                <option value="A+">A Positive (A+)</option>
+                <option value="A-">A Negative (A-)</option>
+                <option value="B+">B Positive (B+)</option>
+                <option value="B-">B Negative (B-)</option>
+                <option value="AB+">AB Positive (AB+)</option>
+                <option value="AB-">AB Negative (AB-)</option>
+                <option value="O+">O Positive (O+)</option>
+                <option value="O-">O Negative (O-)</option>
+            </select>
+        </div>
 
-            <div class="input-group">
-                <label>7. मेडिकल नोट्स (बीमारी या एलर्जी)</label>
-                <input type="text" id="reg_medical" class="input-field" placeholder="विशेष मेडिकल स्थिति (खाली भी छोड़ सकते हैं)">
-            </div>
+        <!-- क्रिटिकल इमरजेंसी मेडिकल और कंडीशन मॉड्यूल -->
+        <div class="input-group">
+            <label>7. क्रिटिकल मेडिकल स्टेटस व आपातकालीन निर्देश (Emergency Medical Profile)</label>
+            <select id="reg_medical" class="select-field" style="border-left: 3px solid #ff3333; color: #ff3333; font-weight: bold;">
+                <option value="Normal">सामान्य स्थिति / कोई गंभीर समस्या नहीं</option>
+                <option value="Severe_Allergy">गंभीर एलर्जी (दवा या फूड रिएक्शन का खतरा)</option>
+                <option value="Cardiac_Asthma">हृदय रोग या गंभीर दमा (Asthma / Heart Patient)</option>
+                <option value="Blood_Disorder">ब्लडिंग डिसऑर्डर / खून का पतला होने की बीमारी</option>
+            </select>
+        </div>
+
+            <!-- क्रिटिकल इमरजेंसी मेडिकल और कंडीशन मॉड्यूल -->
+    <div class="input-group">
+        <label>7. क्रिटिकल मेडिकल स्टेटस व आपातकालीन निर्देश (Emergency Medical Profile)</label>
+        <select id="reg_medical" class="select-field" style="border-left: 3px solid #ff3333; color: #ff3333; font-weight: bold;">
+            <option value="Normal">सामान्य स्थिति / कोई गंभीर समस्या नहीं</option>
+            <option value="Severe_Allergy">गंभीर एलर्जी (दवा या फूड रिएक्शन का खतरा)</option>
+            <option value="Cardiac_Asthma">हृदय रोग या गंभीर दमा (Asthma / Heart Patient)</option>
+            <option value="Blood_Disorder">ब्लीडिंग डिसऑर्डर / खून का पतला होने की बीमारी</option>
+            <option value="Accident_Trauma_Prone">पूर्व गंभीर दुर्घटना / शारीरिक रूप से संवेदनशील</option>
+            <option value="Unconscious_Risk">बेहोशी या मिर्गी के दौरे का जोखिम</option>
+        </select>
+    </div>
+
+    <!-- अतिरिक्त जानकारी के लिए खुला नोट्स बॉक्स -->
+    <div class="input-group" style="margin-top: 5px;">
+        <input type="text" id="reg_medical_notes" class="input-field" placeholder="डॉक्टर के लिए विशेष निर्देश (जैसे: कौन सी दवा चल रही है)">
+    </div>
 
             <div class="input-group">
                 <label>8. 4 SOS इमरजेंसी गार्डियंस (सपोर्ट नेटवर्क)</label>
@@ -207,21 +245,86 @@
         function initPortal() {
             // अगर पहले से डेटा है तो री-जेनरेट न करें, वही रखें
             let existingProfile = localStorage.getItem('eb_user_profile');
-            if (existingProfile) {
+            if (existingProfile) {         
                 let parsed = JSON.parse(existingProfile);
-                document.getElementById('reg_node_id').value = parsed.nodeId || 'EB-NODE-' + Math.floor(100000 + Math.random() * 900000);
-                document.getElementById('reg_voice_pin').value = parsed.voicePin || 'VPIN-' + Math.floor(1000 + Math.random() * 9000);
-                document.getElementById('reg_name').value = parsed.operatorName || '';
-                document.getElementById('reg_class').value = parsed.securityClass || 'lower';
-                document.getElementById('reg_phone').value = parsed.phone || '';
-                document.getElementById('reg_blood').value = parsed.bloodGroup || 'Unknown';
-                document.getElementById('reg_medical').value = parsed.medical !== 'None' ? parsed.medical : '';
-                if(parsed.sosGuards && parsed.sosGuards.length === 4) {
-                    document.getElementById('g1').value = parsed.sosGuards[0] !== 'N/A' ? parsed.sosGuards[0] : '';
-                    document.getElementById('g2').value = parsed.sosGuards[1] !== 'N/A' ? parsed.sosGuards[1] : '';
-                    document.getElementById('g3').value = parsed.sosGuards[2] !== 'N/A' ? parsed.sosGuards[2] : '';
-                    document.getElementById('g4').value = parsed.sosGuards[3] !== 'N/A' ? parsed.sosGuards[3] : '';
-                }
+    document.getElementById('reg_node_id').value = parsed.nodeId || 'EB-NODE-' + Math.floor(100000 + Math.random() * 900000);
+    document.getElementById('reg_voice_pin').value = parsed.voicePin || 'VPIN-' + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('reg_name').value = parsed.operatorName || '';
+    document.getElementById('reg_class').value = parsed.securityClass || 'lower';
+    document.getElementById('reg_phone').value = parsed.phone || '';
+    document.getElementById('reg_blood').value = parsed.bloodGroup || 'Unknown';
+    document.getElementById('reg_medical').value = parsed.medical || 'Normal';
+    if (parsed.sosGuards && Array.isArray(parsed.sosGuards)) {
+        if (parsed.sosGuards[0] && parsed.sosGuards[0] !== 'N/A') document.getElementById('g1').value = parsed.sosGuards[0];
+        if (parsed.sosGuards[1] && parsed.sosGuards[1] !== 'N/A') document.getElementById('g2').value = parsed.sosGuards[1];
+        if (parsed.sosGuards[2] && parsed.sosGuards[2] !== 'N/A') document.getElementById('g3').value = parsed.sosGuards[2];
+        if (parsed.sosGuards[3] && parsed.sosGuards[3] !== 'N/A') document.getElementById('g4').value = parsed.sosGuards[3];
+    }   // मुकम्मल सिक्योरिटी चेकपॉइंट और परमानेंट सेविंग फंक्शन
+function validateAndSaveCheckpoint() {
+    let name = document.getElementById('reg_name').value.trim();
+    let nodeId = document.getElementById('reg_node_id').value;
+    let voicePin = document.getElementById('reg_voice_pin').value;
+    let regClass = document.getElementById('reg_class').value;
+    let phone = document.getElementById('reg_phone').value.trim();
+    let bloodGroup = document.getElementById('reg_blood') ? document.getElementById('reg_blood').value : "Unknown";
+    let medical = document.getElementById('reg_medical') ? document.getElementById('reg_medical').value : "Normal";
+    let medicalNotes = document.getElementById('reg_medical_notes') ? document.getElementById('reg_medical_notes').value : "";
+    
+    // बायोमेट्रिक वॉइस सैंपल की जांच
+    let voiceSample = localStorage.getItem('eb_voice_biometric_sample');
+
+    if (!name) {
+        alert("⚠️ कृपया चेकपॉइंट पर अपना नाम दर्ज करें!");
+        document.getElementById('reg_name').focus();
+        return;
+    }
+
+    if (!voiceSample) {
+        alert("⚠️ सुरक्षा चेकपॉइंट: कृपया 'आवाज़ रिकॉर्ड करें' बटन दबाकर अपना बायोमेट्रिक वॉइस सैंपल दर्ज करें!");
+        return;
+    }
+
+    let profileData = {
+        nodeId: nodeId,
+        operatorName: name,
+        voicePin: voicePin,
+        securityClass: regClass,
+        phone: phone,
+        bloodGroup: bloodGroup,
+        medicalCondition: medical,
+        medicalNotes: medicalNotes,
+        voiceBiometricSample: voiceSample,
+        isCompleted: true,
+        lastUpdated: new Date().toISOString(),
+        sosGuards: [
+            document.getElementById('g1') ? document.getElementById('g1').value : 'N/A',
+            document.getElementById('g2') ? document.getElementById('g2').value : 'N/A',
+            document.getElementById('g3') ? document.getElementById('g3').value : 'N/A',
+            document.getElementById('g4') ? document.getElementById('g4').value : 'N/A'
+        ]
+    };
+
+    // 1. लोकल स्टोरेज में परमानेंट सेविंग
+    localStorage.setItem('eb_user_profile', JSON.stringify(profileData));
+    localStorage.setItem('eb_is_registered', 'true');
+
+    // 2. फायरबेस डेटाबेस में सिंकिंग
+    if (typeof firebase !== 'undefined' && db) {
+        let safeKey = nodeId.replace(/[.\#$\[\]]/g, '_');
+        db.ref('security_nodes/' + safeKey).set(profileData, (error) => {
+            if (error) {
+                console.log("⚠️ सर्वर ऑफलाइन है, लेकिन डेटा आपके लोकल डिवाइस में सुरक्षित है।");
+            } else {
+                console.log("✅ डेटा फायरबेस क्लाउड पर सफलतापूर्वक सिंक हो गया!");
+            }
+        });
+    }
+
+    alert("🎉 चेकपॉइंट सफल! आपकी सुरक्षित आईडी और बायोमेट्रिक डेटा हमेशा के लिए सेव हो गया है। छूटी हुई जानकारी आप बाद में प्रोफाइल पेज से कभी भी अपडेट कर सकते हैं।");
+    
+    // प्रोफाइल पेज पर रिडायरेक्ट करना
+    window.location.href = "profile.html";
+}
             } else {
                 let randomId = 'EB-NODE-' + Math.floor(100000 + Math.random() * 900000);
                 document.getElementById('reg_node_id').value = randomId;
@@ -234,16 +337,29 @@
             }, 1000);
         }
 
-        function playWelcomeVoice() {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                let welcomeText = "इलेक्ट्रिक बॉडीगार्ड की दुनिया में आपका स्वागत है। आज से आपकी सुरक्षा की जिम्मेदारी अब मेरी है। यह सिस्टम पूरी तरह आत्मनिर्भर है। चाहे नेटवर्क हो या न हो, आपका डेटा हमेशा सुरक्षित रहेगा। कृपया अपने चारों इमरजेंसी गार्डियन नंबर जरूर जोड़ें।";
-                let speech = new SpeechSynthesisUtterance(welcomeText);
-                speech.lang = 'hi-IN';
-                speech.rate = 0.95;
-                window.speechSynthesis.speak(speech);
-            }
+        function playWelcomeVoice(customLang = null) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // पुरानी कोई आवाज चल रही हो तो रोक दें
+        
+        // यूजर की चुनी हुई भाषा या ब्राउज़र की भाषा डिटेक्ट करें (डिफ़ॉल्ट हिंदी)
+        let userLang = customLang || navigator.language || 'hi-IN';
+        let welcomeText = "";
+
+        // भाषा के हिसाब से स्वागत संदेश सेट करें
+        if (userLang.startsWith('en')) {
+            welcomeText = "Welcome to the world of Electric Bodyguard. Starting today, your security is entirely my responsibility. This system is completely autonomous, network independent, and always active.";
+            userLang = 'en-US';
+        } else {
+            welcomeText = "इलेक्ट्रिक बॉडीगार्ड की दुनिया में आपका स्वागत है। आज से आपकी सुरक्षा की जिम्मेदारी अब मेरी है। यह सिस्टम पूरी तरह आत्मनिर्भर है, नेटवर्क से स्वतंत्र है, और हमेशा सक्रिय है।";
+            userLang = 'hi-IN';
         }
+
+        let speech = new SpeechSynthesisUtterance(welcomeText);
+        speech.lang = userLang; // भाषा सेट करें
+        speech.rate = 0.95;    // बोलने की गति
+        window.speechSynthesis.speak(speech);
+    }
+}
 
         async function pickContact(fieldId) {
             if ('contacts' in navigator && 'select' in navigator.contacts) {
@@ -304,7 +420,94 @@
 
             // तुरंत प्रोफाइल पेज पर भेजें ताकि यूजर अटके नहीं
             window.location.href = "profile.html";
-        }
+        }// ऑटोमैटिक मल्टी-लैंग्वेज फोकस-बेस्ड वॉइस गाइडेंस
+document.addEventListener('DOMContentLoaded', () => {
+    const inputs = document.querySelectorAll('input, select');
+    let userLang = navigator.language || 'hi-IN';
+    let isEnglish = userLang.startsWith('en');
+
+    inputs.forEach(element => {
+        element.addEventListener('focus', () => {
+            let fieldId = element.id;
+            let guideText = "";
+
+            if (isEnglish) {
+                if (fieldId === 'reg_name') guideText = "Type your full name here.";
+                else if (fieldId === 'reg_node_id') guideText = "This is your automatic secure node ID.";
+                else if (fieldId === 'reg_voice_pin') guideText = "This is your 4-digit secure voice PIN.";
+                else if (fieldId === 'reg_class') guideText = "Choose your security class and tier.";
+                else if (fieldId === 'reg_phone') guideText = "Enter your primary mobile number here.";
+                else if (fieldId === 'reg_blood') guideText = "Select your blood group.";
+                else if (fieldId === 'reg_medical') guideText = "Select your critical medical condition for emergency support.";
+                else if (fieldId === 'reg_medical_notes') guideText = "Type any special medical notes or instructions for the doctor here.";
+                else if (fieldId.startsWith('g')) guideText = "Enter the SOS emergency mobile number of a trusted family member.";
+            } else {
+                if (fieldId === 'reg_name') guideText = "यहाँ अपना पूरा नाम टाइप करें।";
+                else if (fieldId === 'reg_node_id') guideText = "यह आपकी ऑटोमैटिक नोड आईडी है।";
+                else if (fieldId === 'reg_voice_pin') guideText = "यह आपका चार अंकों का सिक्योर वॉइस पिन है।";
+                else if (fieldId === 'reg_class') guideText = "अपनी सुरक्षा श्रेणी और टियर चुनें।";
+                else if (fieldId === 'reg_phone') guideText = "यहाँ अपना मुख्य मोबाइल नंबर दर्ज करें।";
+                else if (fieldId === 'reg_blood') guideText = "अपना ब्लड ग्रुप चुनें।";
+                else if (fieldId === 'reg_medical') guideText = "अपनी क्रिटिकल मेडिकल कंडीशन चुनें। संकट के समय यह डॉक्टर के काम आएगा।";
+                else if (fieldId === 'reg_medical_notes') guideText = "यहाँ डॉक्टर के लिए कोई विशेष निर्देश या जरूरी दवा की जानकारी लिख सकते हैं।";
+                else if (fieldId.startsWith('g')) guideText = "यहाँ अपने परिवार या किसी भरोसेमंद सदस्य का एसओएस इमरजेंसी मोबाइल नंबर डालें।";
+            }
+
+            if (guideText && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let speech = new SpeechSynthesisUtterance(guideText);
+                speech.lang = isEnglish ? 'en-US' : 'hi-IN';
+                speech.rate = 0.95;
+                window.speechSynthesis.speak(speech);
+            }
+        });
+    });
+});let recordedVoiceBlob = null;
+
+function startVoiceBiometricRecording() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("आपका ब्राउज़र वॉइस रिकॉर्डिंग सपोर्ट नहीं करता है।");
+        return;
+    }
+
+    let statusText = document.getElementById('voiceStatus');
+    statusText.innerText = "🎙️ बोलिए... अपना 4 अंकों का पिन और नाम बताएं (रिकॉर्डिंग जारी है)...";
+    statusText.style.color = "#00ff66";
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        let mediaRecorder = new MediaRecorder(stream);
+        let audioChunks = [];
+
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            recordedVoiceBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            
+            let reader = new FileReader();
+            reader.readAsDataURL(recordedVoiceBlob);
+            reader.onloadend = function() {
+                let base64Audio = reader.result;
+                localStorage.setItem('eb_voice_biometric_sample', base64Audio);
+                statusText.innerText = "✅ आवाज़ का बायोमेट्रिक सैंपल सफलतापूर्वक दर्ज हो गया है!";
+                statusText.style.color = "#00ffff";
+            };
+        };
+
+        mediaRecorder.start();
+
+        setTimeout(() => {
+            mediaRecorder.stop();
+            stream.getTracks().forEach(track => track.stop());
+        }, 4000);
+
+    }).catch(error => {
+        alert("माइक्रोफोन की अनुमति नहीं मिली। कृपया अनुमति दें।");
+        statusText.innerText = "❌ माइक की अनुमति आवश्यक है।";
+        statusText.style.color = "#ff0055";
+    });
+}
     </script>
 </body>
-</html>
+</html> 
