@@ -14,44 +14,68 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        :root { --bg-device: #010308; --panel-bg: #050a14; --card-bg: #091122; --border-glow: rgba(0, 243, 255, 0.6); --text-main: #e0f7fa; --text-muted: #546e7a; --accent-primary: #00f3ff; --accent-secondary: #0066ff; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
-        
-        body { 
-            background-color: var(--bg-device); 
-            color: var(--text-main); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            padding: 10px; 
-        }
-        
-        .phone-frame {
-            width: 100%; 
-            max-width: 420px; 
-            height: 100%;
-            max-height: 92vh;
-            background: var(--panel-bg);
-            border: 2px solid var(--accent-primary); 
-            border-radius: 20px;
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.4), inset 0 0 15px rgba(0, 243, 255, 0.1);
-            display: flex; 
-            flex-direction: column; 
-            position: relative;
-            overflow: hidden;
-        }
+     :root {
+    --bg-device: #010308;
+    --panel-bg: #050a14;
+    --card-bg: #091122;
+    --border-glow: rgba(0, 243, 255, 0.6);
+    --text-main: #e0f7fa;
+    --accent-primary: #00f3ff;
+    --accent-secondary: #0077ff;
+    --text-muted: #8098bc;
+}
 
-        .app-wrapper {
-            flex: 1;
-            padding: 14px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px;
-            overflow-y: auto;
-        }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+body {
+    background-color: var(--bg-device);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    padding: 10px;
+}
+
+.phone-frame {
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    max-height: 92vh;
+    background: var(--panel-bg);
+    border: 2px solid var(--accent-primary);
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.4), inset 0 0 15px rgba(0, 243, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.app-wrapper {
+    flex: 1;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar for clean UI */
+.app-wrapper::-webkit-scrollbar {
+    width: 4px;
+}
+.app-wrapper::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 10px;
+}
         .app-wrapper::-webkit-scrollbar { width: 4px; }
         .app-wrapper::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 10px; }
 
@@ -88,7 +112,7 @@
             background: rgba(2, 5, 11, 0.95); border: 1px solid rgba(0, 243, 255, 0.3);
             border-radius: 6px; color: #fff; padding: 8px 10px; font-size: 14px; outline: none; width: 100%;
             transition: 0.3s;
-        }
+         }
         .input-field:focus, .select-field:focus { border-color: var(--accent-primary); box-shadow: 0 0 10px rgba(0, 243, 255, 0.4); }
 
         .contact-row { display: flex; gap: 5px; }
@@ -190,18 +214,7 @@
             </select>
         </div>
 
-            <!-- क्रिटिकल इमरजेंसी मेडिकल और कंडीशन मॉड्यूल -->
-    <div class="input-group">
-        <label>7. क्रिटिकल मेडिकल स्टेटस व आपातकालीन निर्देश (Emergency Medical Profile)</label>
-        <select id="reg_medical" class="select-field" style="border-left: 3px solid #ff3333; color: #ff3333; font-weight: bold;">
-            <option value="Normal">सामान्य स्थिति / कोई गंभीर समस्या नहीं</option>
-            <option value="Severe_Allergy">गंभीर एलर्जी (दवा या फूड रिएक्शन का खतरा)</option>
-            <option value="Cardiac_Asthma">हृदय रोग या गंभीर दमा (Asthma / Heart Patient)</option>
-            <option value="Blood_Disorder">ब्लीडिंग डिसऑर्डर / खून का पतला होने की बीमारी</option>
-            <option value="Accident_Trauma_Prone">पूर्व गंभीर दुर्घटना / शारीरिक रूप से संवेदनशील</option>
-            <option value="Unconscious_Risk">बेहोशी या मिर्गी के दौरे का जोखिम</option>
-        </select>
-    </div>
+        
 
     <!-- अतिरिक्त जानकारी के लिए खुला नोट्स बॉक्स -->
     <div class="input-group" style="margin-top: 5px;">
