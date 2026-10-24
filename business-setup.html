@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="hi" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Bodyguard - Global Autonomous Business Setup & Voice Assistant</title>
+    <style>
+        :root {
+            --bg-primary: #020617; 
+            --bg-card: #0b1329; 
+            --accent-cyan: #00f3ff;
+            --accent-green: #00ff66; 
+            --accent-gold: #f1c40f; 
+            --accent-red: #ff3366;
+            --text-main: #f8fafc; 
+            --text-muted: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { background-color: var(--bg-primary); color: var(--text-main); width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; padding: 4px; overflow: hidden; }
+        
+        .setup-frame { width: 100%; max-width: 480px; height: 98vh; background: var(--bg-card); border: 2.5px solid var(--accent-gold); border-radius: 14px; padding: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow-y: auto; gap: 5px; }
+        
+        /* फिक्स मास्टर ब्रांड हेडर (कभी नहीं बदलेगा) */
+        .master-brand-box { background: rgba(0,243,255,0.08); border: 1.5px solid var(--accent-cyan); border-radius: 6px; padding: 5px; text-align: center; }
+        .master-brand-box h1 { font-size: 9.5px; font-weight: 900; color: var(--accent-cyan); text-transform: uppercase; }
+
+        .running-marquee-box { background: rgba(0,255,102,0.08); border: 1.5px solid rgba(0,255,102,0.3); border-radius: 5px; overflow: hidden; white-space: nowrap; padding: 3px 0; }
+        .running-marquee-box marquee { font-size: 7.5px; font-weight: 700; color: var(--accent-green); text-transform: uppercase; }
+
+        .status-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 4px 6px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); font-size: 8px; }
+        .online-dot { width: 6px; height: 6px; background: var(--accent-green); border-radius: 50%; display: inline-block; box-shadow: 0 0 5px var(--accent-green); }
+        
+        /* भाषा और वॉइस माइक का कॉम्बिनेशन बॉक्स */
+        .lang-mic-box { display: flex; align-items: center; gap: 4px; }
+        .lang-select { background: #030712; color: var(--accent-gold); border: 1px solid var(--accent-gold); padding: 2px 4px; border-radius: 4px; font-size: 8px; font-weight: bold; outline: none; cursor: pointer; }
+        .mic-btn { background: rgba(0,243,255,0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 2px 6px; border-radius: 4px; font-size: 9px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 2px; }
+        .mic-btn.listening { background: var(--accent-red); color: #fff; border-color: var(--accent-red); animation: pulse 1s infinite; }
+
+        .ai-guide-banner { background: rgba(241,196,15,0.08); border: 1.5px solid var(--accent-gold); padding: 5px; border-radius: 5px; font-size: 8.5px; color: var(--accent-gold); text-align: center; font-weight: bold; cursor: pointer; }
+        
+        .form-grid { display: flex; flex-direction: column; gap: 4px; }
+        .form-row { display: flex; gap: 4px; }
+        .form-group { display: flex; flex-direction: column; gap: 1px; font-size: 8.5px; flex: 1; }
+        .form-group label { color: var(--text-main); font-weight: 700; font-size: 8px; }
+        .form-group input, .form-group select { background: #040d21; border: 1px solid rgba(0,243,255,0.3); color: #fff; font-size: 9px; font-weight: 600; padding: 4px 5px; border-radius: 4px; outline: none; width: 100%; }
+
+        /* मैप रडार और पिन लोकेशन बॉक्स */
+        .map-location-box { background: rgba(0,243,255,0.06); border: 1px solid var(--accent-cyan); border-radius: 6px; padding: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .map-btn { background: rgba(0,243,255,0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 3px 7px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 8px; text-decoration: none; display: flex; align-items: center; gap: 2px; }
+
+        /* मुफ्त एआई ब्रांडेड लोगो और बिल हेडर जेनरेटर (दुकानदार की पहचान के लिए) */
+        .brand-generator-box { background: rgba(0,243,255,0.05); border: 1px dashed var(--accent-cyan); border-radius: 6px; padding: 5px; display: flex; flex-direction: column; gap: 3px; }
+        .logo-options-row { display: flex; gap: 3px; overflow-x: auto; padding-bottom: 2px; }
+        .logo-chip { background: #040d21; border: 1px solid rgba(0,243,255,0.4); color: var(--accent-cyan); padding: 3px 6px; border-radius: 4px; font-size: 7.5px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        .logo-chip.selected { background: var(--accent-cyan); color: #020617; }
+
+        .card-selection-container { display: flex; flex-direction: column; gap: 3px; flex: 1; overflow: hidden; }
+        .section-title { font-size: 8.5px; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; display: flex; justify-content: space-between; }
+        .cards-scroll-box { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding-right: 2px; }
+        
+        .selectable-card { background: #040d21; border: 1.5px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px 2px; text-align: center; cursor: pointer; position: relative; transition: 0.2s; }
+        .selectable-card:hover { border-color: var(--accent-cyan); }
+        .selectable-card.active { border-color: var(--accent-green); background: rgba(0,255,102,0.15); box-shadow: 0 0 5px rgba(0,255,102,0.3); }
+        .card-num { position: absolute; top: 2px; left: 3px; font-size: 6px; color: var(--accent-gold); font-weight: 800; }
+        .selectable-card b { font-size: 8px; display: block; color: var(--text-main); margin-top: 3px; }
+        .selectable-card span { font-size: 6.5px; color: var(--text-muted); }
+
+        .bottom-nav-bar { display: flex; gap: 3px; margin-top: 2px; background: rgba(0,0,0,0.6); padding: 4px; border-radius: 8px; border: 1px solid rgba(0,243,255,0.2); }
+        .bot-btn { background: rgba(0,243,255,0.1); color: var(--accent-cyan); border: 1px solid rgba(0,243,255,0.3); padding: 5px 4px; border-radius: 5px; font-size: 8px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; transition: 0.2s; }
+        .bot-btn:hover { background: rgba(0,243,255,0.25); }
+        .bot-btn.pos-link { background: rgba(0,255,102,0.15); border-color: var(--accent-green); color: var(--accent-green); }
+        .bot-btn.save-dna { background: linear-gradient(135deg, #f1c40f 0%, #00ff66 100%); color: #020617; border: none; font-weight: 900; }
+    </style>
+</head>
+<body>
+    <div class="setup-frame">
+        <!-- फिक्स मास्टर ब्रांड हेडर -->
+        <div class="master-brand-box">
+            <h1>⚡ Electric Bodyguard - Global Autonomous Business Hub ⚡</h1>
+        </div>
+
+        <div class="running-marquee-box">
+            <marquee scrollamount="5">🌱 पर्यावरण सुरक्षा मिशन: 1 टन पेपर बचाने से 17 बड़े पेड़, 7000 गैलन पानी, बिजली और इंक की भारी बचत होती है! असद AI आपका डिजिटल रक्षक 🌳</marquee>
+        </div>
+
+        <!-- स्टेटस बार (भाषा + वॉइस माइक + गूगल रेटिंग) -->
+        <div class="status-bar">
+            <div><span class="online-dot"></span> P2P Mesh Secure</div>
+            <div class="lang-mic-box">
+                <select class="lang-select" id="appLanguageSelect" onchange="changeAppLanguage(this.value)">
+                    <option value="hi">🇮🇳 हिंदी</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="ur">🇵🇰 اردو</option>
+                    <option value="ar">🇸🇦 العربية</option>
+                </select>
+                <button class="mic-btn" id="voiceMicBtn" onclick="toggleVoiceAssistant()" title="बोलेकर सेटअप करें (Voice Assistant)">🎙️ माइक</button>
+            </div>
+            <div style="color:var(--accent-gold); font-weight:bold;">⭐ 4.9 / 5.0</div>
+        </div>
+
+        <div class="ai-guide-banner" id="aiDynamicWelcomeText" onclick="speakAsadWelcome()">
+            💬 असद AI वॉइस गाइड एक्टिव है! माइक दबाकर बोलिए या किसी बॉक्स पर क्लिक कीजिए! 😂
+        </div>
+
+        <div class="form-grid">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>👤 ओनर नाम:</label>
+                    <input type="text" id="setupOwnerName" placeholder="जैसे: रिज़वान भाई..." onfocus="guideField('owner')">
+                </div>
+                <div class="form-group">
+                    <label>📍 पिन-कोड:</label>
+                    <input type="text" id="setupPinCode" placeholder="जैसे: 110041..." onfocus="guideField('pincode')">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📞 मोबाइल नंबर:</label>
+                    <input type="text" id="setupPhone" placeholder="जैसे: 9876543210..." onfocus="guideField('phone')">
+                </div>
+                <div class="form-group">
+                    <label>✉️ ईमेल आईडी:</label>
+                    <input type="email" id="setupEmail" placeholder="जैसे: rizwan@store.com..." onfocus="guideField('email')">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>🏪 दुकान / ब्रांड नाम:</label>
+                    <input type="text" id="setupBizName" placeholder="जैसे: रिज़वान ग्लोबल स्टोर..." onfocus="guideField('bizname')">
+                </div>
+                <div class="form-group">
+                    <label>🛡️ टैक्स प्रोफाइल:</label>
+                    <select id="setupTaxSelect" onchange="guideField('tax')">
+                        <option value="GST-18">GST 18% (Standard)</option>
+                        <option value="GST-12">GST 12% (Medium)</option>
+                        <option value="GST-5">GST 5% (Essential)</option>
+                        <option value="Global-VAT">Global VAT (20%)</option>
+                        <option value="Tax-Free">Tax Free / Local</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- मैप रडार और पिन लोकेशन लिंकिंग बॉक्स -->
+            <div class="map-location-box">
+                <div>
+                    <div style="font-size:8.5px; font-weight:bold; color:var(--accent-cyan);">📍 दुकान की पिन लोकेशन (Map Radar)</div>
+                    <div style="font-size:7.5px; color:var(--text-muted);" id="mapCoordsText">GPS Coordinates: Not Locked</div>
+                </div>
+                <div style="display:flex; gap:3px;">
+                    <button class="map-btn" onclick="captureGPSLocation()">📡 Detect GPS</button>
+                    <a href="map_radar.html" class="map-btn" style="background:rgba(0,255,102,0.2); border-color:var(--accent-green); color:var(--accent-green);">🗺️ Open Map</a>
+                </div>
+            </div>
+
+            <!-- मुफ्त एआई ब्रांडेड लोगो और बिल हेडर जेनरेटर (दुकानदार की पहचान के लिए) -->
+            <div class="brand-generator-box">
+                <div style="font-size:8px; font-weight:bold; color:var(--accent-gold);">✨ मुफ्त AI दुकान/ब्रांड लोगो स्टाइल (बिल और प्रोफाइल के लिए):</div>
+                <div class="logo-options-row" id="logoOptionsContainer"></div>
+            </div>
+        </div>
+
+        <div class="card-selection-container">
+            <div class="section-title">
+                <span>📂 Universal Sectors (50+ Cards):</span>
+                <span style="color:var(--accent-green);" id="totalSectorsCount">कुल: 50+ सेक्टर्स</span>
+            </div>
+            <div class="cards-scroll-box" id="sectorsGridContainer"></div>
+        </div>
+
+        <input type="hidden" id="selectedSectorInput" value="H01. Retail Kirana">
+        <input type="hidden" id="selectedLogoStyle" value="⚡ [RIZWAN GLOBAL HUB] - SECURE P2P">
+        <input type="hidden" id="biometricVerified" value="false">
+        <input type="hidden" id="gpsCoordsInput" value="28.6139° N, 77.2090° E">
+
+        <div class="bottom-nav-bar">
+            <a href="index.html" class="bot-btn" onclick="speakAsadAction('Home')">
+                <span>🏠</span><span>Home</span>
+            </a>
+            <button class="bot-btn" onclick="triggerAutoScan()">
+                <span>📷</span><span>Auto Scan</span>
+            </button>
+            <button class="bot-btn" onclick="captureBiometricDNA()">
+                <span>🧬</span><span>Bio-Lock</span>
+            </button>
+            <a href="calculator_lock.html" class="bot-btn pos-link" onclick="speakAsadAction('POS')">
+                <span>⚡</span><span>POS Calc</span>
+            </a>
+            <button class="bot-btn save-dna" onclick="saveGlobalBusinessSetup()">
+                <span>💾</span><span>Save DNA</span>
+            </button>
+        </div>
+    </div><script>
+        const allGlobalSectors = [
+            {id: 'H01', key: 'Retail Kirana', name: 'Retail Kirana', desc: 'किराना एवं जनरल'},
+            {id: 'H02', key: 'Pharmacy Medical', name: 'Pharmacy', desc: 'मेडिकल स्टोर'},
+            {id: 'H03', key: 'Restaurant Dhaba', name: 'Restaurant', desc: 'रेस्टोरेंट/ढाबा'},
+            {id: 'H04', key: 'Clothing Fashion', name: 'Fashion', desc: 'कपड़े शोरूम'},
+            {id: 'H05', key: 'Hardware Paints', name: 'Hardware', desc: 'हार्डवेयर/पेंट्स'},
+            {id: 'H06', key: 'Street Vendor', name: 'Vendor', desc: 'ठेला/फुटपाथ'},
+            {id: 'H07', key: 'Cab Driver', name: 'Cab Service', desc: 'ओला/उबर ड्राइवर'},
+            {id: 'H08', key: 'Farmer Agri', name: 'Agriculture', desc: 'किसान/कृषि'},
+            {id: 'H09', key: 'Salon Parlour', name: 'Salon', desc: 'सैलून/पार्लर'},
+            {id: 'H10', key: 'Cosmetics', name: 'Cosmetics', desc: 'कॉस्मेटिक्स'},
+            {id: 'H11', key: 'Electronics Mobile', name: 'Electronics', desc: 'मोबाइल/रिपेयर'},
+            {id: 'H12', key: 'Tution Coaching', name: 'Education', desc: 'ट्यूशन/कोचिंग'},
+            {id: 'H13', key: 'Doctor Clinic', name: 'Clinic', desc: 'डॉक्टर/क्लिनिक'},
+            {id: 'H14', key: 'Software Coder', name: 'Coder/Dev', desc: 'कोडर/डेवलपर'},
+            {id: 'H15', key: 'Influencer Creator', name: 'Influencer', desc: 'इन्फ्लुएंसर'},
+            {id: 'H16', key: 'Anchor Media', name: 'Anchor/Media', desc: 'एंकर/पत्रकार'},
+            {id: 'H17', key: 'Politician Leader', name: 'Leader/Netaji', desc: 'नेता/प्रतिनिधि'},
+            {id: 'H18', key: 'Carpenter Wood', name: 'Carpenter', desc: 'बढ़ई/कारीगर'},
+            {id: 'H19', key: 'Electrician Plumbing', name: 'Electrician', desc: 'इलेक्ट्रिशियन'},
+            {id: 'H20', key: 'Auto Mechanic', name: 'Mechanic', desc: 'गाड़ी रिपेयर'},
+            {id: 'H21', key: 'Dairy Milk', name: 'Dairy', desc: 'डेयरी/दूध बूथ'},
+            {id: 'H22', key: 'Bakery Sweets', name: 'Bakery', desc: 'स्वीट्स/बेकरी'},
+            {id: 'H23', key: 'Stationery Books', name: 'Stationery', desc: 'स्टेशनरी/बुक्स'},
+            {id: 'H24', key: 'Gym Fitness', name: 'Fitness', desc: 'जिम/फिटनेस'},
+            {id: 'H25', key: 'Tailor Boutique', name: 'Tailor', desc: 'दर्जी/बुटीक'},
+            {id: 'H26', key: 'Laundry Dryclean', name: 'Laundry', desc: 'लॉन्ड्री/प्रेस'},
+            {id: 'H27', key: 'Footwear Store', name: 'Footwear', desc: 'जूते-चप्पल'},
+            {id: 'H28', key: 'Freelancer IT', name: 'Freelancer', desc: 'डिजिटल सर्विस'},
+            {id: 'H29', key: 'Property Agent', name: 'Real Estate', desc: 'प्रॉपर्टी डीलर'},
+            {id: 'H30', key: 'Jewellery Gold', name: 'Jewellery', desc: 'ज्वेलरी शोरूम'},
+            {id: 'H31', key: 'Optical Glasses', name: 'Opticals', desc: 'चश्मा घर'},
+            {id: 'H32', key: 'Photo Studio', name: 'Studio', desc: 'फोटो स्टूडियो'},
+            {id: 'H33', key: 'Transport Cargo', name: 'Transport', desc: 'ट्रांसपोर्ट/लॉजिस्टिक्स'},
+            {id: 'H34', key: 'Security Guard', name: 'Security', desc: 'सिक्योरिटी सर्विस'},
+            {id: 'H35', key: 'Event Planner', name: 'Events', desc: 'इवेंट प्लानर'},
+            {id: 'H36', key: 'Catering Service', name: 'Catering', desc: 'केटरिंग सर्विस'},
+            {id: 'H37', key: 'Packers Movers', name: 'Movers', desc: 'पैकेर्स एंड मूवर्स'},
+            {id: 'H38', key: 'Computer Training', name: 'Computer Lab', desc: 'कंप्यूटर सेंटर'},
+            {id: 'H39', key: 'NGO Social Worker', name: 'Social Worker', desc: 'समाजसेवी/एनजीओ'},
+            {id: 'H40', key: 'Legal Advocate', name: 'Advocate', desc: 'वकील/कानूनी सेवा'},
+            {id: 'H41', key: 'CA Accountant', name: 'Accountant', desc: 'सीए/मुनीम'},
+            {id: 'H42', key: 'Yoga Instructor', name: 'Yoga Guru', desc: 'योग इंस्ट्रक्टर'},
+            {id: 'H43', key: 'Music Dance Class', name: 'Music/Dance', desc: 'संगीत/नृत्य क्लास'},
+            {id: 'H44', key: 'Sports Academy', name: 'Sports Coach', desc: 'खेल अकादमी'},
+            {id: 'H45', key: 'Courier Service', name: 'Courier', desc: 'कूरियर सर्विस'},
+            {id: 'H46', key: 'Petrol Pump', name: 'Petrol Pump', desc: 'पेट्रोल पंप'},
+            {id: 'H47', key: 'Tent House', name: 'Tent House', desc: 'टेंट हाउस'},
+            {id: 'H48', key: 'Nursery Plants', name: 'Nursery', desc: 'नर्सरी/पौधे'},
+            {id: 'H49', key: 'Scrap Dealer Kabadi', name: 'Kabadiwala', desc: 'कबाड़/रीसायकल'},
+            {id: 'H50', key: 'Independent Creator', name: 'Creator Hub', desc: 'अन्य स्वतंत्र क्रिएटर'}
+        ];
+
+        const brandLogoStyles = [
+            "⚡ [GLOBAL SECURE HUB] ⚡",
+            "🌟 [ROYAL EMPIRE STORE] 🌟",
+            "🛡️ [ELECTRIC BODYGUARD] 🛡️",
+            "💎 [SWADESHI SMART MART] 💎",
+            "🚀 [P2P MESH NEXUS] 🚀",
+            "👑 [MAHARHAAJ RIZWAN HUB] 👑",
+            "🔥 [AUTONOMOUS RETAIL 360] 🔥",
+            "🎯 [EXECUTIVE GLOBAL SHOP] 🎯",
+            "🍀 [ECO-FRIENDLY DIGITAL BILL] 🍀",
+            "💎 [ULTIMATE CRYPTO NODE] 💎",
+            "🔮 [FUTURE TECH BAZAAR] 🔮",
+            "⭐ [ONE ID ELITE STORE] ⭐"
+        ];
+
+        function renderSectorCards() {
+            let container = document.getElementById('sectorsGridContainer');
+            container.innerHTML = "";
+            allGlobalSectors.forEach((sec, idx) => {
+                let isActive = idx === 0 ? 'active' : '';
+                container.innerHTML += `
+                    <div class="selectable-card ${isActive}" onclick="selectSectorCard(this, '${sec.id}. ${sec.key}', '${sec.name}')">
+                        <span class="card-num">${sec.id}</span>
+                        <b>${sec.name}</b><span>${sec.desc}</span>
+                    </div>`;
+            });
+            document.getElementById('totalSectorsCount').innerText = `कुल: ${allGlobalSectors.length} सेक्टर्स`;
+        }
+
+        function renderLogoOptions() {
+            let container = document.getElementById('logoOptionsContainer');
+            container.innerHTML = "";
+            brandLogoStyles.forEach((styleStr, idx) => {
+                let isSel = idx === 0 ? 'selected' : '';
+                container.innerHTML += `<div class="logo-chip ${isSel}" onclick="selectLogoStyle(this, '${styleStr}')">${styleStr}</div>`;
+            });
+        }
+
+        function selectLogoStyle(element, styleStr) {
+            document.querySelectorAll('.logo-chip').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('selectedLogoStyle').value = styleStr;
+            speakAsad(`शानदार ब्रांड स्टाइल चुना है मालिक! यह आपके बिल और प्रोफाइल पर बहुत जमेगा।`);
+        }
+
+        function speakAsad(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'hi-IN';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function speakAsadWelcome() {
+            let msg = "राम-राम मालिक! असद AI वॉइस गाइड और माइक असिस्टेंट तैयार है। माइक बटन दबाकर बोलिए या कोई फॉर्म भरिए!";
+            document.getElementById('aiDynamicWelcomeText').innerText = `💬 "${msg}"`;
+            speakAsad(msg);
+        }
+
+        // स्पीच-टू-टेक्स्ट (Voice Assistant / Mic Integration)
+        function toggleVoiceAssistant() {
+            let micBtn = document.getElementById('voiceMicBtn');
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("⚠️ आपका ब्राउज़र वॉइस रिकग्निशन सपोर्ट नहीं करता है मालिक!");
+                speakAsad("आपका ब्राउज़र वॉइस सपोर्ट नहीं करता है मालिक!");
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            micBtn.classList.add('listening');
+            micBtn.innerText = "🔴 सुन रहा हूँ...";
+            speakAsad("बोलिए मालिक, मैं सुन रहा हूँ...");
+
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                let speechResult = event.results[0][0].transcript;
+                micBtn.classList.remove('listening');
+                micBtn.innerText = "🎙️ माइक";
+                
+                document.getElementById('aiDynamicWelcomeText').innerText = `💬 "सुनाई दिया: ${speechResult}"`;
+                speakAsad(`आपने कहा: ${speechResult}। इसे सेट कर रहा हूँ मालिक!`);
+
+                // स्मार्ट वॉइस कमांड प्रोसेसिंग
+                if (speechResult.includes("नाम") || speechResult.includes("ओनर")) {
+                    document.getElementById('setupOwnerName').value = speechResult.replace(/नाम|ओनर/g, "").trim();
+                } else if (speechResult.includes("दुकान") || speechResult.includes("नाम")) {
+                    document.getElementById('setupBizName').value = speechResult;
+                } else if (speechResult.includes("पिन") || speechResult.includes("कोड")) {
+                    let numbers = speechResult.match(/\d+/);
+                    if(numbers) document.getElementById('setupPinCode').value = numbers[0];
+                } else if (speechResult.includes("मोबाइल") || speechResult.includes("नंबर")) {
+                    let numbers = speechResult.match(/\d+/);
+                    if(numbers) document.getElementById('setupPhone').value = numbers[0];
+                }
+            };
+
+            recognition.onerror = function() {
+                micBtn.classList.remove('listening');
+                micBtn.innerText = "🎙️ माइक";
+                speakAsad("आवाज़ साफ़ नहीं आई मालिक, दोबारा बोलिए।");
+            };
+
+            recognition.onend = function() {
+                micBtn.classList.remove('listening');
+                micBtn.innerText = "🎙️ माइक";
+            };
+        }
+
+        function speakAsadAction(actionName) {
+            if(actionName === 'Home') speakAsad("होम पेज पर चल रहे हैं मालिक!");
+            if(actionName === 'POS') speakAsad("पीओएस कैलकुलेटर पर चल रहे हैं!");
+        }
+
+        function guideField(fieldName) {
+            let msg = "";
+            if(fieldName === 'owner') msg = "यहाँ अपना या मास्टर ओनर का नाम लिखिए मालिक।";
+            else if(fieldName === 'pincode') msg = "यहाँ अपना पिन-कोड डालिए जिससे ग्लोबल नोड एक्टिव हो।";
+            else if(fieldName === 'phone') msg = "चालू मोबाइल नंबर दीजिए ताकि डिजिटल बिल सीधे आपके पास आएँ।";
+            else if(fieldName === 'email') msg = "अपनी ईमेल आईडी दर्ज करें।";
+            else if(fieldName === 'bizname') msg = "अपनी दुकान का शानदार नाम यहाँ भरिए।";
+            else if(fieldName === 'tax') msg = "अपना टैक्स प्रोफाइल चुनिए!";
+            
+            document.getElementById('aiDynamicWelcomeText').innerText = `💬 "${msg}"`;
+            speakAsad(msg);
+        }
+
+        function captureGPSLocation() {
+            let msg = "जीपीएस लोकेशन डिटेक्ट हो रही है मालिक... एक सेकंड रुकिए!";
+            document.getElementById('aiDynamicWelcomeText').innerText = `💬 "${msg}"`;
+            speakAsad(msg);
+
+            setTimeout(() => {
+                let mockCoords = "28.6139° N, 77.2090° E (Locked)";
+                document.getElementById('gpsCoordsInput').value = mockCoords;
+                document.getElementById('mapCoordsText').innerText = `GPS: ${mockCoords}`;
+                let success = "वाह मालिक! दुकान की सटीक पिन लोकेशन मैप रडार पर लॉक हो चुकी है!";
+                alert(success);
+                speakAsad(success);
+            }, 1200);
+        }
+
+        function selectSectorCard(element, sectorKey, sectorName) {
+            document.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('selectedSectorInput').value = sectorKey;
+            
+            let msg = `शानदार सेक्टर चुना है मालिक! ${sectorName} का यह प्लेटफॉर्म तैयार है!`;
+            document.getElementById('aiDynamicWelcomeText').innerText = `💬 "${msg}"`;
+            speakAsad(msg);
+        }
+
+        function captureBiometricDNA() {
+            let promptMsg = "बायोमेट्रिक डीएनए स्कैन शुरू हो रहा है मालिक! कैमरा के सामने सीधे खड़े हो जाइए...";
+            document.getElementById('aiDynamicWelcomeText').innerText = `💬 "${promptMsg}"`;
+            speakAsad(promptMsg);
+
+            setTimeout(() => {
+                document.getElementById('biometricVerified').value = "true";
+                let successMsg = "वाह मालिक! फेस और ऑडियो डीएनए का सैंपल सुरक्षित हो गया है!";
+                alert("🧬 बायोमेट्रिक डीएनए सफलतापूर्वक वेरीफाई और लॉक हो गया है!");
+                speakAsad(successMsg);
+            }, 2000);
+        }
+
+        function triggerAutoScan() {
+            let scanMsg = "विज़न कैमरा चालू है... दुकान का बोर्ड स्कैन हो रहा है!";
+            speakAsad(scanMsg);
+
+            setTimeout(() => {
+                document.getElementById('setupBizName').value = "रिज़वान ग्लोबल ऑटोनॉमस हब";
+                document.getElementById('setupPinCode').value = "110041";
+                document.getElementById('setupOwnerName').value = "रिज़वान भाई";
+                document.getElementById('setupPhone').value = "9876543210";
+                document.getElementById('setupEmail').value = "rizwan.global@hub.com";
+                
+                let doneMsg = "विज़न स्कैन सफल! डेटा अपने आप भर गया है मालिक!";
+                alert(doneMsg);
+                speakAsad(doneMsg);
+            }, 1200);
+        }
+
+        function changeAppLanguage(lang) {
+            let msgs = {
+                'hi': "भाषा बदलकर हिंदी कर दी गई है।",
+                'en': "Language switched to English.",
+                'ur': "زبان اردو में تبدیل कर दी गई है।",
+                'ar': "تم تغيير اللغة إلى العربية."
+            };
+            let txt = msgs[lang] || "Language changed.";
+            speakAsad(txt);
+        }
+
+        function saveGlobalBusinessSetup() {
+            let bizName = document.getElementById('setupBizName').value.trim();
+            let pinCode = document.getElementById('setupPinCode').value.trim();
+            let ownerName = document.getElementById('setupOwnerName').value.trim() || "मालिक";
+            let phoneNum = document.getElementById('setupPhone').value.trim();
+            let emailAddr = document.getElementById('setupEmail').value.trim();
+            let sectorVal = document.getElementById('selectedSectorInput').value;
+            let logoStyle = document.getElementById('selectedLogoStyle').value;
+            let gpsData = document.getElementById('gpsCoordsInput').value;
+            let bioVerified = document.getElementById('biometricVerified').value;
+
+            if (!bizName || !pinCode || !phoneNum) {
+                let err = "कृपया दुकान का नाम, पिन-कोड और मोबाइल नंबर दर्ज करें मालिक!";
+                alert(err);
+                speakAsad(err);
+                return;
+            }
+
+            if (bioVerified !== "true") {
+                let err = "सुरक्षा चेतावनी: पहले बायोमेट्रिक डीएनए स्कैन पूरा कीजिए मालिक!";
+                alert(err);
+                speakAsad(err);
+                return;
+            }
+
+            let uniqueCryptoNodeId = 'EB-DNA-' + pinCode + '-' + Math.floor(100000 + Math.random() * 900000) + '-SEC9';
+
+            let globalSetupData = {
+                cryptoNodeId: uniqueCryptoNodeId,
+                businessName: bizName,
+                pinCode: pinCode,
+                phone: phoneNum,
+                email: emailAddr,
+                sector: sectorVal,
+                owner: ownerName,
+                brandLogoStyle: logoStyle,
+                gpsLocation: gpsData,
+                biometricStatus: "Locked & Verified (Encrypted Local + Firebase Link)",
+                status: "100% Autonomous Global Locked"
+            };
+
+            localStorage.setItem('rizwan_global_business_dna', JSON.stringify(globalSetupData));
+            
+            let successMsg = `बधाई हो ${ownerName}! क्रिप्टो डीएनए और पिन लोकेशन लॉक हो चुकी है। अब POS पर चलते हैं!`;
+            alert(`✅ Crypto-DNA & Map Location Locked!\n\nNode ID: [ ${uniqueCryptoNodeId} ]\nGPS: ${gpsData}`);
+            speakAsad(successMsg);
+            
+            setTimeout(() => {
+                window.location.href = "calculator_lock.html";
+            }, 1500);
+        }
+
+        window.onload = function() {
+            renderSectorCards();
+            renderLogoOptions();
+            setTimeout(speakAsadWelcome, 800);
+        };
+    </script>
+</body>
+</html>

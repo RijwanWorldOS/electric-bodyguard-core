@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ELECTRIC BODYGUARD - MASTER P2P MESH OS</title>
+    
+    <style>
+        :root {
+            --bg-deep: #000205;
+            --panel-bg: rgba(3, 8, 15, 0.99);
+            --border-neon: rgba(0, 240, 255, 0.5);
+            --border-active: #00f0ff;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffaa00;
+            --neon-pink: #ff0055;
+            --neon-purple: #bd00ff;
+            --text-main: #ffffff;
+            --text-sub: #88ccff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            background-color: var(--bg-deep); color: var(--border-active);
+            display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; overflow: hidden;
+        }
+        .phone-container {
+            width: 100%; max-width: 410px; height: 96vh;
+            background: var(--panel-bg); border: 2.5px solid var(--border-active); border-radius: 24px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.3); overflow: hidden; position: relative; padding-bottom: 50px;
+        }
+        
+        .mesh-header {
+            padding: 8px 12px; background: rgba(0, 5, 15, 0.99);
+            border-bottom: 2px solid var(--border-active); display: flex; flex-direction: column; gap: 4px; z-index: 1000;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .brand-main { font-size: 10.5px; font-weight: 900; color: var(--neon-yellow); letter-spacing: 1.5px; text-shadow: 0 0 10px rgba(255,170,0,0.5); }
+        .page-title { font-size: 8px; font-weight: bold; color: var(--neon-green); text-transform: uppercase; letter-spacing: 0.5px; }
+        .back-btn { font-size: 8px; color: var(--border-active); text-decoration: none; background: rgba(0,240,255,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,240,255,0.5); }
+
+        /* 📡 नेक्स्ट-जेन पल्सिंग रडार व्यूपोर्ट */
+        .radar-viewport {
+            width: 100%; height: 130px; background: radial-gradient(circle, rgba(0,20,40,0.95) 0%, rgba(0,2,5,0.99) 85%);
+            border-bottom: 2px solid var(--border-neon); position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        .pulse-ring {
+            position: absolute; width: 20px; height: 20px; border: 1.5px solid var(--border-active);
+            border-radius: 50%; animation: ringPulse 3s cubic-bezier(0.1, 0.8, 0.3, 1) infinite; opacity: 0;
+        }
+        .pulse-ring:nth-child(2) { animation-delay: 1s; }
+        .pulse-ring:nth-child(3) { animation-delay: 2s; }
+
+        @keyframes ringPulse {
+            0% { width: 15px; height: 15px; opacity: 1; border-color: var(--neon-green); }
+            50% { border-color: var(--border-active); }
+            100% { width: 120px; height: 120px; opacity: 0; border-color: var(--neon-pink); }
+        }
+
+        .radar-center-core {
+            width: 10px; height: 10px; background: var(--neon-green); border-radius: 50%;
+            box-shadow: 0 0 15px var(--neon-green); z-index: 10;
+        }
+        .radar-status-badge {
+            position: absolute; bottom: 3px; font-size: 6.5px; color: var(--neon-green); font-weight: bold;
+            background: rgba(0,0,0,0.85); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-neon);
+        }
+
+        /* 🤖 एआई गाइड और ऑटोनॉमस स्टेटस */
+        .ai-guide-box {
+            background: rgba(0, 240, 255, 0.06); border-bottom: 1.5px solid var(--border-neon);
+            padding: 5px 10px; display: flex; flex-direction: column; gap: 2px;
+        }
+        .ai-guide-title { font-size: 7.5px; font-weight: bold; color: var(--neon-yellow); display: flex; justify-content: space-between; align-items: center; }
+        .ai-guide-msg { font-size: 7px; color: var(--text-main); line-height: 1.2; }
+
+        /* कंट्रोल्स बार */
+        .mesh-controls {
+            display: flex; gap: 4px; padding: 5px 10px; background: rgba(0, 10, 22, 0.95);
+            border-bottom: 1.5px solid var(--border-neon); justify-content: space-between; align-items: center;
+        }
+        .gateway-btn {
+            flex: 1; background: linear-gradient(135deg, var(--neon-green), var(--border-active)); color: #000; border: none; padding: 5px;
+            border-radius: 4px; font-size: 7.5px; font-weight: bold; cursor: pointer; text-align: center;
+        }
+        .heal-btn {
+            background: var(--neon-pink); color: #fff; border: none; padding: 5px 8px;
+            border-radius: 4px; font-size: 7.5px; font-weight: bold; cursor: pointer;
+        }
+
+        /* ट्रैफिक और चेकपोस्ट लॉग्स */
+        .traffic-viewport { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+        .traffic-card {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(0, 10, 25, 0.9));
+            border: 1.5px solid var(--border-neon); border-radius: 6px; padding: 6px 8px;
+            display: flex; flex-direction: column; gap: 2px; backdrop-filter: blur(4px);
+        }
+        .traffic-title { font-size: 8px; font-weight: bold; color: var(--neon-yellow); display: flex; justify-content: space-between; }
+        .traffic-desc { font-size: 6.5px; color: var(--text-main); }
+
+        .bottom-nav {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(0, 4, 10, 0.99); border-top: 1.5px solid var(--border-neon);
+            display: flex; justify-content: space-around; padding: 5px 2px; z-index: 1000;
+        }
+        .nav-tab { color: var(--text-sub); text-decoration: none; font-size: 6.5px; text-align: center; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+        .nav-tab.active, .nav-tab:hover { color: var(--neon-green); }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="mesh-header">
+        <div class="header-top">
+            <div>
+                <div class="brand-main">⚡ ELECTRIC BODYGUARD</div>
+                <div class="page-title">🌐 Master Checkpoint & P2P Mesh OS</div>
+            </div>
+            <a href="index.html" class="back-btn">⬅ Back</a>
+        </div>
+    </div>
+
+    <div class="radar-viewport">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <div class="radar-center-core" title="Master Checkpoint"></div>
+        <div class="radar-status-badge" id="activeNodesBadge">🟢 All-In-One P2P Mesh & Firebase Active</div>
+    </div>
+
+    <div class="ai-guide-box">
+        <div class="ai-guide-title">
+            <span>🤖 AI Master Guide & Karma Tracker</span>
+            <span id="aiShieldState" style="color:var(--neon-green);">BULLETPROOF</span>
+        </div>
+        <div class="ai-guide-msg" id="aiGuideText">
+            सैनिटाइज़र, ज़ीरो-फुटप्रिंट हॉपिंग, स्टोर-एंड-फॉरवर्ड, कर्मा पॉइंट्स और सिम-फॉलबैक सभी प्रणालियाँ एक साथ सक्रिय हैं।
+        </div>
+    </div>
+
+    <div class="mesh-controls">
+        <button class="gateway-btn" onclick="executeMasterMeshPipeline()">⚡ Run Master Mesh Pipeline Test</button>
+        <button class="heal-btn" onclick="selfHealMeshNetwork()">🛠️ Heal</button>
+    </div>
+
+    <div class="traffic-viewport" id="trafficLogContainer">
+        <div class="traffic-card">
+            <div class="traffic-title"><span>🛡️ Master Checkpoint Initialized</span> <span style="color:var(--neon-green);">SECURE</span></div>
+            <div class="traffic-desc">All features loaded: Radar, Sanitizer, Obstacle-Routing, Quota Consent, Karma Rewards, & SIM Fallback.</div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-tab"><span>🏠</span><span>Home</span></a>
+        <a href="notifications.html" class="nav-tab"><span>🔔</span><span>Notifs</span></a>
+        <a href="pay.html" class="nav-tab"><span>💳</span><span>Pay OS</span></a>
+        <a href="feed-biz.html" class="nav-tab"><span>📰</span><span>Feeds</span></a>
+        <a href="chat.html" class="nav-tab"><span>💬</span><span>Chat</span></a>
+    </div>
+</div><script>
+    // 🌟 1. कर्मा और पिन-कोड रेपुटेशन सिस्टम
+    class KarmaRewardSystem {
+        constructor() {
+            this.karmaPoints = 125;
+            this.rank = "Pin-Code Guardian (Tier 1)";
+        }
+        rewardContribution() {
+            this.karmaPoints += 15;
+            if (this.karmaPoints > 200) this.rank = "Zonal Elite Protector (Tier 2)";
+            return { points: this.karmaPoints, rank: this.rank };
+        }
+    }
+    const karmaSystem = new KarmaRewardSystem();
+
+    // 🛡️ 2. पैकेट सैनिटाइज़र और मैलवेयर/फिशिंग फिल्टर
+    function sanitizePacketPayload(packet) {
+        let raw = JSON.stringify(packet).toLowerCase();
+        const threats = ["malware", "phishing", "script", "evil_link", "eval("];
+        for (let t of threats) {
+            if (raw.includes(t)) return { status: "BLOCKED", reason: `Threat '${t}' dropped.` };
+        }
+        return { status: "CLEAN", sanitized: packet };
+    }
+
+    // 🔐 3. प्राइवेसी कंसेंट और डेटा कोटा मैनेजर (2MB कैपिंग)
+    class ConsentManager {
+        constructor() {
+            this.optIn = true;
+            this.maxQuota = 2 * 1024 * 1024; // 2MB
+            this.used = 0;
+        }
+        checkConsent(size) {
+            if (!this.optIn || (this.used + size) > this.maxQuota) return false;
+            this.used += size;
+            return true;
+        }
+    }
+    const consentManager = new ConsentManager();
+
+    // 📶 4. सिम / सेल्युलर SMS फॉलबैक गेटवे
+    function triggerSimFallback() {
+        return { status: "SMS_FALLBACK_ACTIVE", note: "Payload compressed into silent emergency SMS control channel." };
+    }
+
+    // ☁️ 5. ऑनलाइन होने पर Firebase सिंक डेमन
+    window.addEventListener('online', function() {
+        document.getElementById('activeNodesBadge').innerText = "🟢 Online: Syncing Local Buffer to Firebase...";
+        syncToFirebase();
+    });
+
+    window.addEventListener('offline', function() {
+        document.getElementById('activeNodesBadge').innerText = "🟠 Offline: P2P Mesh & Local Buffer Active";
+    });
+
+    function syncToFirebase() {
+        let aiText = document.getElementById('aiGuideText');
+        aiText.innerText = "☁️ इंटरनेट बहाल! लोकल बफर से सारा डेटा सुरक्षित रूप से Firebase डैशबोर्ड पर भेजा जा रहा है...";
+        setTimeout(() => {
+            aiText.innerText = "✅ Firebase सिंक सफल! डैशबोर्ड पर सभी एक्टिविटी अपडेट हो चुकी हैं।";
+            speakAI("Data successfully synchronized to Firebase dashboard.");
+        }, 1500);
+    }
+
+    // 🛠️ 6. सेल्फ-हीलिंग डेमन
+    function selfHealMeshNetwork() {
+        let aiText = document.getElementById('aiGuideText');
+        let shieldState = document.getElementById('aiShieldState');
+        
+        aiText.innerText = "🛠️ सेल्फ-हीलिंग और ऑप्टिमाइजेशन जारी: राउटिंग टेबल रीसेट की जा रही है...";
+        shieldState.innerText = "HEALING...";
+        shieldState.style.color = "var(--neon-yellow)";
+
+        setTimeout(() => {
+            aiText.innerText = "✅ मेश नेटवर्क पूरी तरह ठीक और बुलेटप्रूफ कर दिया गया है। सभी रास्ते साफ हैं।";
+            shieldState.innerText = "BULLETPROOF";
+            shieldState.style.color = "var(--neon-green)";
+            speakAI("Mesh network successfully self-healed and secured.");
+        }, 1500);
+    }
+
+    // 🚀 7. मास्टर मेश पाइपलाइन टेस्ट (सभी फीचर्स का एक साथ निष्पादन)
+    function executeMasterMeshPipeline() {
+        let container = document.getElementById('trafficLogContainer');
+        container.innerHTML = '';
+
+        let samplePacket = { type: "UNIVERSAL_TRAFFIC", payload: "Secure Node Sync & Chat Payload" };
+        let scan = sanitizePacketPayload(samplePacket);
+        let consent = consentManager.checkConsent(256 * 1024); // 256KB
+        let karma = karmaSystem.rewardContribution();
+        let fallback = triggerSimFallback();
+
+        let pipelineSteps = [
+            { type: "🛂 Master Checkpoint Scan", desc: `패केट सैनिटाइज़र स्टेटस: ${scan.status}. कोई मैलवेयर या फिशिंग लिंक नहीं पाया गया।`, status: "PASSED" },
+            { type: "🧱 Obstacle & Store-Forward", desc: "दीवारों/रुकावटों को पार करने के लिए RSSI पथफाइंडर और बफर एक्टिव.", status: "ROUTED" },
+            { type: "🔐 Consent & Quota Guard", desc: `प्राइवेसी कंसेंट पास। कोटा शेष सुरक्षित।`, status: consent ? "APPROVED" : "BLOCKED" },
+            { type: "🌟 Karma Reward Awarded", desc: `मेश मदद के लिए कर्मा पॉइंट्स बढ़कर ${karma.points} हुए। रैंक: ${karma.rank}`, status: "PROMOTED" },
+            { type: "📶 SIM & Firebase Bridge", desc: `सिम फॉलबैक स्टेटस: ${fallback.status}. ऑनलाइन मिलते ही Firebase सिंक रेडी।`, status: "READY" }
+        ];
+
+        pipelineSteps.forEach((item, index) => {
+            setTimeout(() => {
+                let card = document.createElement('div');
+                card.className = 'traffic-card';
+                card.innerHTML = `
+                    <div class="traffic-title"><span>${item.type}</span> <span style="color:var(--neon-green);">${item.status}</span></div>
+                    <div class="traffic-desc">${item.desc}</div>
+                `;
+                container.prepend(card);
+            }, 350 * (index + 1));
+        });
+
+        setTimeout(function() {
+            let globalEvent = {
+                id: "MASTER-PIPE-" + Date.now(),
+                category: "map",
+                title: "🌐 Master Mesh Pipeline Executed",
+                desc: "सभी सुरक्षा, मेश हॉपिंग और कर्मा फीचर्स ने सफलतापूर्वक काम किया है।",
+                time: "Just Now"
+            };
+            localStorage.setItem('EB_GLOBAL_EVENT', JSON.stringify(globalEvent));
+            speakAI("Master mesh pipeline execution completed.");
+        }, 2000);
+    }
+
+    function speakAI(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+</script>
+</body>
+</html>

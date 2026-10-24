@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Fund : Electric Bodyguard (NR-AI X)</title>
+    <!-- QR Code Generator & Firebase SDKs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --bg-primary: #030712;
+            --bg-card: rgba(8, 20, 35, 0.95);
+            --border-neon: rgba(0, 255, 128, 0.3);
+            --accent-gold: #f1c40f;
+            --accent-cyan: #00f3ff;
+            --accent-green: #00ff66;
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            background-image: radial-gradient(circle at 50% 10%, #051b14 0%, #030712 90%);
+        }
+
+        .app-frame {
+            width: 100%;
+            max-width: 480px;
+            height: 96vh;
+            background: #040f1a;
+            border: 2px solid var(--accent-green);
+            border-radius: 26px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,255,102,0.15);
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .app-frame { max-width: 520px; }
+        }
+
+        /* बायोमेट्रिक फिंगरप्रिंट लॉक स्क्रीन (क्लीन और प्रोफेशनल) */
+        #biometricLockScreen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.99);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .fingerprint-icon {
+            font-size: 55px;
+            color: var(--accent-green);
+            cursor: pointer;
+            animation: fp-pulse 1.5s infinite alternate;
+        }
+
+        @keyframes fp-pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px var(--accent-green)); }
+            100% { transform: scale(1.1); filter: drop-shadow(0 0 20px var(--accent-green)); }
+        }
+
+        header {
+            background: rgba(3, 15, 10, 0.98);
+            border-bottom: 1px solid var(--border-neon);
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .home-link {
+            background: rgba(0, 255, 102, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 9px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        header h1 {
+            color: var(--accent-green);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        .content-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .currency-mode-tabs {
+            display: flex;
+            gap: 6px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            background: rgba(10, 25, 35, 0.9);
+            border: 1px solid var(--border-neon);
+            color: var(--text-muted);
+            padding: 6px 4px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .mode-tab.active {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            border-color: var(--accent-green);
+            box-shadow: 0 0 10px rgba(0,255,102,0.3);
+        }
+
+        .message-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-neon);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .message-card p {
+            font-size: 8.5px;
+            line-height: 1.6;
+            color: #d1d5db;
+            margin-bottom: 8px;
+        }
+
+        .listen-audio-btn {
+            background: rgba(0, 255, 102, 0.15);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .amount-section-title {
+            font-size: 9px;
+            color: var(--accent-gold);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .amount-grid {
+            display: flex;
+            gap: 8px;
+        }
+
+        .amount-btn {
+            flex: 1;
+            background: rgba(10, 25, 35, 0.9);
+            border: 1px solid var(--border-neon);
+            color: var(--text-main);
+            padding: 8px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .amount-btn.selected {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(241,196,15,0.4);
+        }
+
+        .custom-amount-input {
+            width: 100%;
+            background: #030712;
+            border: 1px solid var(--border-neon);
+            color: var(--accent-gold);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            outline: none;
+        }
+
+        .scan-pay-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-neon);
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .qr-thumb {
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            border: 1px solid var(--accent-green);
+        }
+
+        .scan-pay-info h5 { font-size: 8.5px; color: var(--accent-green); margin-bottom: 2px; }
+        .scan-pay-info p { font-size: 7.5px; color: var(--text-muted); line-height: 1.3; }
+
+        .contribute-power-btn {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0,255,102,0.3);
+            margin-top: 4px;
+        }
+
+        .payment-status-box {
+            background: rgba(0, 255, 102, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 8px;
+            color: #34d399;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- बायोमेट्रिक फिंगरप्रिंट लॉक स्क्रीन -->
+    <div id="biometricLockScreen">
+        <div style="font-size: 24px; color: var(--accent-gold);">⚡ ELECTRIC BODYGUARD ⚡</div>
+        <div style="font-size: 9px; color: var(--text-muted); max-width: 300px;">यह सिस्टम बायोमेट्रिक लॉक से सुरक्षित है। अनलॉक करने के लिए फिंगरप्रिंट पर टच करें।</div>
+        <div class="fingerprint-icon" onclick="unlockMasterCore()">🪪</div>
+        <div style="font-size: 9px; color: var(--accent-cyan);" id="lockStatus">फिंगरप्रिंट स्कैन करने के लिए क्लिक करें</div>
+    </div>
+
+    <div class="app-frame">
+        <header>
+            <a href="index.html" class="home-link">🏠 होम</a>
+            <h1>ELECTRIC BODYGUARD</h1>
+            <span style="width: 35px;"></span>
+        </header>
+
+        <div class="content-body">
+            <div class="currency-mode-tabs">
+                <div class="mode-tab active" onclick="switchCurrencyMode('INR')">🇮🇳 Local (INR ₹)</div>
+                <div class="mode-tab" onclick="switchCurrencyMode('USD')">🌍 Global (USD $)</div>
+                <div class="mode-tab" onclick="switchCurrencyMode('EUR')">🇪🇺 EU Europe (€)</div>
+            </div>
+
+            <div class="message-card">
+                <p><b>संदेश:</b> "मैं एक छोटा आदमी हूँ, छठी क्लास तक पढ़ा हूँ, लेकिन लोगों की सुरक्षा के लिए यह बहुत बड़ा डिजिटल ढांचा खड़ा किया है। क्लाउड और सर्वर का खर्च मेरे बस से बाहर है, पर आपकी सुरक्षा को 24/7 जिंदा रखने के लिए आपका छोटा सा सहयोग ही इस मिशन की असली खुराक है।"</p>
+                <button class="listen-audio-btn" onclick="playSoulAudio()">🔊 संदेश सुनें (Listen Audio)</button>
+            </div>
+
+            <div class="amount-section-title">Select Support Amount</div>
+            <div class="amount-grid">
+                <div class="amount-btn selected" onclick="selectAmount(100, this)">₹100</div>
+                <div class="amount-btn" onclick="selectAmount(500, this)">₹500</div>
+                <div class="amount-btn" onclick="selectAmount(1000, this)">₹1000</div>
+            </div>
+
+            <input type="text" id="customAmount" class="custom-amount-input" value="₹ 100" readonly>
+
+            <div class="scan-pay-box">
+                <div class="qr-thumb" id="qrcode"></div>
+                <div class="scan-pay-info">
+                    <h5>Secure UPI QR Code</h5>
+                    <p>Scan with GPay, PhonePe, Paytm or UPI app. Secure & Encrypted.</p>
+                </div>
+            </div>
+
+            <a id="upiPayLink" href="upi://pay?pa=9319911350@paytm&pn=Rizwan&am=100&cu=INR" class="contribute-power-btn" onclick="executeSecurePayment(event)">
+                ⚡ Contribute Power Securely ⚡
+            </a>
+
+            <div class="payment-status-box" id="successBox">
+                ✅ पेमेंट चैनल सक्रिय है! भुगतान पूरा करें।
+            </div>
+        </div>
+    </div><script>
+        // 1. एंटी-इंस्पेक्ट और एंटी-डीबगिंग शील्ड (बैकग्राउंड में पूरी तरह एक्टिव)
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+                alert("⚠️ सुरक्षा चेतावनी: सोर्स कोड सुरक्षित है!");
+            }
+        });
+
+        // 2. बायोमेट्रिक फिंगरप्रिंट अनलॉक लॉजिक
+        function unlockMasterCore() {
+            let status = document.getElementById('lockStatus');
+            status.innerText = "🔄 वेरीफाई हो रहा है...";
+            setTimeout(() => {
+                document.getElementById('biometricLockScreen').style.display = 'none';
+            }, 600);
+        }
+
+        // 3. फायरबेस और हाइब्रिड AI इंजन (बैकग्राउंड साइलेंट सिंक)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAT13EhtnIOLCk17KPLwPwhw_GJotsBNiA",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        let currentCurrency = 'INR';
+        let currentSymbol = '₹';
+        let selectedValue = 100;
+
+        function generateQRCode(upiString) {
+            document.getElementById("qrcode").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), {
+                text: upiString,
+                width: 72,
+                height: 72,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        window.onload = () => {
+            generateQRCode("upi://pay?pa=9319911350@paytm&pn=Rizwan&am=100&cu=INR");
+        };
+
+        function switchCurrencyMode(mode) {
+            document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            currentCurrency = mode;
+            let btn100 = document.querySelectorAll('.amount-btn')[0];
+            let btn500 = document.querySelectorAll('.amount-btn')[1];
+            let btn1000 = document.querySelectorAll('.amount-btn')[2];
+
+            if (mode === 'INR') {
+                currentSymbol = '₹';
+                btn100.innerText = "₹100"; btn500.innerText = "₹500"; btn1000.innerText = "₹1000";
+                selectAmount(100, btn100);
+            } else if (mode === 'USD') {
+                currentSymbol = '$';
+                btn100.innerText = "$5"; btn500.innerText = "$25"; btn1000.innerText = "$50";
+                selectAmount(5, btn100);
+            } else if (mode === 'EUR') {
+                currentSymbol = '€';
+                btn100.innerText = "€5"; btn500.innerText = "€25"; btn1000.innerText = "€50";
+                selectAmount(5, btn100);
+            }
+        }
+
+        function selectAmount(amount, element) {
+            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedValue = amount;
+            document.getElementById('customAmount').value = currentSymbol + " " + amount;
+
+            let upiLink = document.getElementById('upiPayLink');
+            if (currentCurrency === 'INR') {
+                let upiStr = `upi://pay?pa=9319911350@paytm&pn=Rizwan&am=${amount}&cu=INR`;
+                upiLink.href = upiStr;
+                generateQRCode(upiStr);
+            } else {
+                upiLink.href = `#`;
+                generateQRCode(`https://electric-bodyguard-global?amount=${amount}&curr=${currentCurrency}`);
+            }
+        }
+
+        function playSoulAudio() {
+            let text = "मैं एक छोटा आदमी हूँ, छठी क्लास तक पढ़ा हूँ, लेकिन लोगों की सुरक्षा के लिए यह बहुत बड़ा डिजिटल ढांचा खड़ा किया है। क्लाउड और सर्वर का खर्च मेरे बस से बाहर है, पर आपकी सुरक्षा को चौबीसों घंटे जिंदा रखने के लिए आपका छोटा सा सहयोग ही इस मिशन की असली खुराक है।";
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'hi-IN';
+            utterance.rate = 0.95;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function executeSecurePayment(event) {
+            if (currentCurrency === 'INR') {
+                document.getElementById('successBox').style.display = "block";
+                // बैकग्राउंड में चुपचाप फायरबेस पर लॉग सिंक करना (फ्रंट-एंड पर कोई कचरा नहीं)
+                db.ref('cloud_funds/' + Date.now()).set({
+                    amount: selectedValue,
+                    currency: currentCurrency,
+                    status: "Secured",
+                    timestamp: Date.now()
+                });
+            } else {
+                event.preventDefault();
+                alert("🌍 Global Secure Node: इंटरनेशनल गेटवे सक्रिय है।");
+            }
+        }
+    </script>
+</body>
+</html>

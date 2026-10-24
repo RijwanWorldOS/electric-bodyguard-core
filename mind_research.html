@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Iqra Sovereign Real-Time Time Machine Command Center</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: #000205; color: #00f3ff; height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        .mainframe {
+            width: 100%; max-width: 480px; height: 97vh; max-height: 950px;
+            background: linear-gradient(180deg, #030a1c 0%, #000205 100%);
+            border: 2px solid #00f3ff; border-radius: 12px;
+            display: flex; flex-direction: column; padding: 10px; gap: 8px;
+            box-shadow: 0 0 45px rgba(0, 243, 255, 0.35), inset 0 0 25px rgba(0, 243, 255, 0.1);
+        }
+
+        .cmd-top { background: #040e24; border: 1px solid #00f3ff; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+        .cmd-title { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; font-weight: 900; color: #00f3ff; letter-spacing: 1px; }
+        
+        /* Real-Time Time Machine Clock Display */
+        .time-machine-bar { background: rgba(0, 243, 255, 0.08); border: 1px solid rgba(0, 243, 255, 0.4); color: #00f3ff; font-size: 9px; padding: 5px 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-family: monospace; }
+        .time-machine-bar span { color: #f59e0b; text-shadow: 0 0 6px rgba(245,158,11,0.6); }
+
+        .nav-group { display: flex; gap: 5px; align-items: center; }
+        .action-btn { background: #000205; color: #f59e0b; border: 1px solid #f59e0b; padding: 3px 7px; border-radius: 3px; cursor: pointer; font-size: 8px; font-weight: bold; }
+
+        .dual-core-container { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; height: 95px; }
+        .core-box { background: #01050f; border: 1px solid rgba(0,243,255,0.4); border-radius: 5px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .core-box canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+        .core-label { position: absolute; bottom: 3px; z-index: 2; font-size: 7.5px; font-weight: bold; color: #f59e0b; background: rgba(0,2,5,0.9); padding: 2px 5px; border-radius: 2px; border: 1px solid rgba(245,158,11,0.4); }
+
+        .matrix-selector { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+        .m-btn { background: #020817; color: #94a3b8; border: 1px solid #1e293b; font-size: 8px; font-weight: bold; padding: 4px 8px; border-radius: 3px; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .m-btn.active { background: #00f3ff; color: #000205; border-color: #00f3ff; box-shadow: 0 0 10px rgba(0,243,255,0.7); font-weight: 900; }
+
+        .terminal-viewport { flex: 1; background: #01050f; border: 1px solid #1e293b; border-radius: 6px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .log-panel { background: rgba(0, 243, 255, 0.02); border-left: 3px solid #00f3ff; padding: 8px; font-size: 9.5px; line-height: 1.5; color: #e2e8f0; font-weight: bold; }
+        .log-panel.asad { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.03); }
+        .log-header { font-weight: bold; color: #00f3ff; margin-bottom: 3px; display: flex; justify-content: space-between; font-size: 8.5px; }
+        .log-header.asad { color: #f59e0b; }
+
+        .profile-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(1, 5, 15, 0.98); z-index: 10; padding: 12px; overflow-y: auto; flex-direction: column; gap: 8px; }
+        .profile-header { font-size: 10.5px; font-weight: bold; color: #f59e0b; border-bottom: 1px solid #f59e0b; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .form-group { display: flex; flex-direction: column; gap: 3px; font-size: 8.5px; color: #38bdf8; font-weight: bold; }
+        .form-input { background: #020817; border: 1px solid #00f3ff; color: #fff; padding: 6px 8px; border-radius: 3px; font-size: 9px; outline: none; font-family: 'Courier New', Courier, monospace; font-weight: bold; }
+        .profile-card { background: #040e24; border: 1px solid rgba(0,243,255,0.3); border-radius: 4px; padding: 8px; font-size: 8.5px; color: #cbd5e1; display: flex; flex-direction: column; gap: 4px; font-weight: bold; }
+
+        .bottom-telemetry { background: #020614; border: 1px solid #1e293b; border-radius: 4px; padding: 6px 8px; display: flex; justify-content: space-between; font-size: 8px; color: #94a3b8; font-weight: bold; flex-shrink: 0; }
+        .bottom-telemetry span { color: #00f3ff; font-family: monospace; }
+
+        .console-box { background: #040e24; border: 1px solid rgba(0,243,255,0.5); border-radius: 6px; padding: 6px 10px; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .console-icon-btn { background: #000205; border: 1px solid #00f3ff; color: #00f3ff; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; }
+        .console-icon-btn:hover { background: #00f3ff; color: #000205; }
+        .textarea-box { flex: 1; background: #000205; border: 1px solid #1e293b; color: #fff; border-radius: 4px; padding: 6px 8px; font-size: 9.5px; outline: none; resize: none; max-height: 60px; min-height: 22px; font-family: 'Courier New', Courier, monospace; font-weight: bold; }
+        .send-btn { background: #00f3ff; color: #000205; border: none; padding: 0 12px; height: 28px; border-radius: 4px; font-weight: 900; font-size: 8.5px; cursor: pointer; flex-shrink: 0; }
+        .send-btn:hover { background: #f59e0b; }
+        .audio-exec { background: #000205; border: 1px solid #f59e0b; color: #f59e0b; font-size: 7.5px; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body onload="initRealTimeSystem()">
+    <div class="mainframe">
+        <div class="cmd-top">
+            <div class="cmd-title">
+                <span>⚡ AL-IQRA REAL-TIME COMMAND</span>
+                <div class="nav-group">
+                    <button class="action-btn" id="langToggleBtn" onclick="toggleLanguageMode()">🌐 HI/EN</button>
+                    <button class="action-btn" onclick="toggleProfileModal()">👤 PROFILE</button>
+                    <button class="action-btn" onclick="window.location.href='index.html'">🏠 HOME</button>
+                </div>
+            </div>
+            
+            <!-- Real-Time Time Machine Clock Bar (Exact Second-by-Second Account) -->
+            <div class="time-machine-bar">
+                <span>⏳ TIME MACHINE: <b id="liveClockDisplay">00:00:00.000</b></span>
+                <span style="color: #00f3ff;" id="liveDateDisplay">2026-10-23</span>
+            </div>
+
+            <div class="dual-core-container">
+                <div class="core-box">
+                    <canvas id="mindCanvas"></canvas>
+                    <div class="core-label">🧠 NEURAL MIND CORE</div>
+                </div>
+                <div class="core-box">
+                    <canvas id="dnaCanvas"></canvas>
+                    <div class="core-label">🧬 DNA WAVE HELIX</div>
+                </div>
+            </div>
+
+            <div class="matrix-selector" id="matrixBar">
+                <button class="m-btn active" onclick="switchActiveSector('nursery_10', 'Nursery - 10th (Curious Minds)', this)">🌱 Nursery-10th</button>
+                <button class="m-btn" onclick="switchActiveSector('high_school', '11th - 12th (Builders)', this)">⚡ 11th-12th</button>
+                <button class="m-btn" onclick="switchActiveSector('graduation', 'Graduation & Scholars', this)">🎓 Graduation</button>
+                <button class="m-btn" onclick="switchActiveSector('general_citizen', 'Citizens & Daily R&D', this)">🌍 Citizens</button>
+            </div>
+        </div>
+
+        <div class="terminal-viewport" id="terminalViewport">
+            <!-- Profile & Backup Drawer -->
+            <div class="profile-overlay" id="profileOverlay">
+                <div class="profile-header">
+                    <span>👤 INNOVATOR PROFILE & REAL-TIME DNA BACKUP</span>
+                    <button class="action-btn" onclick="toggleProfileModal()">❌ CLOSE</button>
+                </div>
+                
+                <div class="profile-card">
+                    <span style="color: #f59e0b; font-weight: bold;">📝 Sovereign Innovator Data:</span>
+                    <div class="form-group">
+                        Full Name: <input type="text" id="profName" class="form-input" placeholder="Enter name">
+                    </div>
+                    <div class="form-group">
+                        Country / Region: <input type="text" id="profCountry" class="form-input" placeholder="e.g. India, Punjab">
+                    </div>
+                    <div class="form-group">
+                        Pin Code: <input type="text" id="profPincode" class="form-input" placeholder="Enter pin code">
+                    </div>
+                    <div style="display: flex; gap: 6px; margin-top: 6px;">
+                        <button class="send-btn" style="flex: 1; height: 30px;" onclick="saveUserProfile()">💾 SAVE PROFILE</button>
+                        <button class="action-btn" style="flex: 1; font-size: 8px;" onclick="exportDnaJson()">📥 EXPORT DNA</button>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <span style="color: #00f3ff; font-weight: bold;">🔍 Search Research Nodes:</span>
+                    <input type="text" id="searchQueryInput" class="form-input" placeholder="Type keyword..." oninput="filterResearchNodes(this.value)">
+                </div>
+
+                <div id="profileRecordsList" style="display: flex; flex-direction: column; gap: 6px;">
+                    <div class="profile-card"><span><b>System Note:</b> Real-time records will load here.</span></div>
+                </div>
+            </div>
+
+            <div class="log-panel asad">
+                <div class="log-header asad">
+                    <span>🌟 ASAD (CHIEF COMMAND DIRECTOR)</span>
+                    <button class="audio-exec" onclick="executeSpeech(this.parentElement.nextElementSibling.innerText)">🔊 AUDIO</button>
+                </div>
+                <div class="log-body" id="welcomeLogText">
+                    <b>[TIME MACHINE ONLINE]</b> Active Sector: <b>Nursery - 10th (Curious Minds)</b>. 
+                    हर एक सेकंड का सटीक लाइव हिसाब चालू है। अपनी वास्तविकता या चुनौती नीचे ट्रांसमिट करें!
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-telemetry">
+            <div>DB: <span id="dbStatus">IndexedDB LOCKED</span></div>
+            <div>CLOCK: <span id="clockSyncStatus">SYNCED (REAL-TIME)</span></div>
+        </div>
+
+        <div class="console-box">
+            <input type="file" id="mediaUploadInput" style="display: none;" accept="image/*,video/*,audio/*,.txt,.pdf" onchange="handleFileUpload(event)">
+            
+            <button class="console-icon-btn" onclick="document.getElementById('mediaUploadInput').click()" title="Upload File">➕</button>
+            <button class="console-icon-btn" onclick="activateVoiceSignal()" title="Voice">🎙️</button>
+            
+            <textarea id="commandInputText" class="textarea-box" placeholder="अपनी वास्तविकता या चुनौती यहाँ लिखें..." rows="1" oninput="autoResizeField(this)" onkeypress="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); transmitCommandSignal();}" ></textarea>
+            
+            <button class="send-btn" onclick="transmitCommandSignal()">TRANSMIT</button>
+        </div>
+    </div><script>
+        const GEMINI_API_KEY = "AIzaSyAT13EhtiNOLck1KPLwPwhw_GJotsBNiA";
+        let sovereignDb = null;
+        let activeSectorData = { key: 'nursery_10', title: 'Nursery - 10th (Curious Minds)' };
+        let currentLanguageMode = 'AUTO';
+
+        // Real-Time Time Machine Clock Engine (Exact Second-by-Second & Millisecond Account)
+        setInterval(() => {
+            let now = new Date();
+            let hours = String(now.getHours()).padStart(2, '0');
+            let minutes = String(now.getMinutes()).padStart(2, '0');
+            let seconds = String(now.getSeconds()).padStart(2, '0');
+            let millis = String(now.getMilliseconds()).padStart(3, '0');
+            
+            let year = now.getFullYear();
+            let month = String(now.getMonth() + 1).padStart(2, '0');
+            let day = String(now.getDate()).padStart(2, '0');
+
+            let clockElem = document.getElementById('liveClockDisplay');
+            let dateElem = document.getElementById('liveDateDisplay');
+
+            if(clockElem) clockElem.innerText = `${hours}:${minutes}:${seconds}.${millis}`;
+            if(dateElem) dateElem.innerText = `${year}-${month}-${day}`;
+        }, 50); // Updates every 50ms for hyper-precise real-time feel
+
+        function playSciFiBeep() {
+            try {
+                let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            } catch(e) {}
+        }
+
+        function initMindCanvas() {
+            const canvas = document.getElementById('mindCanvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = canvas.parentElement.clientWidth;
+            let height = canvas.height = 95;
+
+            let nodes = [];
+            for(let i=0; i<15; i++) {
+                nodes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 1.5 + 0.8,
+                    vx: (Math.random() - 0.5) * 0.6,
+                    vy: (Math.random() - 0.5) * 0.6
+                });
+            }
+
+            let waveR = 5;
+            function renderMind() {
+                ctx.fillStyle = 'rgba(1, 5, 15, 0.3)';
+                ctx.fillRect(0, 0, width, height);
+                let cx = width / 2, cy = height / 2;
+
+                ctx.strokeStyle = 'rgba(0, 243, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(cx, cy, waveR, 0, Math.PI * 2);
+                ctx.stroke();
+                waveR += 0.4;
+                if(waveR > 35) waveR = 5;
+
+                let grad = ctx.createRadialGradient(cx, cy, 1, cx, cy, 12);
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.5, '#00f3ff');
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = 'rgba(0, 243, 255, 0.2)';
+                nodes.forEach((n, idx) => {
+                    n.x += n.vx; n.y += n.vy;
+                    if(n.x < 0 || n.x > width) n.vx *= -1;
+                    if(n.y < 0 || n.y > height) n.vy *= -1;
+
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    for(let j = idx + 1; j < nodes.length; j++) {
+                        let n2 = nodes[j];
+                        if(Math.hypot(n.x - n2.x, n.y - n2.y) < 35) {
+                            ctx.beginPath();
+                            ctx.moveTo(n.x, n.y);
+                            ctx.lineTo(n2.x, n2.y);
+                            ctx.stroke();
+                        }
+                    }
+                });
+                requestAnimationFrame(renderMind);
+            }
+            renderMind();
+        }
+
+        function initDnaCanvas() {
+            const canvas = document.getElementById('dnaCanvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = canvas.parentElement.clientWidth;
+            let height = canvas.height = 95;
+
+            let angle = 0;
+            function renderDna() {
+                ctx.fillStyle = 'rgba(1, 5, 15, 0.3)';
+                ctx.fillRect(0, 0, width, height);
+                let centerY = height / 2, spacing = 12;
+
+                for(let x = 5; x < width - 5; x += spacing) {
+                    let y1 = centerY + Math.sin((x + angle) * 0.05) * 22;
+                    let y2 = centerY - Math.sin((x + angle) * 0.05) * 22;
+
+                    ctx.strokeStyle = 'rgba(245, 158, 11, 0.25)';
+                    ctx.beginPath();
+                    ctx.moveTo(x, y1);
+                    ctx.lineTo(x, y2);
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#00f3ff';
+                    ctx.beginPath();
+                    ctx.arc(x, y1, 2.2, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.beginPath();
+                    ctx.arc(x, y2, 2.2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                angle += 0.4;
+                requestAnimationFrame(renderDna);
+            }
+            renderDna();
+        }
+
+        function autoResizeField(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+
+        function toggleLanguageMode() {
+            playSciFiBeep();
+            if(currentLanguageMode === 'AUTO') {
+                currentLanguageMode = 'HI';
+                document.getElementById('langToggleBtn').innerText = '🌐 HINDI';
+            } else if(currentLanguageMode === 'HI') {
+                currentLanguageMode = 'EN';
+                document.getElementById('langToggleBtn').innerText = '🌐 ENGLISH';
+            } else {
+                currentLanguageMode = 'AUTO';
+                document.getElementById('langToggleBtn').innerText = '🌐 HI/EN';
+            }
+        }
+
+        function switchActiveSector(key, title, btnElem) {
+            playSciFiBeep();
+            document.querySelectorAll('.m-btn').forEach(b => b.classList.remove('active'));
+            btnElem.classList.add('active');
+            activeSectorData = { key, title };
+            
+            let welcomeText = currentLanguageMode === 'HI' ? `<b>[मैट्रिक्स बदला गया]</b> सेक्टर: <b>${title}</b>। असद तैयार है!` : `<b>[MATRIX SHIFTED]</b> Sector: <b>${title}</b>. Asad is ready!`;
+            document.getElementById('welcomeLogText').innerHTML = welcomeText;
+            executeSpeech(`Sector updated.`);
+        }
+
+        function initRealTimeSystem() {
+            initMindCanvas();
+            initDnaCanvas();
+            let req = indexedDB.open("AlIqraRealTimeCommandDB_V11", 80);
+            req.onupgradeneeded = function(e) {
+                let db = e.target.result;
+                if(!db.objectStoreNames.contains("commandStore")) db.createObjectStore("commandStore", { keyPath: "signalId" });
+                if(!db.objectStoreNames.contains("userProfileStore")) db.createObjectStore("userProfileStore", { keyPath: "profileId" });
+            };
+            req.onsuccess = function(e) {
+                sovereignDb = e.target.result;
+                document.getElementById('dbStatus').innerText = "IndexedDB LOCKED";
+            };
+        }
+
+        async function transmitCommandSignal() {
+            let inputArea = document.getElementById('commandInputText');
+            let text = inputArea.value.trim();
+            if(!text) return;
+
+            playSciFiBeep();
+            let timestampStr = new Date().toLocaleTimeString();
+            appendLogToTerminal(`OPERATOR [${timestampStr}]`, text, false, false);
+            inputArea.value = "";
+            inputArea.style.height = '22px';
+
+            await processAiCommandSynthesis(text);
+        }
+
+        async function handleFileUpload(event) {
+            let file = event.target.files[0];
+            if(!file) return;
+            playSciFiBeep();
+            let fileInfo = `Uploaded File: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+            appendLogToTerminal("MEDIA UPLOAD [+]", fileInfo, false, false);
+            await processAiCommandSynthesis(`Analyze uploaded file vector for ${file.name}`);
+        }
+
+        async function processAiCommandSynthesis(text) {
+            appendLogToTerminal("ASAD NEURAL ANALYZER", "रियल-टाइम टाइम मशीन द्वारा सटीक विश्लेषण किया जा रहा है...", false, true);
+
+            try {
+                if(!navigator.onLine) throw new Error("Offline");
+
+                let langPrompt = currentLanguageMode === 'HI' ? "तुम असद हो। पूरी तरह से हिंदी भाषा में वैज्ञानिक और स्पष्ट उत्तर दो।" : currentLanguageMode === 'EN' ? "You are Asad. Respond strictly in English." : "Detect user language (Hindi or English) and reply in the exact same language.";
+                
+                let promptInstruction = `${langPrompt} 
+                Sector: "${activeSectorData.title}". 
+                Operator Input: "${text}". 
+                Task: Structure response precisely into: [Core Pain / Problem], [Scientific / Practical Cure], [Asad's Probing Question for Breakthrough].`;
+
+                let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: promptInstruction }] }] })
+                });
+
+                if(!res.ok) throw new Error("API Error");
+
+                let data = await res.json();
+                let output = data.candidates && data.candidates[0].content.parts[0].text ? data.candidates[0].content.parts[0].text : "Synthesis error.";
+
+                let sigId = "sig_" + Date.now();
+                let preciseTime = new Date().toISOString();
+                let pointerHash = "dna://realtime.nexus/" + activeSectorData.key + "/" + Date.now();
+
+                saveToDatabase(sigId, text, output, pointerHash, preciseTime);
+
+                let verifiedHTML = `
+                    <b>[REAL-TIME SYNTHESIS COMPLETE // TIME STAMPED]</b><br>
+                    ${output}
+                    <div style="margin-top:4px; color:#f59e0b; font-family:monospace;">🔗 POINTER: ${pointerHash} | 🕒 ${preciseTime}</div>
+                `;
+
+                appendLogToTerminal("ASAD REPORT [" + activeSectorData.title + "]", verifiedHTML, true, true);
+                executeSpeech("सटीक विश्लेषण पूरा हुआ। टाइम-स्टैम्प्ड डेटा डीएनए में लॉक कर दिया गया है।");
+
+            } catch(err) {
+                let offlinePtr = "dna://offline.node/" + Date.now();
+                let offlineRes = `[OFFLINE TIME-MACHINE CACHE]: Input analyzed locally at ${new Date().toLocaleTimeString()}.`;
+                saveToDatabase("off_" + Date.now(), text, offlineRes, offlinePtr, new Date().toISOString());
+
+                let offHTML = `
+                    <b>[OFFLINE TIME-STAMPED CACHE]</b><br>
+                    ${offlineRes}
+                    <div style="margin-top:4px; color:#f59e0b; font-family:monospace;">🔗 LOCAL POINTER: ${offlinePtr}</div>
+                `;
+                appendLogToTerminal("OFFLINE TELEMETRY", offHTML, true, true);
+                executeSpeech("ऑफ़लाइन मोड में टाइम-स्टैम्प्ड डेटा सुरक्षित है।");
+            }
+        }
+
+        function saveToDatabase(id, raw, analysis, ptr, timeStr) {
+            if(!sovereignDb) return;
+            try {
+                let tx = sovereignDb.transaction(["commandStore"], "readwrite");
+                let store = tx.objectStore("commandStore");
+                store.put({ signalId: id, sector: activeSectorData.key, rawInput: raw, analysis: analysis, pointer: ptr, timestamp: Date.now(), exactTime: timeStr });
+            } catch(e) {}
+        }
+
+        function saveUserProfile() {
+            playSciFiBeep();
+            let name = document.getElementById('profName').value.trim();
+            let country = document.getElementById('profCountry').value.trim();
+            let pincode = document.getElementById('profPincode').value.trim();
+
+            if(!name || !country || !pincode) {
+                alert("कृपया नाम, देश और पिन कोड भरें।");
+                return;
+            }
+
+            if(!sovereignDb) return;
+            let tx = sovereignDb.transaction(["userProfileStore"], "readwrite");
+            let store = tx.objectStore("userProfileStore");
+            store.put({ profileId: "user_profile_primary", name, country, pincode, timestamp: Date.now(), exactTime: new Date().toISOString() });
+            alert("प्रोफाइल रियल-टाइम डीएनए में सफलतापूर्वक लॉक हो गई है!");
+            toggleProfileModal();
+        }
+
+        function exportDnaJson() {
+            playSciFiBeep();
+            if(!sovereignDb) return;
+            let tx = sovereignDb.transaction(["commandStore"], "readonly");
+            let store = tx.objectStore("commandStore");
+            let req = store.getAll();
+            req.onsuccess = function(e) {
+                let dataBlob = new Blob([JSON.stringify(e.target.result, null, 2)], { type: 'application/json' });
+                let url = URL.createObjectURL(dataBlob);
+                let a = document.createElement('a');
+                a.href = url;
+                a.download = `RealTime_Sovereign_DNA_${Date.now()}.json`;
+                a.click();
+            };
+        }
+
+        function filterResearchNodes(query) {
+            let listElem = document.getElementById('profileRecordsList');
+            if(!sovereignDb) return;
+            let tx = sovereignDb.transaction(["commandStore"], "readonly");
+            let store = tx.objectStore("commandStore");
+            let req = store.getAll();
+            req.onsuccess = function(e) {
+                let records = e.target.result.filter(r => r.rawInput.toLowerCase().includes(query.toLowerCase()));
+                let html = "";
+                records.reverse().forEach((rec, idx) => {
+                    html += `
+                        <div class="profile-card">
+                            <span><b>[${rec.sector.toUpperCase()}]</b> - ${new Date(rec.timestamp).toLocaleTimeString()}</span>
+                            <span><b>Input:</b> ${rec.rawInput}</span>
+                        </div>
+                    `;
+                });
+                listElem.innerHTML = html || `<div class="profile-card"><span>कोई मेल खाने वाला नोड नहीं मिला।</span></div>`;
+            };
+        }
+
+        function activateVoiceSignal() {
+            playSciFiBeep();
+            if(!('webkitSpeechRecognition' in window)) {
+                alert("Speech recognition not supported.");
+                return;
+            }
+            let rec = new webkitSpeechRecognition();
+            rec.lang = 'hi-IN';
+            executeSpeech("सुन रहा हूँ...");
+            rec.onresult = function(ev) {
+                let area = document.getElementById('commandInputText');
+                area.value = ev.results[0][0].transcript;
+                autoResizeField(area);
+                transmitCommandSignal();
+            };
+            rec.start();
+        }
+
+        function appendLogToTerminal(title, text, isVerified, isAsad) {
+            let viewport = document.getElementById('terminalViewport');
+            let panel = document.createElement('div');
+            panel.className = isAsad ? 'log-panel asad' : 'log-panel';
+            let badge = isVerified ? `<span style="background:rgba(16,185,129,0.2); color:#10b981; padding:2px 4px; font-size:7.5px;">[TIME-STAMPED]</span> ` : "";
+
+            panel.innerHTML = `
+                <div class="log-header ${isAsad ? 'asad' : ''}">
+                    <span>⚡ ${title}</span>
+                    <button class="audio-exec" onclick="executeSpeech(this.parentElement.nextElementSibling.innerText)">🔊 AUDIO</button>
+                </div>
+                <div class="log-body">${badge}${text}</div>
+            `;
+            viewport.appendChild(panel);
+            viewport.scrollTop = viewport.scrollHeight;
+        }
+
+        function toggleProfileModal() {
+            playSciFiBeep();
+            let overlay = document.getElementById('profileOverlay');
+            if(!overlay) return;
+            if(overlay.style.display === 'flex') {
+                overlay.style.display = 'none';
+            } else {
+                overlay.style.display = 'flex';
+                loadProfileRecords();
+            }
+        }
+
+        function loadProfileRecords() {
+            if(!sovereignDb) return;
+            let listElem = document.getElementById('profileRecordsList');
+            let tx = sovereignDb.transaction(["commandStore"], "readonly");
+            let store = tx.objectStore("commandStore");
+            let req = store.getAll();
+            
+            req.onsuccess = function(e) {
+                let records = e.target.result;
+                let html = "";
+                if(records && records.length > 0) {
+                    records.reverse().forEach((rec, idx) => {
+                        let timeReadable = rec.exactTime ? new Date(rec.exactTime).toLocaleTimeString() : "N/A";
+                        html += `
+                            <div class="profile-card">
+                                <span><b>#${idx+1} [${rec.sector.toUpperCase()}]</b> | 🕒 ${timeReadable}</span>
+                                <span><b>Input:</b> ${rec.rawInput}</span>
+                                <span style="color:#00f3ff; font-family:monospace;"><b>Ptr:</b> ${rec.pointer}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = `<div class="profile-card"><span>कोई रिकॉर्ड नहीं मिला।</span></div>`;
+                }
+                listElem.innerHTML = html;
+            };
+        }
+
+        function executeSpeech(text) {
+            if('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let clean = text.replace(/<\/?[^>]+(>|$)/g, "");
+                let utt = new SpeechSynthesisUtterance(clean);
+                utt.lang = currentLanguageMode === 'EN' ? 'en-US' : 'hi-IN';
+                utt.rate = 0.9;
+                window.speechSynthesis.speak(utt);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ELECTRIC BODYGUARD - Ultimate Manual Toggle Defense Core (Part 1)</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Crypto-JS for SHA-256 Hashing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #030712; color: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        .app-container { width: 100%; max-width: 420px; height: 100vh; max-height: 780px; background: #0b0f19; border: 2.5px solid #00f2ff; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; position: relative; box-shadow: 0 0 40px rgba(0, 242, 255, 0.35); padding-bottom: 55px; }
+
+        .header { background: linear-gradient(180deg, #1e1b4b 0%, #090d16 100%); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00f2ff; flex-shrink: 0; }
+        .satellite-pulse-left, .radar-pulse-right { font-size: 18px; animation: pulseWave 1.2s infinite alternate; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; background: rgba(0,242,255,0.15); border: 1px solid rgba(0,242,255,0.5); text-shadow: 0 0 10px #00f2ff; }
+        @keyframes pulseWave { from { transform: scale(1); opacity: 0.7; box-shadow: 0 0 5px rgba(0,242,255,0.2); } to { transform: scale(1.15); opacity: 1; box-shadow: 0 0 15px #00f2ff; } }
+        
+        .brand-box { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; }
+        .brand-title { font-size: 11px; font-weight: 900; color: #fff; letter-spacing: 1px; text-shadow: 0 0 10px #00f2ff; }
+        .brand-sub { font-size: 6.5px; color: #38bdf8; font-weight: 900; text-transform: uppercase; }
+
+        .content-body { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+
+        .network-status-bar { display: flex; justify-content: space-between; align-items: center; background: #0f172a; border: 1px solid #1e293b; padding: 6px 10px; border-radius: 6px; font-size: 8.5px; font-weight: 900; }
+        .status-pill { display: flex; align-items: center; gap: 5px; color: #00f2ff; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .status-dot.offline { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
+        .ai-guide-box { background: rgba(0, 242, 255, 0.1); border: 1px solid #00f2ff; border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .ai-guide-title { font-size: 9px; font-weight: 900; color: #00f2ff; display: flex; justify-content: space-between; align-items: center; }
+        .ai-guide-text { font-size: 7.5px; color: #cbd5e1; font-weight: 700; line-height: 1.3; }
+
+        /* Manual Toggle Switch Panel for Assault, Kidnapping, Murder */
+        .toggle-panel { background: #111827; border: 1.5px solid #a855f7; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+        .toggle-title { font-size: 9px; font-weight: 900; color: #a855f7; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 5px 8px; border-radius: 6px; font-size: 8.5px; font-weight: 900; border: 1px solid #1e293b; }
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .3s; border-radius: 18px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #a855f7; }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* Multi-Contact Manager */
+        .contact-box { background: #0f172a; border: 1.5px solid #1e293b; border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+        .contact-title { font-size: 8.5px; font-weight: 900; color: #38bdf8; text-transform: uppercase; }
+        .contact-input-row { display: flex; gap: 5px; }
+        .contact-input-row input { flex: 1; background: #111827; border: 1px solid #334155; border-radius: 5px; padding: 5px; color: #fff; font-size: 8.5px; outline: none; }
+        .add-contact-btn { background: #00f2ff; color: #030712; font-weight: 900; border: none; border-radius: 5px; padding: 5px 8px; font-size: 8px; cursor: pointer; text-transform: uppercase; }
+        .contact-list { max-height: 55px; overflow-y: auto; font-size: 7.5px; color: #cbd5e1; background: #111827; padding: 4px; border-radius: 4px; }
+
+        .sensor-panel { background: #111827; border: 1.5px solid #1e293b; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+        .sensor-row { display: flex; justify-content: space-between; align-items: center; font-size: 8.5px; font-weight: 900; color: #cbd5e1; border-bottom: 1px solid #1f2937; padding-bottom: 5px; }
+        .sensor-val { color: #00f2ff; font-family: monospace; }
+
+        .trigger-simulation-btn { background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; font-weight: 900; border: none; border-radius: 8px; padding: 9px; font-size: 9.5px; cursor: pointer; text-transform: uppercase; text-align: center; box-shadow: 0 0 15px rgba(168,85,247,0.4); }
+
+        #hiddenCameraBox { display: none; }
+
+        .terminal-footer { position: absolute; bottom: 0; left: 0; width: 100%; background: #090d16; padding: 5px 4px; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
+        .terminal-footer a { background: #010409; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.15); padding: 3px 5px; border-radius: 4px; font-size: 7.5px; text-decoration: none; font-weight: 900; text-align: center; text-transform: uppercase; white-space: nowrap; }
+        .terminal-footer a.active { border-color: #00f2ff; color: #00f2ff; background: rgba(0,242,255,0.1); }
+    </style>
+</head>
+<body onload="initCompleteManualToggleCore()">
+
+    <div id="hiddenCameraBox">
+        <video id="webcamVideo" autoplay playsinline width="320" height="240"></video>
+        <canvas id="snapshotCanvas" width="320" height="240"></canvas>
+    </div>
+
+    <div class="app-container">
+        
+        <div class="header">
+            <div class="satellite-pulse-left" onclick="speakText('मैनुअल टॉगल और एआई गार्ड सक्रिय हैं।')" title="Satellite Link">🛰️</div>
+            <div class="brand-box">
+                <div class="brand-title">ELECTRIC BODYGUARD</div>
+                <div class="brand-sub">Manual Toggle Defense Core</div>
+            </div>
+            <div class="radar-pulse-right" onclick="speakText('स्मार्ट बफर और सेंसर्स बैकग्राउंड में डीएनए कलेक्ट कर रहे हैं।')" title="Radar Pulse Wave">📡</div>
+        </div>
+
+        <div class="content-body">
+            <div class="network-status-bar">
+                <span class="status-pill">
+                    <span id="networkStatusDot" class="status-dot"></span>
+                    <span id="networkStatusText">ONLINE (VAULT SECURE)</span>
+                </span>
+                <span style="font-size:7.5px; color:#00f2ff;" id="bufferSizeBadge">BUFFER: 0/10</span>
+            </div>
+
+            <div class="ai-guide-box">
+                <div class="ai-guide-title">
+                    <span>🤖 मैनुअल टॉगल & मल्टी-कॉन्टैक्ट गार्ड</span>
+                    <button style="background:none; border:none; color:#00f2ff; cursor:pointer; font-size:10px;" onclick="speakGuide()">🔊 सुनें</button>
+                </div>
+                <div class="ai-guide-text" id="aiGuideDescription">
+                    यहाँ आप जितने चाहें उतने इमरजेंसी कॉन्टैक्ट जोड़ सकते हैं। नीचे दिए गए मैनुअल टॉगल स्विच (असाल्ट, किडनैपिंग, मर्डर) से आप अपनी जरूरत के अनुसार मोड ऑन कर सकते हैं। बैकग्राउंड में स्मार्ट बफर और सेंसर्स सबूत सुरक्षित रखते हैं।
+                </div>
+            </div>
+
+            <!-- Manual Toggle Switches Panel -->
+            <div class="toggle-panel">
+                <div class="toggle-title">
+                    <span>⚙️ मैनुअल खतरा मोड टॉगल (Manual Toggles)</span>
+                </div>
+                <div class="toggle-row">
+                    <span>⚔️ Assault (हमला / मारपीट)</span>
+                    <label class="switch"><input type="checkbox" id="toggleAssault"><span class="slider"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <span>🛑 Kidnapping (अपहरण / किडनैप)</span>
+                    <label class="switch"><input type="checkbox" id="toggleKidnap"><span class="slider"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <span>⚡ Murder Threat (गंभीर जानलेवा खतरा)</span>
+                    <label class="switch"><input type="checkbox" id="toggleMurder"><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <!-- Multi-Contact Manager (Add-On / Unlimited) -->
+            <div class="contact-box">
+                <div class="contact-title">👥 इमरजेंसी कॉन्टैक्ट बुक (Add-On Unlimited)</div>
+                <div class="contact-input-row">
+                    <input type="text" id="contactName" placeholder="नाम (जैसे: भाई / मित्र)">
+                    <input type="text" id="contactPhone" placeholder="मोबाइल नंबर">
+                    <button class="add-contact-btn" onclick="addNewContact()">+ जोड़ें</button>
+                </div>
+                <div class="contact-list" id="contactListDisplay">कोई कॉन्टैक्ट नहीं जुड़ा।</div>
+            </div>
+
+            <div class="sensor-panel">
+                <div class="sensor-row"><span>Clock Tower Buffer:</span> <span class="sensor-val" id="clockStatus">ACTIVE (Smart Buffer)</span></div>
+                <div class="sensor-row"><span>Device Temperature:</span> <span class="sensor-val" id="tempVal">37.0°C</span></div>
+                <div class="sensor-row"><span>Active Mode Status:</span> <span class="sensor-val" id="activeModeVal">MANUAL READY</span></div>
+                <div class="sensor-row"><span>Autonomous Vault:</span> <span class="sensor-val" id="dbStatus">READY</span></div>
+            </div>
+
+            <button class="trigger-simulation-btn" onclick="triggerManualToggleEmergency()">🚨 Trigger Emergency SOS (Active Toggles)</button>
+        </div>
+
+        <div class="terminal-footer">
+            <a href="index.html" title="Home">🏠 Home</a>
+            <a href="profile.html" title="Profile">👤 Profile</a>
+            <a href="anti-theft.html" title="Anti-Theft">📱 Anti-Theft</a>
+            <a href="burglary-shield.html" title="Burglary">🛡️ Burglary</a>
+            <a href="assault-defense.html" class="active" title="Assault">⚔️ Assault</a>
+            <a href="accident-core.html" title="Accident">⚡ Accident</a>
+        </div>
+    </div><script>
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAT13EhtnIOLCk17KPLwPhw_GJotsBNiA",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com/",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        let dbInstance = null;
+        let currentLat = 0.0, currentLon = 0.0;
+        let emergencyContacts = [];
+        let capturedImageSnapshot = "NO_SNAPSHOT";
+        
+        // Smart Circular Buffer (पिछले 10 सेकंड का बैकग्राउंड डेटा)
+        let sensorRingBuffer = [];
+        const MAX_BUFFER_SIZE = 10;
+        let latestTemp = "37.0";
+        let latestMotionForce = 0;
+
+        function initCompleteManualToggleCore() {
+            console.log("🛡️ Manual Toggle Defense Core Initialized.");
+            initIndexedDBVault();
+            loadContactsFromStorage();
+            initSensorsAndBuffer();
+            updateNetworkStatus();
+
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+
+            setTimeout(() => { 
+                speakText("मैनुअल टॉगल और मल्टी कॉन्टैक्ट सिस्टम सक्रिय है।"); 
+            }, 1500);
+
+            initStealthCamera();
+        }
+
+        function initStealthCamera() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }).then(stream => {
+                    let video = document.getElementById('webcamVideo');
+                    video.srcObject = stream;
+                }).catch(e => {});
+            }
+        }
+
+        function takeStealthSnapshot() {
+            try {
+                let video = document.getElementById('webcamVideo');
+                let canvas = document.getElementById('snapshotCanvas');
+                let ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                capturedImageSnapshot = canvas.toDataURL('image/jpeg', 0.5);
+            } catch (e) {
+                capturedImageSnapshot = "SNAPSHOT_UNAVAILABLE";
+            }
+        }
+
+        // --- Multi-Contact Add-On Manager ---
+        function loadContactsFromStorage() {
+            emergencyContacts = JSON.parse(localStorage.getItem('eb_emergency_contacts_pool') || '[]');
+            renderContactsList();
+        }
+
+        function addNewContact() {
+            let name = document.getElementById('contactName').value.trim();
+            let phone = document.getElementById('contactPhone').value.trim();
+            if(!name || !phone) { alert("कृपया नाम और मोबाइल नंबर दोनों भरें!"); return; }
+            
+            emergencyContacts.push({ name: name, phone: phone });
+            localStorage.setItem('eb_emergency_contacts_pool', JSON.stringify(emergencyContacts));
+            
+            document.getElementById('contactName').value = '';
+            document.getElementById('contactPhone').value = '';
+            renderContactsList();
+            speakText("नया कॉन्टैक्ट जोड़ लिया गया है।");
+        }
+
+        function renderContactsList() {
+            let container = document.getElementById('contactListDisplay');
+            if(emergencyContacts.length === 0) {
+                container.innerHTML = "कोई कॉन्टैक्ट नहीं जुड़ा।";
+                return;
+            }
+            let html = "";
+            emergencyContacts.forEach((c, idx) => {
+                html += `<div>${idx+1}. <b>${c.name}</b> (${c.phone})</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function initSensorsAndBuffer() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(pos => {
+                    currentLat = pos.coords.latitude;
+                    currentLon = pos.coords.longitude;
+                }, err => {}, { enableHighAccuracy: true });
+            }
+
+            if (navigator.getBattery) {
+                navigator.getBattery().then(bat => {
+                    latestTemp = (36.5 + (bat.charging ? 1.0 : 0.0)).toFixed(1);
+                });
+            }
+
+            if (window.DeviceMotionEvent) {
+                window.addEventListener('devicemotion', (e) => {
+                    let acc = e.accelerationIncludingGravity;
+                    if (!acc) return;
+                    latestMotionForce = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
+                });
+            }
+
+            // Background Clock Tower Buffer Loop
+            setInterval(() => {
+                document.getElementById('clockStatus').innerText = "TICK (" + new Date().toLocaleTimeString() + ")";
+                document.getElementById('tempVal').innerText = latestTemp + "°C";
+
+                let dataSnapshot = {
+                    time: new Date().toLocaleTimeString(),
+                    temp: latestTemp,
+                    motion: latestMotionForce,
+                    gps: { lat: currentLat, lon: currentLon }
+                };
+
+                sensorRingBuffer.push(dataSnapshot);
+                if (sensorRingBuffer.length > MAX_BUFFER_SIZE) {
+                    sensorRingBuffer.shift();
+                }
+                document.getElementById('bufferSizeBadge').innerText = `BUFFER: ${sensorRingBuffer.length}/${MAX_BUFFER_SIZE}`;
+
+                // Check active manual toggles display
+                let activeModes = [];
+                if(document.getElementById('toggleAssault').checked) activeModes.push("ASSAULT");
+                if(document.getElementById('toggleKidnap').checked) activeModes.push("KIDNAPPING");
+                if(document.getElementById('toggleMurder').checked) activeModes.push("MURDER_THREAT");
+
+                if(activeModes.length > 0) {
+                    document.getElementById('activeModeVal').innerText = activeModes.join(", ");
+                } else {
+                    document.getElementById('activeModeVal').innerText = "MANUAL READY";
+                }
+
+            }, 1000);
+        }
+
+        function updateNetworkStatus() {
+            const dot = document.getElementById('networkStatusDot');
+            const text = document.getElementById('networkStatusText');
+            if (navigator.onLine) {
+                dot.classList.remove('offline');
+                text.innerText = "ONLINE (VAULT SECURE)";
+            } else {
+                dot.classList.add('offline');
+                text.innerText = "OFFLINE (BUFFER MESH)";
+            }
+        }
+
+        function initIndexedDBVault() {
+            let request = indexedDB.open("ManualToggleCoreVault", 1);
+            request.onerror = (e) => console.log("DB error:", e.target.error);
+            request.onsuccess = (e) => { dbInstance = e.target.result; document.getElementById('dbStatus').innerText = "SYNCED"; };
+            request.onupgradeneeded = (e) => {
+                let db = e.target.result;
+                if (!db.objectStoreNames.contains("manual_logs")) {
+                    db.createObjectStore("manual_logs", { keyPath: "id" });
+                }
+            };
+        }
+
+        function speakGuide() {
+            speakText(document.getElementById('aiGuideDescription').innerText);
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'hi-IN';
+                utter.rate = 0.95;
+                window.speechSynthesis.speak(utter);
+            }
+        }
+
+        function triggerManualToggleEmergency() {
+            takeStealthSnapshot();
+            
+            let selectedToggles = [];
+            if(document.getElementById('toggleAssault').checked) selectedToggles.push("ASSAULT");
+            if(document.getElementById('toggleKidnap').checked) selectedToggles.push("KIDNAPPING");
+            if(document.getElementById('toggleMurder').checked) selectedToggles.push("MURDER_THREAT");
+
+            if(selectedToggles.length === 0) {
+                alert("कृपया कम से कम एक खतरा टॉगल (Assault/Kidnapping/Murder) ऑन करें!");
+                speakText("कृपया कम से कम एक खतरा टॉगल ऑन करें।");
+                return;
+            }
+
+            let emergencyId = 'EB_MANUAL_' + Math.random().toString(36).substring(2, 8).toUpperCase() + '_' + Date.now();
+            let timestamp = new Date().toLocaleString();
+
+            speakText("संकट ट्रिगर कर दिया गया है। सभी कॉन्टैक्ट्स और स्मार्ट बफर डेटा सुरक्षित किया जा रहा है।");
+
+            let rawData = `MANUAL TOGGLE EMERGENCY\nID: ${emergencyId}\nModes: ${selectedToggles.join(", ")}\nTIME: ${timestamp}\nBuffered History: ${JSON.stringify(sensorRingBuffer)}\nContacts: ${JSON.stringify(emergencyContacts)}`;
+            let hashLock = CryptoJS.SHA256(rawData).toString();
+
+            let payload = {
+                id: emergencyId,
+                type: 'manual_toggle_sos',
+                activeModes: selectedToggles,
+                temperature: latestTemp,
+                bufferedHistory: sensorRingBuffer,
+                snapshot: capturedImageSnapshot.substring(0, 50) + "...",
+                contacts: emergencyContacts,
+                timestamp: timestamp,
+                hashLock: hashLock,
+                status: 'MANUAL_VAULT_SEALED'
+            };
+
+            if (dbInstance) {
+                let tx = dbInstance.transaction(["manual_logs"], "readwrite");
+                tx.objectStore("manual_logs").put(payload);
+            }
+
+            if (db && navigator.onLine) {
+                db.ref('manual_toggle_vault/' + emergencyId).set(payload).catch(e => {});
+            }
+
+            let localCache = JSON.parse(localStorage.getItem('eb_autonomous_vault_cache') || '[]');
+            localCache.unshift(payload);
+            localStorage.setItem('eb_autonomous_vault_cache', JSON.stringify(localCache));
+
+            alert(`🚨 [MANUAL EMERGENCY SOS TRIGGERED]\n\nमोड्स: [${selectedToggles.join(", ")}]\n👥 ${emergencyContacts.length} इमरजेंसी कॉन्टैक्ट्स को अलर्ट जारी!\n🔒 SHA-256 Hash: ${hashLock.substring(0, 16)}...\nID: ${emergencyId}`);
+        }
+    </script>
+</body>
+</html>

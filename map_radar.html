@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ELECTRIC BODYGUARD - QUANTUM-MESH MAP OS</title>
+    
+    <!-- MapLibre GL CSS -->
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg-deep: #000205;
+            --panel-bg: rgba(3, 8, 15, 0.99);
+            --border-neon: rgba(0, 240, 255, 0.5);
+            --border-active: #00f0ff;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffaa00;
+            --neon-pink: #ff0055;
+            --text-main: #ffffff;
+            --text-sub: #88ccff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            background-color: var(--bg-deep); color: var(--border-active);
+            display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; overflow: hidden;
+        }
+        .phone-container {
+            width: 100%; max-width: 410px; height: 96vh;
+            background: var(--panel-bg); border: 2.5px solid var(--border-active); border-radius: 24px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.3); overflow: hidden; position: relative; padding-bottom: 50px;
+        }
+        
+        /* 🌟 री-डिजाइन किया हुआ खूबसूरत और खुला हुआ हेडर */
+        .map-header {
+            padding: 10px 12px; background: rgba(0, 5, 12, 0.99);
+            border-bottom: 2px solid var(--border-active); display: flex; flex-direction: column; gap: 6px; z-index: 1000;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .brand-main { font-size: 11px; font-weight: 900; color: var(--neon-yellow); letter-spacing: 1.5px; text-shadow: 0 0 8px rgba(255,170,0,0.4); }
+        .map-os-name { font-size: 8.5px; font-weight: bold; color: var(--neon-green); letter-spacing: 0.5px; text-transform: uppercase; }
+        .back-btn { font-size: 8.5px; color: var(--border-active); text-decoration: none; background: rgba(0,240,255,0.12); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(0,240,255,0.4); }
+
+        /* वॉइस सर्च और जर्नी बार */
+        .ai-voice-bar { display: flex; gap: 5px; }
+        .map-search-input {
+            flex: 1; background: rgba(0, 0, 0, 0.95); border: 1.5px solid var(--border-neon);
+            border-radius: 6px; padding: 6px 9px; font-size: 9px; color: var(--text-main); outline: none;
+        }
+        .map-search-input::placeholder { color: #aaccff; opacity: 0.7; }
+
+        .mic-btn { background: var(--neon-pink); color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-weight: bold; font-size: 10px; cursor: pointer; box-shadow: 0 0 10px rgba(255,0,85,0.4); }
+        .start-journey-btn { background: var(--neon-green); color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 9px; cursor: pointer; animation: pulseGlow 1.5s infinite; }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(0,255,136, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(0,255,136, 0); } 100% { box-shadow: 0 0 0 0 rgba(0,255,136, 0); } }
+
+        /* मैन्युअल एड्रेस बार */
+        .manual-address-bar { display: flex; gap: 5px; }
+        .manual-input {
+            flex: 1; background: rgba(0, 0, 0, 0.95); border: 1.5px solid var(--border-neon);
+            border-radius: 5px; padding: 5px 8px; font-size: 8.5px; color: var(--text-main); outline: none;
+        }
+        .manual-input::placeholder { color: #aaccff; opacity: 0.7; }
+        .manual-btn { background: var(--neon-yellow); color: #000; border: none; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 8.5px; cursor: pointer; }
+
+        .map-viewport { flex: 1; position: relative; overflow: hidden; width: 100%; height: 100%; }
+        #realMap { width: 100%; height: 100%; background: #0b0f19; z-index: 1; position: absolute; top: 0; left: 0; }
+
+        /* मैप कंट्रोल्स */
+        .map-controls { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 1000; }
+        .control-btn {
+            width: 30px; height: 30px; background: rgba(0, 15, 30, 0.95); border: 1.5px solid var(--border-active);
+            color: var(--border-active); font-size: 13px; font-weight: bold; border-radius: 7px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(0,240,255,0.3);
+        }
+        .compass-badge { background: rgba(255,170,0,0.25); border-color: var(--neon-yellow); color: var(--neon-yellow); font-size: 9.5px; }
+
+        .ai-guide-panel {
+            position: absolute; bottom: 8px; left: 8px; right: 8px;
+            background: rgba(0, 12, 24, 0.97); border: 1.5px solid var(--border-active);
+            border-radius: 10px; padding: 8px; font-size: 8.5px; z-index: 1000;
+            backdrop-filter: blur(8px); box-shadow: 0 0 20px rgba(0,240,255,0.25);
+        }
+        .guide-title { color: var(--neon-green); font-weight: bold; margin-bottom: 3px; display: flex; justify-content: space-between; align-items: center; }
+        .voice-guide-btn { background: rgba(0,240,255,0.2); color: var(--border-active); border: 1px solid var(--border-active); padding: 3px 6px; border-radius: 4px; font-size: 8px; cursor: pointer; font-weight: bold; }
+        .guide-instruction { color: var(--text-main); margin-top: 2px; line-height: 1.35; }
+
+        .bottom-nav {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(0, 4, 10, 0.99); border-top: 1.5px solid var(--border-neon);
+            display: flex; justify-content: space-around; padding: 6px 2px; z-index: 1000;
+        }
+        .nav-tab { color: var(--text-sub); text-decoration: none; font-size: 7px; text-align: center; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+        .nav-tab.active, .nav-tab:hover { color: var(--neon-green); }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="map-header">
+        <div class="header-top">
+            <div>
+                <div class="brand-main">⚡ ELECTRIC BODYGUARD</div>
+                <div class="map-os-name">🗺️ QUANTUM-MESH MAP OS</div>
+            </div>
+            <a href="chat.html" class="back-btn">⬅ Back</a>
+        </div>
+        <!-- एआई वॉइस सर्च और जर्नी बार -->
+        <div class="ai-voice-bar">
+            <input type="text" class="map-search-input" id="mapSearchInput" placeholder="बोलें या खोजें (AI Voice Search)...">
+            <button class="mic-btn" onclick="startVoiceRecognition()" title="Voice Search">🎙️ बोलें</button>
+            <button class="start-journey-btn" onclick="toggleJourney()">🚀 जर्नी</button>
+        </div>
+        <!-- मैन्युअल एड्रेस और पिन सेव बार -->
+        <div class="manual-address-bar">
+            <input type="text" class="manual-input" id="manualStoreName" placeholder="दुकान / मकान नाम">
+            <input type="text" class="manual-input" id="manualAddress" placeholder="गली नं. / पिन-कोड">
+            <button class="manual-btn" onclick="saveManualPin()">📍 पिन सेव</button>
+        </div>
+    </div>
+
+    <div class="map-viewport">
+        <div class="map-controls">
+            <button class="control-btn" onclick="map.zoomIn()">+</button>
+            <button class="control-btn" onclick="map.zoomOut()">-</button>
+            <button class="control-btn compass-badge" id="compassBtn" title="Compass North">🧭 N</button>
+            <button class="control-btn" onclick="resetToNangloiHub()" title="Nangloi Center">🏠</button>
+        </div>
+
+        <div id="realMap"></div>
+
+        <div class="ai-guide-panel">
+            <div class="guide-title">
+                <span id="aiGuideTitle">🤖 Quantum-Mesh AI: Active</span>
+                <button class="voice-guide-btn" onclick="speakCurrentInstruction()">🔊 सुनें</button>
+            </div>
+            <div class="guide-instruction" id="aiGuideText">क्वांटम-मेश मैप ओएस पूरी तरह तैयार है। माइक बटन दबाकर बोलें।</div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-tab"><span>🏠</span><span>Home</span></a>
+        <a href="studio.html" class="nav-tab"><span>🎛️</span><span>Studio</span></a>
+        <a href="pay.html" class="nav-tab"><span>💳</span><span>Pay OS</span></a>
+        <a href="feed-biz.html" class="nav-tab"><span>📰</span><span>Feeds</span></a>
+        <a href="chat.html" class="nav-tab"><span>💬</span><span>Chat</span></a>
+    </div>
+</div>
+
+<!-- MapLibre GL JS -->
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+
+<script>
+    let db;
+    let currentInstructionText = "क्वांटम-मेश मैप ओएस सक्रिय है। नेविगेशन तैयार है।";
+    const NANGPOI_LNG = 77.0672;
+    const NANGPOI_LAT = 28.6822;
+
+    let userMarker = null;
+    let isJourneyActive = false;
+    let watchId = null;
+
+    // IndexedDB डेटाबेस इनिशियलाइजेशन
+    const request = indexedDB.open("ElectricBodyguardAutonomousDB", 10);
+    request.onupgradeneeded = function(event) {
+        db = event.target.result;
+        if (!db.objectStoreNames.contains("mapCustomPins")) {
+            db.createObjectStore("mapCustomPins", { keyPath: "id" });
+        }
+    };
+    request.onsuccess = function(event) {
+        db = event.target.result;
+        loadSavedPins();
+        speakCurrentInstruction();
+    };
+
+    // मैप इनिशियलाइजेशन
+    const map = new maplibregl.Map({
+        container: 'realMap',
+        style: 'https://tiles.openfreemap.org/styles/liberty',
+        center: [NANGPOI_LNG, NANGPOI_LAT],
+        zoom: 17,
+        pitch: 55,
+        bearing: 0
+    });
+
+    map.on('rotate', () => {
+        let bearing = Math.round(map.getBearing());
+        document.getElementById('compassBtn').innerText = `🧭 ${bearing}°`;
+    });
+
+    map.on('load', function () {
+        const layers = map.getStyle().layers;
+        for (let i = 0; i < layers.length; i++) {
+            if (layers[i].type === 'fill' && layers[i]['source-layer'] === 'building') {
+                map.setPaintProperty(layers[i].id, 'fill-extrusion-height', ['get', 'height'], 22);
+                map.setPaintProperty(layers[i].id, 'fill-extrusion-base', ['get', 'min_height'], 0);
+                map.setPaintProperty(layers[i].id, 'fill-extrusion-color', '#1c2833');
+            }
+        }
+    });
+
+    const el = document.createElement('div');
+    el.style.width = '20px';
+    el.style.height = '20px';
+    el.style.background = '#ff0055';
+    el.style.borderRadius = '50%';
+    el.style.boxShadow = '0 0 25px #ff0055, 0 0 40px #00f0ff';
+    el.style.border = '3px solid #fff';
+
+    userMarker = new maplibregl.Marker(el, { draggable: true })
+        .setLngLat([NANGPOI_LNG, NANGPOI_LAT])
+        .setPopup(new maplibregl.Popup().setHTML("<b>📍 नांगलोई मास्टर हब</b>"))
+        .addTo(map);
+
+    function resetToNangloiHub() {
+        map.flyTo({ center: [NANGPOI_LNG, NANGPOI_LAT], zoom: 17, essential: true });
+        userMarker.setLngLat([NANGPOI_LNG, NANGPOI_LAT]);
+        updateAIGuide("📍 मैप को नांगलोई हब पर रीसेट कर दिया गया है।");
+    }
+
+    // 🎙️ AI Speech-to-Text वॉइस सर्च
+    function startVoiceRecognition() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert("⚠️ वॉइस रिकग्निशन समर्थित नहीं है। कृपया टाइप करें।");
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.lang = 'hi-IN';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        updateAIGuide("🎤 सुन रहा हूँ... बोलिए आपको कहाँ जाना है?");
+
+        recognition.onstart = function() {
+            document.querySelector('.mic-btn').style.background = '#00ff88';
+        };
+
+        recognition.onresult = function(event) {
+            let spokenText = event.results[0][0].transcript;
+            document.getElementById('mapSearchInput').value = spokenText;
+            updateAIGuide(`✨ खोजा जा रहा है: "${spokenText}"...`);
+            executeAISearchQuery(spokenText);
+        };
+
+        recognition.onerror = function(event) {
+            updateAIGuide("⚠️ आवाज स्पष्ट नहीं थी। पुनः प्रयास करें।");
+            document.querySelector('.mic-btn').style.background = 'var(--neon-pink)';
+        };
+
+        recognition.onend = function() {
+            document.querySelector('.mic-btn').style.background = 'var(--neon-pink)';
+        };
+
+        recognition.start();
+    }
+
+    function executeAISearchQuery(query) {
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                if(data && data.length > 0) {
+                    let lon = parseFloat(data[0].lon);
+                    let lat = parseFloat(data[0].lat);
+                    let displayName = data[0].display_name;
+
+                    map.flyTo({ center: [lon, lat], zoom: 17, essential: true });
+                    
+                    let foundPin = {
+                        id: "VOICE-PIN-" + Date.now(),
+                        name: query,
+                        lat: lat,
+                        lng: lon,
+                        timestamp: Date.now()
+                    };
+                    savePinToDB(foundPin);
+                    renderPin(foundPin);
+                    updateAIGuide(`🎯 मिल गया! ${displayName.substring(0, 35)} की तरफ नेविगेशन सक्रिय है।`);
+                } else {
+                    updateAIGuide("⚠️ स्थान नहीं मिला। कृपया दोबारा बोलें।");
+                }
+            })
+            .catch(err => {
+                updateAIGuide("⚠️ नेटवर्क त्रुटि।");
+            });
+    }
+
+    function toggleJourney() {
+        if (!isJourneyActive) {
+            isJourneyActive = true;
+            document.querySelector('.start-journey-btn').style.background = '#ff0055';
+            document.querySelector('.start-journey-btn').innerText = '⏹️ बंद';
+            updateAIGuide("🚀 जर्नी शुरू! हार्डवेयर जीपीएस सेंसर सक्रिय है।");
+
+            if ("geolocation" in navigator) {
+                watchId = navigator.geolocation.watchPosition(function(position) {
+                    let lng = position.coords.longitude;
+                    let lat = position.coords.latitude;
+                    map.flyTo({ center: [lng, lat], zoom: 18, essential: true, speed: 1.5 });
+                    userMarker.setLngLat([lng, lat]);
+                }, null, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
+            }
+        } else {
+            isJourneyActive = false;
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+            document.querySelector('.start-journey-btn').style.background = 'var(--neon-green)';
+            document.querySelector('.start-journey-btn').innerText = '🚀 जर्नी';
+            updateAIGuide("⏹️ जर्नी बंद कर दी गई है।");
+        }
+    }
+
+    function saveManualPin() {
+        let storeName = document.getElementById('manualStoreName').value.trim();
+        let address = document.getElementById('manualAddress').value.trim();
+        if(!storeName || !address) {
+            alert("⚠️ कृपया दुकान का नाम और पता भरें!");
+            return;
+        }
+        let currentLngLat = userMarker.getLngLat();
+        let manualPinObj = {
+            id: "STORE-" + Date.now(),
+            name: `${storeName} (${address})`,
+            lat: currentLngLat.lat,
+            lng: currentLngLat.lng,
+            timestamp: Date.now()
+        };
+        savePinToDB(manualPinObj);
+        renderPin(manualPinObj);
+        updateAIGuide(`🎉 "${storeName}" का पिन सेव हो गया है!`);
+        document.getElementById('manualStoreName').value = '';
+        document.getElementById('manualAddress').value = '';
+    }
+
+    function savePinToDB(pinObj) {
+        if(!db || !db.objectStoreNames.contains("mapCustomPins")) return;
+        let tx = db.transaction(["mapCustomPins"], "readwrite");
+        let store = tx.objectStore("mapCustomPins");
+        store.put(pinObj);
+    }
+
+    function loadSavedPins() {
+        if(!db || !db.objectStoreNames.contains("mapCustomPins")) return;
+        let tx = db.transaction(["mapCustomPins"], "readonly");
+        let store = tx.objectStore("mapCustomPins");
+        let req = store.getAll();
+        req.onsuccess = function(e) {
+            let pins = e.target.result;
+            if(pins && pins.length > 0) {
+                pins.forEach(p => { if(p.name && p.lng && p.lat) renderPin(p); });
+            }
+        };
+    }
+
+    function renderPin(pin) {
+        const pinEl = document.createElement('div');
+        pinEl.style.width = '14px';
+        pinEl.style.height = '14px';
+        pinEl.style.background = '#00ff88';
+        pinEl.style.borderRadius = '50%';
+        pinEl.style.boxShadow = '0 0 12px #00ff88';
+        pinEl.style.border = '1.5px solid #fff';
+
+        new maplibregl.Marker(pinEl)
+            .setLngLat([pin.lng, pin.lat])
+            .setPopup(new maplibregl.Popup().setHTML(`<b>${pin.name}</b>`))
+            .addTo(map);
+    }
+
+    function updateAIGuide(text) {
+        currentInstructionText = text;
+        document.getElementById('aiGuideText').innerText = text;
+        speakCurrentInstruction();
+    }
+
+    function speakCurrentInstruction() {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            let utterance = new SpeechSynthesisUtterance(currentInstructionText);
+            utterance.lang = 'hi-IN';
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+</script>
+
+</body>
+</html>

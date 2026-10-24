@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Supreme Apex Nexus : Bullet-Proof Local-First Engine</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { background-color: #000; color: #f0f6fc; height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        .feed-frame { 
+            width: 100% !important; max-width: 480px !important; height: 100% !important; max-height: 100vh !important;
+            background: #081423 !important; border: 2px solid #00ff66 !important; border-radius: 0px !important; 
+            padding: 8px !important; box-shadow: 0 25px 60px rgba(0,255,102,0.3) !important; 
+            display: flex !important; flex-direction: column !important; gap: 6px !important; position: relative !important; overflow: hidden !important; 
+        }
+        @media(min-width: 481px) {
+            .feed-frame { height: 96vh !important; max-height: 920px !important; border-radius: 14px !important; }
+        }
+        
+        .header-box { display: flex; justify-content: space-between; align-items: center; background: rgba(0,255,102,0.15); border: 2px solid #00ff66; padding: 6px 8px; border-radius: 8px; flex-shrink: 0; }
+        .brand-title-box { overflow: hidden; width: 35%; white-space: nowrap; }
+        .brand-title { font-size: 8px; font-weight: 900; color: #00ff66; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
+        
+        .header-actions { display: flex; gap: 3px; align-items: center; }
+        .bridge-btn { font-size: 7px; background: rgba(241,196,15,0.25); color: #f1c40f; border: 1px solid #f1c40f; padding: 3px 5px; border-radius: 4px; font-weight: bold; cursor: pointer; text-decoration: none; }
+
+        /* Dynamic Stories Pipeline Row */
+        .stories-pipeline { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0; flex-shrink: 0; scrollbar-width: none; }
+        .stories-pipeline::-webkit-scrollbar { display: none; }
+        .story-ring { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #00ff66; padding: 2px; flex-shrink: 0; cursor: pointer; background: rgba(0,255,102,0.1); display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: bold; text-align: center; color: #00ff66; overflow: hidden; }
+        .story-ring.add-story { border-color: #00f3ff; color: #00f3ff; background: rgba(0,243,255,0.1); }
+
+        .top-ai-bar {
+            background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; color: #00f3ff;
+            font-size: 7px; font-weight: bold; padding: 4px 6px; border-radius: 5px;
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .ai-inline-controls { display: flex; align-items: center; gap: 4px; }
+        
+        .net-status-badge { display: flex; align-items: center; gap: 3px; font-size: 6.5px; padding: 2px 4px; border-radius: 3px; border: 1px solid #00ff66; background: rgba(0,255,102,0.1); color: #00ff66; }
+        .net-dot { width: 5px; height: 5px; border-radius: 50%; background: #00ff66; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .lang-select { background: #030712; color: #00f3ff; border: 1px solid #00f3ff; font-size: 7px; font-weight: bold; padding: 2px 4px; border-radius: 3px; cursor: pointer; }
+
+        .live-ticker-bar {
+            background: rgba(241,196,15,0.15); border: 1px solid #f1c40f; color: #f1c40f;
+            font-size: 8px; font-weight: bold; padding: 4px 6px; border-radius: 5px; overflow: hidden; white-space: nowrap; flex-shrink: 0;
+        }
+        .live-ticker-bar marquee { width: 100%; }
+
+        .filter-bar { display: flex; gap: 5px; overflow-x: auto; padding: 4px 0; flex-shrink: 0; scrollbar-width: thin; scrollbar-color: #00ff66 #030712; }
+        .filter-bar::-webkit-scrollbar { height: 4px; }
+        .filter-bar::-webkit-scrollbar-thumb { background: #00ff66; border-radius: 2px; }
+        
+        .filter-btn { background: #030712; border: 1.5px solid #00ff66; color: #00ff66; font-size: 8px; font-weight: bold; padding: 5px 8px; border-radius: 6px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .filter-btn.active { background: #00ff66; color: #030712; }
+
+        .switch { position: relative; display: inline-block; width: 22px; height: 11px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .3s; border-radius: 11px; border: 1px solid #00f3ff; }
+        .slider:before { position: absolute; content: ""; height: 7px; width: 7px; left: 1px; bottom: 1px; background-color: #00f3ff; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #00f3ff; }
+        input:checked + .slider:before { transform: translateX(11px); background-color: #030712; }
+    </style>
+</head>
+<body onload="initLocalFirstEngine()">
+    <div class="feed-frame">
+        <!-- Header -->
+        <div class="header-box">
+            <div class="brand-title-box">
+                <marquee behavior="scroll" direction="left" scrollamount="3">
+                    <span class="brand-title" id="brandTitleText">SUPREME APEX NEXUS : LOCAL-FIRST MESH</span>
+                </marquee>
+            </div>
+            <div class="header-actions">
+                <a href="notifications.html" class="bridge-btn" id="navAlerts">Alerts</a>
+                <a href="nukkad_share_maeKet.html" class="bridge-btn" id="navMarket">Nukkad Market</a>
+            </div>
+        </div>
+
+        <!-- Dynamic Stories Pipeline Row -->
+        <div class="stories-pipeline" id="dynamicStoriesRow">
+            <a href="studio.html" class="story-ring add-story">➕ Add</a>
+            <div class="story-ring" id="storyItem1">🌾 Kisan</div>
+            <div class="story-ring" id="storyItem2">📦 Bulk</div>
+            <div class="story-ring" id="storyItem3">📍 Local</div>
+        </div>
+
+        <!-- Top AI, Mic & Network Bar -->
+        <div class="top-ai-bar">
+            <div class="net-status-badge" id="netBadge">
+                <div class="net-dot" id="netDot"></div>
+                <span id="netText">OFFLINE MESH</span>
+            </div>
+            <div class="ai-inline-controls">
+                <select id="langSelector" class="lang-select" onchange="changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                </select>
+                <button id="aiMicBtn" style="background:#00f3ff; color:#030712; border:none; font-size:7px; font-weight:bold; padding:2px 5px; border-radius:3px; cursor:pointer;" onclick="startSpeechRecognition()">🎙️ Speak</button>
+                <label class="switch" title="Toggle AI Voice">
+                    <input type="checkbox" id="aiToggle" checked onchange="toggleAIEngine()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="live-ticker-bar">
+            <marquee behavior="scroll" direction="left" scrollamount="4" id="tickerText">
+                [LOCAL-FIRST INDEXEDDB]: Pin-Code Level Autonomous Mesh & Zero-Commission Ledger Active
+            </marquee>
+        </div>
+
+        <!-- 15 Business Categories Master Filter Bar -->
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterBiz('kisan', 'Farmer', 'किसान', this)">1. Farmer</button>
+            <button class="filter-btn" onclick="filterBiz('mazdoor', 'Labor', 'मजदूर', this)">2. Labor</button>
+            <button class="filter-btn" onclick="filterBiz('driver', 'Driver', 'ड्राइवर', this)">3. Driver</button>
+            <button class="filter-btn" onclick="filterBiz('karigar', 'Artisan', 'कारीगर', this)">4. Artisan</button>
+            <button class="filter-btn" onclick="filterBiz('chhoti_dukaan', 'Small Shop', 'छोटी दुकान', this)">5. Small Shop</button>
+            <button class="filter-btn" onclick="filterBiz('badi_dukaan', 'Wholesale', 'बड़ी दुकान', this)">6. Wholesale</button>
+            <button class="filter-btn" onclick="filterBiz('factory', 'Factory', 'फैक्ट्री', this)">7. Factory</button>
+            <button class="filter-btn" onclick="filterBiz('mechanic', 'Mechanic', 'मैकेनिक', this)">8. Mechanic</button>
+            <button class="filter-btn" onclick="filterBiz('electrician', 'Electrician', 'इलेक्ट्रीशियन', this)">9. Electrician</button>
+            <button class="filter-btn" onclick="filterBiz('plumber', 'Plumber', 'प्लंबर', this)">10. Plumber</button>
+            <button class="filter-btn" onclick="filterBiz('thelawala', 'Vendor', 'ठेलावाला', this)">11. Vendor</button>
+            <button class="filter-btn" onclick="filterBiz('scrapdealer', 'Scrap Dealer', 'कबाड़ीवाला', this)">12. Scrap</button>
+            <button class="filter-btn" onclick="filterBiz('contractor', 'Contractor', 'ठेकेदार', this)">13. Contractor</button>
+            <button class="filter-btn" onclick="filterBiz('doctor_vaidya', 'Medic/Vaidya', 'वैध/डॉक्टर', this)">14. Medic</button>
+            <button class="filter-btn" onclick="filterBiz('others', 'General Services', 'अन्य सेवाएं', this)">15. Others</button>
+        </div><!-- Feed Container -->
+        <div class="feed-container" id="bizFeedStream" style="flex: 1; min-height: 0; background: #030712; border: 1px solid rgba(0,255,102,0.2); border-radius: 8px; padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+            <div class="feed-card" id="activeCard" style="background: linear-gradient(135deg, rgba(0,255,102,0.08), rgba(0,243,255,0.03)); border: 1px solid rgba(0,255,102,0.35); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 6px;">
+                <div class="feed-title" style="font-size: 9.5px; font-weight: bold; color: #00ff66; display: flex; justify-content: space-between; align-items: center;">
+                    <span id="cardTitle">1. Farmer Supply Node</span>
+                    <span style="color:#00ff66;" id="p2pStatusBadge">IndexedDB Synced</span>
+                </div>
+                <div class="feed-desc" id="cardDesc" style="font-size: 8px; color: #8b949e; line-height: 1.4;">Pin-code level local-first database active. Data securely stored in device IndexedDB offline storage.</div>
+
+                <div class="social-bar" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,255,102,0.2); padding-top: 6px; margin-top: 4px;">
+                    <button class="social-action-btn p2p-connect-btn" id="peerBtn" onclick="togglePeerConnection(this)" style="background:rgba(0,243,255,0.1); border:1px solid #00f3ff; color:#00f3ff; font-size:7.5px; font-weight:bold; padding:3px 6px; border-radius:4px; cursor:pointer;">Node Linked</button>
+                    <button class="social-action-btn" id="supportBtn" onclick="toggleSupport(this)" style="background:#030712; border:1px solid rgba(0,255,102,0.4); color:#00ff66; font-size:7.5px; font-weight:bold; padding:3px 6px; border-radius:4px; cursor:pointer;">Support (<span class="support-count">24</span>)</button>
+                    <a href="chat.html" class="social-action-btn" id="chatBtn" style="background:#030712; border:1px solid rgba(0,255,102,0.4); color:#00ff66; font-size:7.5px; font-weight:bold; padding:3px 6px; border-radius:4px; text-decoration:none;">Direct Chat</a>
+                    <a href="map_radar.html" class="social-action-btn" id="mapBtn" style="background:#030712; border:1px solid rgba(0,255,102,0.4); color:#00ff66; font-size:7.5px; font-weight:bold; padding:3px 6px; border-radius:4px; text-decoration:none;">Map Radar</a>
+                    <a href="profile.html" class="social-action-btn" style="border-color:#f1c40f; color:#f1c40f; background:#030712; border:1px solid #f1c40f; font-size:7.5px; font-weight:bold; padding:3px 6px; border-radius:4px; text-decoration:none;" id="profileBtn">🛡️ Profile</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Corrected Bottom Navigation -->
+        <div class="nav-bottom" style="display: flex; gap: 4px; background: #030712; padding: 6px; border-radius: 8px; border: 1px solid rgba(0,255,102,0.2); justify-content: space-around; align-items: center; flex-shrink: 0;">
+            <a href="index.html" class="nav-link" id="botHome" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Home</a>
+            <a href="feed_geo.html" class="nav-link" id="botGeo" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Geo</a>
+            <a href="studio.html" class="nav-link studio-highlight" id="botStudio" style="background: rgba(0,255,102,0.15); color: #00ff66; border: 1px solid #00ff66; font-size: 7.5px; font-weight: 900; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">➕ Studio</a>
+            <a href="nukkad_share_maeKet.html" class="nav-link" id="botMarket" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Nukkad</a>
+            <a href="profile.html" class="nav-link" id="botProfile" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Profile</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        let aiEnabled = true;
+        let currentLang = 'en';
+        let currentCategoryNameEn = 'Farmer';
+        let currentCategoryNameHi = 'किसान';
+        let db; // IndexedDB instance
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAT13EhtnIOCk17KPLwPwhw_GJotsBNiA",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const rtdb = firebase.database();
+
+        // Initialize Local-First IndexedDB & Offline Engine
+        function initLocalFirstEngine() {
+            openIndexedDB();
+            updateNetworkStatus();
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+            
+            let quantumID = localStorage.getItem('nexus_localfirst_id');
+            if (!quantumID) {
+                quantumID = 'NEXUS-LF-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                localStorage.setItem('nexus_localfirst_id', quantumID);
+            }
+
+            setInterval(() => {
+                if (aiEnabled && 'speechSynthesis' in window && window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                }
+            }, 5000);
+        }
+
+        // Open or Create IndexedDB Database for Offline Storage
+        function openIndexedDB() {
+            const request = indexedDB.open('SupremeApexNexusDB', 1);
+            
+            request.onerror = function(event) {
+                console.error("IndexedDB error: ", event.target.error);
+            };
+
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                console.log("IndexedDB Local-First Database Initialized Successfully.");
+                saveOfflineNode('Farmer', 'Default pin-code node initialized locally.');
+            };
+
+            request.onupgradeneeded = function(event) {
+                let database = event.target.result;
+                if (!database.objectStoreNames.contains('offline_nodes')) {
+                    database.createObjectStore('offline_nodes', { keyPath: 'id', autoIncrement: true });
+                }
+            };
+        }
+
+        // Save Node locally in IndexedDB when offline
+        function saveOfflineNode(category, description) {
+            if (!db) return;
+            let transaction = db.transaction(['offline_nodes'], 'readwrite');
+            let store = transaction.objectStore('offline_nodes');
+            let node = {
+                category: category,
+                desc: description,
+                timestamp: Date.now(),
+                pincode: '110001', // Default regional pin-code
+                synced: navigator.onLine
+            };
+            store.add(node);
+            transaction.oncomplete = function() {
+                console.log("Node safely stored in local IndexedDB.");
+            };
+        }
+
+        function updateNetworkStatus() {
+            const badge = document.getElementById('netBadge');
+            const dot = document.getElementById('netDot');
+            const text = document.getElementById('netText');
+            if (!badge || !dot || !text) return;
+            
+            if (navigator.onLine) {
+                badge.style.borderColor = "#00ff66";
+                badge.style.background = "rgba(0,255,102,0.1)";
+                badge.style.color = "#00ff66";
+                dot.style.background = "#00ff66";
+                text.innerText = currentLang === 'hi' ? "ऑनलाइन मेश" : "ONLINE MESH";
+            } else {
+                badge.style.borderColor = "#f1c40f";
+                badge.style.background = "rgba(241,196,15,0.1)";
+                badge.style.color = "#f1c40f";
+                dot.style.background = "#f1c40f";
+                text.innerText = currentLang === 'hi' ? "ऑफलाइन (IndexedDB एक्टिव)" : "OFFLINE (IndexedDB)";
+            }
+        }
+
+        function changeLanguage() {
+            const selector = document.getElementById('langSelector');
+            if (!selector) return;
+            currentLang = selector.value;
+            updateNetworkStatus();
+
+            const setElText = (id, text) => { let el = document.getElementById(id); if(el) el.innerText = text; };
+            if (currentLang === 'hi') {
+                setElText('navAlerts', "अलर्ट्स");
+                setElText('navMarket', "नुक्कड़ बाजार");
+                setElText('tickerText', "[लोकल-फर्स्ट इंडेक्सडीबी]: पिन-कोड लेवल ऑटोनॉमस मेश और ज़ीरो-कमिशन लेजर एक्टिव");
+                setElText('cardTitle', `1. ${currentCategoryNameHi} सप्लाई नोड`);
+                setElText('cardDesc', `पिन-कोड लेवल लोकल-फर्स्ट डेटाबेस सक्रिय है। डेटा डिवाइस के IndexedDB ऑफलाइन स्टोरेज में सुरक्षित है।`);
+                speakText("भाषा बदलकर हिंदी कर दी गई है।");
+            } else {
+                setElText('navAlerts', "Alerts");
+                setElText('navMarket', "Nukkad Market");
+                setElText('tickerText', "[LOCAL-FIRST INDEXEDDB]: Pin-Code Level Autonomous Mesh & Zero-Commission Ledger Active");
+                setElText('cardTitle', `1. ${currentCategoryNameEn} Supply Node`);
+                setElText('cardDesc', `Pin-code level local-first database active. Data securely stored in device IndexedDB offline storage.`);
+                speakText("Language switched to English.");
+            }
+        }
+
+        function toggleAIEngine() {
+            const toggle = document.getElementById('aiToggle');
+            if(!toggle) return;
+            aiEnabled = toggle.checked;
+            if (!aiEnabled && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speakText(text) {
+            if (!aiEnabled) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = currentLang === 'hi' ? 'hi-IN' : 'en-US';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function startSpeechRecognition() {
+            if (!aiEnabled) {
+                alert(currentLang === 'hi' ? "कृपया पहले असद एआई टॉगल चालू करें!" : "Please enable Asad AI toggle first!");
+                return;
+            }
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                let userMsg = prompt(currentLang === 'hi' ? "संदेश टाइप करें:" : "Type message:");
+                if(userMsg) handleAIQuery(userMsg);
+                return;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = currentLang === 'hi' ? 'hi-IN' : 'en-US';
+            speakText(currentLang === 'hi' ? "सुन रहे हैं, बोलिए।" : "Listening, please speak.");
+            recognition.onresult = function(event) {
+                handleAIQuery(event.results[0][0].transcript);
+            };
+            recognition.start();
+        }
+
+        function handleAIQuery(query) {
+            let response = currentLang === 'hi' ? `प्रोसेस्ड: ${query}। IndexedDB में सेव!` : `Processed: ${query}. Saved in IndexedDB!`;
+            saveOfflineNode(currentCategoryNameEn, query);
+            speakText(response);
+        }
+
+        // Synchronized Filter, Stories & Local IndexedDB Mapping
+        function filterBiz(key, nameEn, nameHi, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentCategoryNameEn = nameEn;
+            currentCategoryNameHi = nameHi;
+            let displayName = currentLang === 'hi' ? nameHi : nameEn;
+            
+            let s1 = document.getElementById('storyItem1');
+            let s2 = document.getElementById('storyItem2');
+            let s3 = document.getElementById('storyItem3');
+
+            if(s1) s1.innerText = `🌾 ${displayName}`;
+            if(s2) s2.innerText = `📦 Bulk`;
+            if(s3) s3.innerText = `📍 Pin`;
+
+            let titleEl = document.getElementById('cardTitle');
+            let descEl = document.getElementById('cardDesc');
+            
+            if(titleEl) titleEl.innerText = currentLang === 'hi' ? `${displayName} सप्लाई नोड` : `${displayName} Supply Node`;
+            if(descEl) descEl.innerText = currentLang === 'hi' ? 
+                `कटेगरी '${displayName}' के लिए पिन-कोड लेवल IndexedDB और लाइव स्टोरीज लोड हो गई हैं।` : 
+                `Pin-code level IndexedDB and live stories loaded for category: ${displayName}.`;
+            
+            // Save filter selection locally
+            saveOfflineNode(nameEn, `User switched to category: ${nameEn}`);
+            
+            speakText(currentLang === 'hi' ? `${displayName} कटेगरी और लोकल डेटाबेस सिंक हो गया है।` : `${displayName} category and local database synced.`);
+        }
+
+        function togglePeerConnection(btn) {
+            let badge = document.getElementById('p2pStatusBadge');
+            if(btn.innerText.includes('Linked') || btn.innerText.includes('लिंक्ड')) {
+                btn.innerText = currentLang === 'hi' ? "नोड अनलिंक्ड" : "Node Unlinked";
+                if(badge) badge.innerText = currentLang === 'hi' ? "स्टैंडबाय" : "Standby";
+                speakText(currentLang === 'hi' ? "नोड डिस्कनेक्ट हो गया।" : "Node unlinked.");
+            } else {
+                btn.innerText = currentLang === 'hi' ? "नोड लिंक्ड" : "Node Linked";
+                if(badge) badge.innerText = currentLang === 'hi' ? "IndexedDB सिंक" : "IndexedDB Synced";
+                speakText(currentLang === 'hi' ? "नोड कनेक्ट हो गया।" : "Node linked.");
+            }
+        }
+
+        function toggleSupport(btn) {
+            let span = btn.querySelector('.support-count');
+            if(span) {
+                span.innerText = parseInt(span.innerText) + 1;
+                speakText(currentLang === 'hi' ? "समर्थन दर्ज हुआ।" : "Support recorded.");
+            }
+        }
+    </script>
+</body>
+</html>

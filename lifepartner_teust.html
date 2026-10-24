@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Partner Trust Core : Social Matchmaking & Audio Guide</title>
+    <style>
+        :root {
+            --bg-primary: #050b14;
+            --bg-card: rgba(12, 28, 48, 0.95);
+            --border-neon: rgba(241, 196, 15, 0.4);
+            --accent-gold: #f1c40f;
+            --accent-cyan: #00f3ff;
+            --accent-green: #00ff66;
+            --accent-purple: #9d00ff;
+            --accent-red: #ff3366;
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            background-image: radial-gradient(circle at 50% 10%, #1a0505 0%, #050b14 90%);
+        }
+
+        .app-frame {
+            width: 100%;
+            max-width: 480px;
+            height: 96vh;
+            background: #07111d;
+            border: 3px solid var(--accent-gold);
+            border-radius: 28px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(241,196,15,0.25);
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .app-frame { max-width: 520px; }
+        }
+
+        header {
+            background: rgba(5, 15, 25, 0.98);
+            border-bottom: 2px solid var(--border-neon);
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-brand h1 { color: var(--accent-gold); font-size: 10.5px; text-transform: uppercase; letter-spacing: 1px; }
+        .header-brand p { color: var(--accent-green); font-size: 7px; font-weight: bold; }
+
+        .nav-link-btn {
+            background: var(--accent-cyan); color: var(--bg-primary);
+            border: none; padding: 3px 6px; border-radius: 5px; font-weight: bold; font-size: 9px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+        }
+
+        .marquee-box {
+            background: rgba(255, 51, 102, 0.15);
+            border-bottom: 1px solid var(--accent-red);
+            padding: 4px 0; overflow: hidden; white-space: nowrap; font-size: 9px; color: #ff99bb; font-weight: bold;
+        }
+        .marquee-box span { display: inline-block; padding-left: 100%; animation: marquee 40s linear infinite; }
+
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+
+        .content-body { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+        .smart-toggle-header {
+            background: rgba(241, 196, 15, 0.1);
+            border: 1px solid var(--accent-gold);
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 10px;
+            color: var(--accent-gold);
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .smart-toggle-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-neon);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 10px;
+            display: none;
+        }
+        .smart-toggle-content.active { display: block; }
+
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 5px; }
+        .input-field {
+            width: 100%; padding: 6px; background: #030712; border: 1px solid var(--border-neon);
+            border-radius: 5px; color: var(--text-main); font-size: 9px; outline: none;
+        }
+        select.input-field { color: var(--text-main); }
+        textarea.input-field { grid-column: span 2; resize: none; height: 40px; }
+
+        .primary-btn {
+            width: 100%; background: var(--accent-gold); color: var(--bg-primary); border: none;
+            padding: 7px; border-radius: 5px; font-weight: bold; font-size: 9.5px; cursor: pointer; text-align: center;
+        }
+
+        .section-title { font-size: 9.5px; color: var(--accent-cyan); font-weight: bold; border-bottom: 1px dashed rgba(0,243,255,0.3); padding-bottom: 2px; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+
+        .profile-feed { display: flex; flex-direction: column; gap: 8px; }
+        .social-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-neon);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .profile-header-flex { display: flex; align-items: center; gap: 8px; }
+        .profile-avatar {
+            width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; color: #050b14;
+        }
+        .profile-info h4 { color: var(--accent-gold); font-size: 10.5px; }
+        .profile-info p { color: var(--text-muted); font-size: 8.5px; }
+        .profile-vision { font-size: 9px; color: var(--text-main); line-height: 1.35; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 5px; border-left: 2px solid var(--accent-cyan); }
+        
+        .card-actions { display: flex; gap: 6px; margin-top: 2px; }
+        .action-btn {
+            flex: 1; background: rgba(0,243,255,0.1); border: 1px solid var(--accent-cyan); color: var(--accent-cyan);
+            padding: 4px; border-radius: 4px; font-size: 8.5px; font-weight: bold; cursor: pointer; text-align: center;
+        }
+        .action-btn:hover { background: var(--accent-cyan); color: var(--bg-primary); }
+
+        .chat-box-container {
+            background: #030712; border: 1px solid var(--accent-cyan); border-radius: 6px; padding: 6px; margin-top: 4px; display: none;
+        }
+        .chat-box-container.active { display: block; }
+        .chat-messages { height: 60px; overflow-y: auto; font-size: 8.5px; color: var(--text-main); margin-bottom: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 4px; }
+        .chat-input-row { display: flex; gap: 4px; }
+        .chat-input-row input { flex: 1; background: #07111d; border: 1px solid var(--border-neon); padding: 3px 6px; border-radius: 4px; color: #fff; font-size: 8.5px; outline: none; }
+
+        .bottom-bar {
+            background: rgba(5, 15, 25, 0.98); border-top: 1px solid var(--border-neon); padding: 6px 10px; display: flex; gap: 5px; align-items: center;
+        }
+        .bottom-bar input {
+            flex: 1; padding: 5px 8px; background: var(--bg-card); border: 1px solid var(--border-neon);
+            border-radius: 5px; color: var(--text-main); font-size: 9px; outline: none;
+        }
+    </style>
+</head><body>
+    <div class="app-frame">
+        <header>
+            <div class="header-brand">
+                <h1>💍 Life Partner Trust Core</h1>
+                <p>Social Matchmaking & Audio Guide</p>
+            </div>
+            <div class="header-actions">
+                <a href="index.html" class="nav-link-btn">🏠 होम</a>
+                <button class="nav-link-btn" onclick="playAudioGuide()" style="background:var(--accent-gold); color:#050b14;">🔊 ऑडियो गाइड</button>
+            </div>
+        </header>
+
+        <div class="marquee-box">
+            <span>🚨 RED FLAG: दहेज और कर्ज वाली शादियाँ बर्बादी की जड़ हैं! सादगी अपनाएं, बिना बिचौलिये के सीधा और पवित्र रिश्ता जोड़ें।</span>
+        </div>
+
+        <div class="content-body">
+            
+            <!-- TOGGLE 1: Profile Registration Form -->
+            <div class="smart-toggle-header" onclick="toggleSection('formSection')">
+                <span>📜 अपनी सोशल प्रोफाइल बनाएं (क्लिक करें)</span>
+                <span>🔽</span>
+            </div>
+            <div id="formSection" class="smart-toggle-content">
+                <p style="color:var(--text-muted); font-size:9px; margin-bottom:6px;">दहेज-मुक्त और सादगी पसंद अपनी असली सोशल प्रोफाइल दर्ज करें।</p>
+                <div class="input-grid">
+                    <input type="text" id="pName" class="input-field" placeholder="पूरा नाम">
+                    <input type="text" id="pAge" class="input-field" placeholder="आयु">
+                    <input type="text" id="pCity" class="input-field" placeholder="शहर / पिन-कोड">
+                    
+                    <select id="pReligion" class="input-field">
+                        <option value="Islam">धर्म: इस्लाम</option>
+                        <option value="Hinduism">धर्म: सनातन / हिन्दू</option>
+                        <option value="Christianity">धर्म: ईसाई</option>
+                        <option value="Sikhism">धर्म: सिख</option>
+                        <option value="Other">अन्य धर्म / Universal</option>
+                    </select>
+
+                    <select id="pStatus" class="input-field">
+                        <option value="प्रथम विवाह">प्रथम विवाह</option>
+                        <option value="जीवनसाथी का इंतकाल">जीवनसाथी का इंतकाल</option>
+                        <option value="अन्य">अन्य स्थिति</option>
+                    </select>
+
+                    <select id="pAvatar" class="input-field">
+                        <option value="🧔">🧔 जेंटलमेन</option>
+                        <option value="🧕">🧕 पाकीजा सिस्टर</option>
+                        <option value="👨">👨 युवा रिसर्चर</option>
+                        <option value="👩">👩 सादगी पसंद</option>
+                    </select>
+
+                    <input type="text" id="pCaste" class="input-field" placeholder="जाति / समुदाय" style="grid-column: span 2;">
+                    <textarea id="pVision" class="input-field" placeholder="जीवन का दृष्टिकोण और सादगी भरी सोच..."></textarea>
+                </div>
+                <button class="primary-btn" onclick="submitVerifiedProfile()">🛡️ सोशल प्रोफाइल पब्लिश करें</button>
+            </div>
+
+            <!-- TOGGLE 2: AI Wisdom & Dispute Court -->
+            <div class="smart-toggle-header" style="border-color: var(--accent-purple); color: var(--accent-purple);" onclick="toggleSection('aiCourtSection')">
+                <span>⚖️ एआई निष्पक्ष परिवार अदालत (क्लिक करें)</span>
+                <span>🔽</span>
+            </div>
+            <div id="aiCourtSection" class="smart-toggle-content" style="background: rgba(157,0,255,0.04);">
+                <p style="color:var(--text-muted); font-size:9px; margin-bottom:6px;">पारिवारिक उलझन या दबाव पर निष्पक्ष और तार्किक समाधान पाएं।</p>
+                <div class="input-grid">
+                    <input type="text" id="disputeUser" class="input-field" placeholder="आपका नाम / आईडी" style="grid-column: span 2;">
+                    <textarea id="disputeIssue" class="input-field" placeholder="समस्या यहाँ पूरी ईमानदारी से लिखें..."></textarea>
+                </div>
+                <button class="primary-btn" style="background: var(--accent-purple); color: #fff;" onclick="solveDisputeWithAI()">🤖 एआई न्याय मांगें</button>
+                <div id="aiResolutionResult" style="margin-top: 5px; font-size: 9px; color: var(--accent-cyan); line-height: 1.35;"></div>
+            </div>
+
+            <div class="section-title">
+                <span>✨ वेरिफाइड सोशल प्रोफाइल फीड</span>
+                <span style="color:var(--accent-green); font-size:8px;">🟢 डायरेक्ट चैट इनेबल</span>
+            </div>
+
+            <!-- Social Profile Feed Container -->
+            <div class="profile-feed" id="profileFeed">
+                <!-- Dynamically rendered via JS -->
+            </div>
+        </div>
+
+        <!-- Bottom Bar with Smart Filters & Mic -->
+        <div class="bottom-bar">
+            <input type="text" id="searchProfileInput" placeholder="पिन-कोड, शहर, धर्म या सादगी से खोजें..." oninput="filterProfiles(this.value)">
+            <button class="nav-link-btn" onclick="startVoiceMic()" style="background:var(--accent-gold); color:#050b14;">🎙️ माइक</button>
+        </div>
+    </div>
+
+    <script>
+        let trustDatabase = [
+            { id: 78601, name: "अहमद रज़ा", age: "28", city: "दिल्ली [110001]", religion: "Islam", status: "प्रथम विवाह", caste: "सुन्नी", vision: "सादा निकाह, बिना बैंड-बाजे और बिना कर्ज के पवित्र जीवन।", avatar: "🧔" },
+            { id: 78602, name: "सुनीता शर्मा", age: "27", city: "जयपुर [302001]", religion: "Hinduism", status: "प्रथम विवाह", caste: "ब्राह्मण", vision: "दहेज के खिलाफ, सादगी से गृहस्थी की शुरुआत।", avatar: "👩" }
+        ];
+
+        function toggleSection(id) {
+            let elem = document.getElementById(id);
+            elem.classList.toggle('active');
+        }
+
+        function playAudioGuide() {
+            speakText("लाइफ पार्टनर ट्रस्ट कोर में आपका स्वागत है। यह मंच पूरी तरह से दहेज-मुक्त, सादगी और बिना बिचौलिये के पवित्र रिश्ते जोड़ने के लिए बनाया गया है। आप यहाँ अपनी सोशल प्रोफाइल बना सकते हैं, एआई अदालत से न्याय ले सकते हैं और सीधे चैट कर सकते हैं।");
+        }
+
+        function renderProfiles(data) {
+            let feed = document.getElementById('profileFeed');
+            feed.innerHTML = '';
+            if(data.length === 0) {
+                feed.innerHTML = '<p style="color:var(--text-muted); font-size:9px; text-align:center;">कोई मेल खाने वाली प्रोफाइल नहीं मिली।</p>';
+                return;
+            }
+            data.forEach((item, index) => {
+                let card = document.createElement('div');
+                card.className = 'social-card';
+                card.innerHTML = `
+                    <div class="profile-header-flex">
+                        <div class="profile-avatar">${item.avatar || '🧔'}</div>
+                        <div class="profile-info">
+                            <h4>${item.name}, ${item.age} <span style="font-size:7.5px; color:var(--accent-green);">✔ वेरिफाइड</span></h4>
+                            <p>📍 ${item.city} | ${item.religion} | ${item.status}</p>
+                        </div>
+                    </div>
+                    <div class="profile-vision"><b>विजन:</b> "${item.vision}"</div>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="toggleChatBox(${index})">💬 डायरेक्ट चैट करें</button>
+                        <button class="action-btn" style="background:rgba(241,196,15,0.1); border-color:var(--accent-gold); color:var(--accent-gold);" onclick="speakProfileDetails('${item.name}', '${item.city}', '${item.vision}')">🔊 सुनें</button>
+                    </div>
+                    <div class="chat-box-container" id="chatBox_${index}">
+                        <div class="chat-messages" id="chatMsgs_${index}">
+                            <div>🤖 <b>एआई ट्रस्ट गार्ड:</b> यह सुरक्षित डायरेक्ट चैट बॉक्स है। आप दोनों यहाँ खुलकर बिना किसी बिचौलिये के बात कर सकते हैं।</div>
+                        </div>
+                        <div class="chat-input-row">
+                            <input type="text" id="chatInput_${index}" placeholder="संदेश लिखें...">
+                            <button class="nav-link-btn" onclick="sendDirectMessage(${index})">भेजें</button>
+                        </div>
+                    </div>
+                `;
+                feed.appendChild(card);
+            });
+        }
+
+        function speakProfileDetails(name, city, vision) {
+            speakText(`प्रोफाइल: ${name}, स्थान: ${city}, विजन है: ${vision}`);
+        }
+
+        function toggleChatBox(index) {
+            let box = document.getElementById(`chatBox_${index}`);
+            box.classList.toggle('active');
+        }
+
+        function sendDirectMessage(index) {
+            let input = document.getElementById(`chatInput_${index}`);
+            let msgContainer = document.getElementById(`chatMsgs_${index}`);
+            let text = input.value.trim();
+
+            if(!text) return;
+
+            let userMsg = document.createElement('div');
+            userMsg.innerHTML = `👤 <b>आप:</b> ${text}`;
+            msgContainer.appendChild(userMsg);
+
+            input.value = '';
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+
+            setTimeout(() => {
+                let reply = document.createElement('div');
+                reply.style.color = 'var(--accent-green)';
+                reply.innerHTML = `🛡️ <b>सिस्टम:</b> संदेश सुरक्षित रूप से पहुँचा दिया गया है।`;
+                msgContainer.appendChild(reply);
+                msgContainer.scrollTop = msgContainer.scrollHeight;
+            }, 800);
+        }
+
+        function submitVerifiedProfile() {
+            let name = document.getElementById('pName').value.trim();
+            let age = document.getElementById('pAge').value.trim();
+            let city = document.getElementById('pCity').value.trim();
+            let religion = document.getElementById('pReligion').value;
+            let status = document.getElementById('pStatus').value;
+            let avatar = document.getElementById('pAvatar').value;
+            let caste = document.getElementById('pCaste').value.trim() || "Universal";
+            let vision = document.getElementById('pVision').value.trim();
+
+            if(!name || !age || !city || !vision) {
+                alert("⚠️ कृपया सभी फील्ड भरें।");
+                return;
+            }
+
+            let newProfile = { id: Math.floor(10000 + Math.random() * 90000), name, age, city, religion, status, caste, vision, avatar };
+            trustDatabase.unshift(newProfile);
+
+            localStorage.setItem('lifePartnerTrustData', JSON.stringify(trustDatabase));
+            renderProfiles(trustDatabase);
+
+            alert(`✅ मुबारक हो ${name}! आपकी सोशल प्रोफाइल लाइव कर दी गई है।`);
+            
+            document.getElementById('pName').value = '';
+            document.getElementById('pAge').value = '';
+            document.getElementById('pCity').value = '';
+            document.getElementById('pVision').value = '';
+            document.getElementById('pCaste').value = '';
+            toggleSection('formSection');
+        }
+
+        function solveDisputeWithAI() {
+            let user = document.getElementById('disputeUser').value.trim();
+            let issue = document.getElementById('disputeIssue').value.trim();
+            let resultBox = document.getElementById('aiResolutionResult');
+
+            if(!user || !issue) {
+                alert("⚠️ कृपया नाम और समस्या दर्ज करें।");
+                return;
+            }
+
+            resultBox.innerHTML = "⏳ एआई विश्लेषण कर रहा है...";
+            
+            setTimeout(() => {
+                let wisdom = `⚖️ <b>एआई निष्पक्ष न्याय (${user}):</b><br>` +
+                    `"ड्रामों और दिखावे से दूर रहें। वक्त का पहिया एक समान चलता है; धैर्य और सादगी ही रिश्ते की असली ताकत है। माता-पिता का प्यार उनके तानों के पीछे छुपा होता है, उसे समझें।"`;
+                resultBox.innerHTML = wisdom;
+                speakText(wisdom.replace(/<[^>]*>?/gm, ''));
+            }, 1000);
+        }
+
+        function filterProfiles(query) {
+            let q = query.toLowerCase();
+            let filtered = trustDatabase.filter(item => 
+                item.name.toLowerCase().includes(q) || 
+                item.city.toLowerCase().includes(q) || 
+                item.religion.toLowerCase().includes(q) || 
+                item.status.toLowerCase().includes(q) || 
+                item.vision.toLowerCase().includes(q) ||
+                item.caste.toLowerCase().includes(q)
+            );
+            renderProfiles(filtered);
+        }
+
+        function startVoiceMic() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("⚠️ माइक सपोर्ट उपलब्ध नहीं है।");
+                return;
+            }
+            let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            let recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN';
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript;
+                document.getElementById('searchProfileInput').value = transcript;
+                filterProfiles(transcript);
+                speakText(`खोज रहा है: ${transcript}`);
+            };
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'hi-IN';
+                utterance.rate = 0.95;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        window.onload = () => {
+            let saved = localStorage.getItem('lifePartnerTrustData');
+            if(saved) {
+                trustDatabase = JSON.parse(saved);
+            }
+            renderProfiles(trustDatabase);
+        };
+    </script>
+</body>
+</html>

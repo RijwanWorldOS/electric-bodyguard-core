@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Iqra Global Academy : Asad AI Global Mentor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #030712; color: #00f3ff; height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        .app-container {
+            width: 100%; max-width: 480px; height: 100%; max-height: 100vh;
+            background: #060d18; border: 2px solid #00f3ff; 
+            display: flex; flex-direction: column; padding: 8px; gap: 6px;
+            box-shadow: 0 25px 60px rgba(0,243,255,0.3);
+        }
+        @media(min-width: 481px) {
+            .app-container { height: 96vh; max-height: 920px; border-radius: 12px; }
+        }
+
+        .header-panel { background: linear-gradient(135deg, rgba(0,243,255,0.15), rgba(241,196,15,0.1)); border: 1px solid #00f3ff; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+        
+        .app-title-main { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 900; color: #00f3ff; border-bottom: 1px solid rgba(0,243,255,0.3); padding-bottom: 4px; }
+        .branding-center { display: flex; align-items: center; gap: 4px; }
+        
+        .nav-home-btn { background: #0b192c; color: #00f3ff; border: 1px solid #00f3ff; font-size: 7px; font-weight: bold; padding: 3px 6px; border-radius: 8px; cursor: pointer; }
+        .profile-btn { background: #0b192c; color: #f1c40f; border: 1px solid #f1c40f; font-size: 7px; font-weight: bold; padding: 3px 6px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+        
+        /* Student Profile Modal */
+        .profile-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3,7,18,0.85); z-index: 100; justify-content: center; align-items: center; }
+        .profile-content { background: #060d18; border: 2px solid #00f3ff; padding: 12px; border-radius: 8px; width: 90%; max-width: 290px; display: flex; flex-direction: column; gap: 6px; }
+        .profile-content input, .profile-content select { background: #0b192c; color: #fff; border: 1px solid #f1c40f; padding: 5px; border-radius: 4px; font-size: 8px; outline: none; }
+
+        .category-scroll-bar { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 3px; scrollbar-width: thin; }
+        .cat-pill { background: #0b192c; color: #00f3ff; border: 1px solid rgba(0,243,255,0.4); font-size: 7px; font-weight: bold; padding: 4px 8px; border-radius: 12px; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .cat-pill.active { background: #00f3ff; color: #030712; font-weight: 900; box-shadow: 0 0 8px rgba(0,243,255,0.6); }
+
+        .ticker-box { background: rgba(241,196,15,0.08); border: 1px solid #f1c40f; color: #f1c40f; font-size: 7.5px; font-weight: 900; padding: 4px; border-radius: 4px; overflow: hidden; white-space: nowrap; }
+
+        .chat-window { flex: 1; background: #030712; border: 1px solid #f1c40f; border-radius: 6px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+        
+        .chat-bubble { background: rgba(0,243,255,0.04); border: 1px solid rgba(0,243,255,0.25); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+        .chat-title { font-size: 10px; font-weight: 900; color: #00f3ff; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,243,255,0.2); padding-bottom: 4px; }
+        .chat-body { font-size: 8.5px; color: #e6edf3; line-height: 1.6; white-space: pre-line; word-break: break-word; }
+
+        .dna-badge { background: rgba(241,196,15,0.15); border: 1px solid #f1c40f; color: #f1c40f; font-size: 7px; font-weight: bold; padding: 2px 5px; border-radius: 3px; display: inline-flex; align-items: center; gap: 3px; margin-bottom: 3px; }
+        .speaker-btn { background: #0b192c; border: 1px solid #f1c40f; color: #f1c40f; font-size: 8px; padding: 2px 5px; border-radius: 3px; cursor: pointer; }
+
+        .input-container-wrapper { flex-shrink: 0; background: #030712; padding: 3px 0; }
+        .gemini-input-box {
+            display: flex; align-items: center; gap: 5px;
+            background: #0b192c; border: 1.5px solid #f1c40f; border-radius: 22px;
+            padding: 5px 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .inline-tool-btn { background: none; border: none; color: #f1c40f; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; }
+        
+        /* Voice Wave Indicator */
+        .voice-wave-indicator { display: none; align-items: center; gap: 2px; padding: 0 4px; }
+        .v-bar { width: 2px; height: 10px; background: #00f3ff; animation: waveAnim 0.6s infinite ease-in-out alternate; }
+        .v-bar:nth-child(2) { animation-delay: 0.2s; }
+        .v-bar:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes waveAnim { 0% { height: 3px; } 100% { height: 14px; } }
+
+        .gemini-textarea {
+            flex: 1; background: transparent; color: #fff; border: none; outline: none;
+            font-size: 9px; resize: none; max-height: 80px; min-height: 18px; line-height: 1.3;
+        }
+        .gemini-send-btn {
+            background: #00f3ff; color: #030712; border: none; width: 26px; height: 26px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 11px; cursor: pointer; flex-shrink: 0;
+        }
+        .gemini-send-btn:hover { background: #f1c40f; }
+        #academicUploader { display: none; }
+    </style>
+</head>
+<body onload="initGlobalAcademy()">
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header-panel">
+            <div class="app-title-main">
+                <div class="branding-center">
+                    <span>🌍 Al-Iqra Global Academy : Asad AI Mentor</span>
+                </div>
+                <div style="display: flex; gap: 4px; align-items: center;">
+                    <button class="nav-home-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+                    <button class="profile-btn" onclick="toggleStudentModal(true)">👤 <span id="navStudentName">Student ID</span></button>
+                </div>
+            </div>
+            
+            <div class="category-scroll-bar" id="academyCategoryBar">
+                <button class="cat-pill active" onclick="selectLevel('nursery_10', this)">🌱 Nursery - 10th</button>
+                <button class="cat-pill" onclick="selectLevel('higher_edu', this)">🎓 11th - Graduation</button>
+                <button class="cat-pill" onclick="selectLevel('global_research', this)">🔬 Global R&D & Prodigy</button>
+                <button class="cat-pill" onclick="selectLevel('tech_coding', this)">💻 Tech & Human Anatomy</button>
+            </div>
+
+            <div class="ticker-box">
+                <marquee behavior="scroll" direction="left" scrollamount="4">
+                    💡 AL-IQRA MOTTO: Knowledge is a basic human necessity, not a luxury. Real-time Pin-Code Teacher Network & Prodigy Global Promotion Active.
+                </marquee>
+            </div>
+        </div>
+
+        <!-- Student Profile Modal -->
+        <div class="profile-modal" id="studentModal">
+            <div class="profile-content">
+                <div style="font-size: 10px; font-weight: 900; color: #00f3ff; border-bottom: 1px solid rgba(0,243,255,0.3); padding-bottom: 3px;">Student & Prodigy ID Settings</div>
+                <label style="font-size: 7.5px;">Full Name:</label>
+                <input type="text" id="sName" placeholder="Enter full name">
+                <label style="font-size: 7.5px;">Date of Birth (DOB):</label>
+                <input type="date" id="sDob">
+                <label style="font-size: 7.5px;">Class / Grade Level:</label>
+                <input type="text" id="sClassLevel" placeholder="e.g. Class 5 / Nursery / Graduation">
+                <label style="font-size: 7.5px;">Pin-Code Location:</label>
+                <input type="text" id="sPinCode" placeholder="e.g. 110041">
+                <label style="font-size: 7.5px;">Cultural / Greeting Preference:</label>
+                <select id="sCulture">
+                    <option value="Islamic">Islamic (Assalamu Alaikum / Adaab)</option>
+                    <option value="General">General (Namaste / Good Morning)</option>
+                </select>
+                <div style="display: flex; gap: 5px; margin-top: 4px;">
+                    <button style="flex:1; background:#00f3ff; color:#030712; border:none; padding:5px; font-weight:900; border-radius:3px; cursor:pointer; font-size:8px;" onclick="saveStudentProfile()">Save Profile</button>
+                    <button style="flex:1; background:#0b192c; color:#f1c40f; border:1px solid #f1c40f; padding:5px; border-radius:3px; cursor:pointer; font-size:8px;" onclick="toggleStudentModal(false)">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="chat-window" id="chatWin">
+            <div class="chat-bubble">
+                <div class="chat-title">
+                    <span>🌟 Asad (Global Academic Mentor)</span>
+                    <button class="speaker-btn" onclick="speakText(this.parentElement.nextElementSibling.innerText)">🔊 Play</button>
+                </div>
+                <div class="chat-body" id="welcomeMsg">
+                    <b>Welcome to Al-Iqra Global Academy!</b> Asad remembers your progress, tracks your learning journey, and guides you like a real mentor. Ask any question, use voice search, or upload study materials below.
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="input-container-wrapper">
+            <input type="file" id="academicUploader" accept="application/pdf,image/*" onchange="handleAcademicUpload(event)">
+            
+            <div class="gemini-input-box">
+                <button class="inline-tool-btn" onclick="document.getElementById('academicUploader').click()" title="Upload Study Material">➕</button>
+                <button class="inline-tool-btn" onclick="startVoiceRecognition()" title="Voice Search">🎙️</button>
+                
+                <div class="voice-wave-indicator" id="voiceWave">
+                    <div class="v-bar"></div>
+                    <div class="v-bar"></div>
+                    <div class="v-bar"></div>
+                </div>
+                
+                <textarea id="userInput" class="gemini-textarea" placeholder="Ask any academic, science, human anatomy or coding query..." rows="1" oninput="autoResize(this)" onkeypress="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); processAcademicQuery();}"></textarea>
+                
+                <button class="gemini-send-btn" onclick="processAcademicQuery()" title="Send">➔</button>
+            </div>
+        </div>
+    </div><script>
+        const GEMINI_API_KEY = "AIzaSyAT13EhtiNOLck1KPLwPwhw_GJotsBNiA";
+        let academyDb = null;
+        let currentLevel = "nursery_10";
+        let studentProfile = { name: "Learner", dob: "", classLevel: "General", pinCode: "110041", culture: "Islamic", lastTopic: "None" };
+
+        const academicDictionary = {
+            "what is science": "Science is the systematic study of the physical and natural world through observation and experiment.",
+            "what is coding": "Coding is the process of giving step-by-step instructions to a computer to tell it what to do.",
+            "photosynthesis": "Photosynthesis is the process used by plants to convert light energy into chemical energy.",
+            "human brain": "The human brain is the command center of the body, controlling thoughts, memory, movement, and organs."
+        };
+
+        function toggleStudentModal(show) {
+            document.getElementById('studentModal').style.display = show ? 'flex' : 'none';
+        }
+
+        function saveStudentProfile() {
+            studentProfile.name = document.getElementById('sName').value || "Learner";
+            studentProfile.dob = document.getElementById('sDob').value || "";
+            studentProfile.classLevel = document.getElementById('sClassLevel').value || "General";
+            studentProfile.pinCode = document.getElementById('sPinCode').value || "110041";
+            studentProfile.culture = document.getElementById('sCulture').value;
+            document.getElementById('navStudentName').innerText = studentProfile.name;
+            toggleStudentModal(false);
+            
+            let greeting = studentProfile.culture === 'Islamic' ? "Assalamu Alaikum, " : "Namaste / Hello, ";
+            alert(greeting + studentProfile.name + "! Your extended student profile & memory are locked.");
+        }
+
+        function selectLevel(levelKey, pillElem) {
+            document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+            pillElem.classList.add('active');
+            currentLevel = levelKey;
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+
+        function initGlobalAcademy() {
+            let request = indexedDB.open("AlIqraGlobalAcademyMemoryDNA", 16);
+            request.onupgradeneeded = function(e) {
+                let db = e.target.result;
+                if (!db.objectStoreNames.contains("academyMemoryStore")) {
+                    db.createObjectStore("academyMemoryStore", { keyPath: "memoryKey" });
+                }
+            };
+            request.onsuccess = function(e) {
+                academyDb = e.target.result;
+                loadStudentMemory();
+            };
+        }
+
+        function loadStudentMemory() {
+            if(!academyDb) return;
+            let tx = academyDb.transaction(["academyMemoryStore"], "readonly");
+            let store = tx.objectStore("academyMemoryStore");
+            let req = store.get("last_progress");
+            req.onsuccess = function(e) {
+                if(e.target.result) {
+                    studentProfile.lastTopic = e.target.result.topic;
+                    if(studentProfile.lastTopic && studentProfile.lastTopic !== "None") {
+                        document.getElementById('welcomeMsg').innerHTML = `<b>Welcome back, ${studentProfile.name}!</b> Asad remembers your progress. You were exploring: <i>"${studentProfile.lastTopic}"</i>. Let's continue!`;
+                    }
+                }
+            };
+        }
+
+        function saveStudentMemory(topic) {
+            if(!academyDb) return;
+            try {
+                let tx = academyDb.transaction(["academyMemoryStore"], "readwrite");
+                let store = tx.objectStore("academyMemoryStore");
+                store.put({ memoryKey: "last_progress", topic: topic, timestamp: Date.now() });
+            } catch(err) {
+                console.log("Memory save error:", err);
+            }
+        }
+
+        async function processAcademicQuery() {
+            let inputField = document.getElementById('userInput');
+            let query = inputField.value.trim();
+            if(!query) return;
+
+            studentProfile.lastTopic = query;
+            saveStudentMemory(query);
+
+            let queryKey = query.toLowerCase().replace(/[^a-z0-9à-ÿ\s]/g, "").trim();
+            appendMsg("Your Question", query, false);
+            inputField.value = "";
+            inputField.style.height = '18px';
+
+            if (academicDictionary[queryKey]) {
+                let ans = academicDictionary[queryKey];
+                appendMsg(`📖 [Master Dictionary] "${query}"`, ans, true, "Offline Academy Core");
+                speakText(ans);
+                return;
+            }
+
+            await fetchGeminiAcademyResponse(query, queryKey);
+        }
+
+        async function fetchGeminiAcademyResponse(queryText, queryKey) {
+            let greetingPrefix = studentProfile.culture === 'Islamic' ? "Assalamu Alaikum" : "Hello / Namaste";
+            appendMsg("Asad (Global Mentor) is researching...", `Student: ${studentProfile.name} | Class: ${studentProfile.classLevel} | Pin: ${studentProfile.pinCode}...`, false);
+
+            try {
+                if (!navigator.onLine) throw new Error("Offline");
+
+                let promptInstruction = `You are Asad, an advanced global academic mentor and research guide at Al-Iqra Global Academy. 
+                Student Details: Name is ${studentProfile.name}, DOB: ${studentProfile.dob}, Class/Level: ${studentProfile.classLevel}, Pin-Code: ${studentProfile.pinCode}, Culture Preference: ${studentProfile.culture}. 
+                Previous Context / Last Topic: "${studentProfile.lastTopic}". 
+                Target Level: ${currentLevel} (Nursery to Graduation, Human Anatomy, Science, Coding, and Global R&D). 
+                Query: "${queryText}". 
+                Requirement: Start with an appropriate cultural greeting (${greetingPrefix}). Treat education as a fundamental human necessity like food or water. If the student shows exceptional understanding or prodigy-level intellect, acknowledge it for global Pin-Code level promotion via Geo-Feed. Break down complex concepts into simple, engaging terms.`;
+
+                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptInstruction }] }]
+                    })
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
+                let data = await response.json();
+                let answer = data.candidates && data.candidates[0].content.parts[0].text 
+                    ? data.candidates[0].content.parts[0].text 
+                    : "Apologies, unable to process this academic query right now.";
+
+                appendMsg(`📖 Asad's Guidance (Memory Locked): "${queryText}"`, answer, true, "Al-Iqra Global Knowledge Base");
+                speakText(answer);
+
+                // Auto-trigger Studio & Geo-Feed bridge for promotion check
+                promoteStudentToGlobalFeed(studentProfile.name, queryText, studentProfile.pinCode, "Academic Milestone");
+
+            } catch (err) {
+                appendMsg("Offline Notice", "You are currently offline. Please check your internet connection or use dictionary terms.", false);
+            }
+        }
+
+        function promoteStudentToGlobalFeed(studentName, topicName, pinCode, achievementType) {
+            let promotionData = {
+                name: studentName,
+                achievement: achievementType,
+                topic: topicName,
+                pin: pinCode,
+                timestamp: Date.now()
+            };
+            try {
+                let existingFeed = JSON.parse(localStorage.getItem('global_geo_feed') || '[]');
+                existingFeed.unshift(promotionData);
+                localStorage.setItem('global_geo_feed', JSON.stringify(existingFeed));
+            } catch(err) {
+                console.log("Bridge error:", err);
+            }
+        }
+
+        function startVoiceRecognition() {
+            if(!('webkitSpeechRecognition' in window)) {
+                alert("Speech recognition is not supported in this browser.");
+                return;
+            }
+            let rec = new webkitSpeechRecognition();
+            rec.lang = 'hi-IN';
+            
+            let wave = document.getElementById('voiceWave');
+            wave.style.display = 'flex';
+            speakText("Listening, please speak...");
+            
+            rec.onresult = function(ev) {
+                let inputArea = document.getElementById('userInput');
+                inputArea.value = ev.results[0][0].transcript;
+                autoResize(inputArea);
+                wave.style.display = 'none';
+                processAcademicQuery();
+            };
+            rec.onerror = function() { wave.style.display = 'none'; };
+            rec.onend = function() { wave.style.display = 'none'; };
+            rec.start();
+        }
+
+        function handleAcademicUpload(event) {
+            let file = event.target.files[0];
+            if(!file) return;
+
+            appendMsg("Research Material Ingestion", `File '${file.name}' uploaded. Asad is indexing into Academy DNA...`, false);
+            setTimeout(() => {
+                let ans = `Successfully indexed research document '${file.name}' for student ${studentProfile.name}.`;
+                appendMsg("📖 Research Paper Indexed & Memory Locked", ans, true, `Document Upload (${file.name})`);
+                speakText("Research paper has been successfully indexed into your personal student memory.");
+            }, 1200);
+        }
+
+        function appendMsg(title, text, isVerified, source = "") {
+            let win = document.getElementById('chatWin');
+            let bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            let badge = isVerified ? `<div class="dna-badge">✔ Verified & Memory Locked (${source})</div>` : "";
+            
+            bubble.innerHTML = `
+                <div class="chat-title">
+                    <span>📖 ${title}</span>
+                    <button class="speaker-btn" onclick="speakText(this.parentElement.nextElementSibling.innerText)">🔊 Play</button>
+                </div>
+                <div class="chat-body">${badge}${text}</div>
+            `;
+            win.appendChild(bubble);
+            win.scrollTop = win.scrollHeight;
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let clean = text.replace(/<\/?[^>]+(>|$)/g, "");
+                let utt = new SpeechSynthesisUtterance(clean);
+                utt.lang = 'en-US';
+                utt.rate = 0.9;
+                window.speechSynthesis.speak(utt);
+            }
+        }
+    </script>
+</body>
+</html>

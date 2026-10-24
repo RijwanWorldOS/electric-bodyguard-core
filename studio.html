@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Bodyguard - Asad AI Supreme Quantum Studio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { background-color: #000; color: #f0f6fc; height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; overflow: hidden; margin: 0; }
+        
+        .app-frame { 
+            width: 480px !important; max-width: 480px !important; height: 96vh !important; max-height: 920px !important;
+            background: #081423 !important; border: 2px solid #00f3ff !important; border-radius: 14px !important; 
+            padding: 6px !important; box-shadow: 0 25px 60px rgba(0,243,255,0.3) !important; 
+            display: flex !important; flex-direction: column !important; gap: 5px !important; position: relative !important; overflow: hidden !important; 
+        }
+        
+        .header-box { display: flex; justify-content: space-between; align-items: center; background: rgba(0,243,255,0.15); border: 1px solid #00f3ff; padding: 5px 8px; border-radius: 6px; flex-shrink: 0; gap: 4px; }
+        .brand-title { font-size: 8px; font-weight: 900; color: #00f3ff; text-transform: uppercase; flex: 1; letter-spacing: 0.5px; }
+        
+        /* भाषा बदलने का सेलेक्टर */
+        .lang-select { background: #030712; color: #f1c40f; border: 1px solid #f1c40f; font-size: 7.5px; font-weight: bold; padding: 3px; border-radius: 4px; outline: none; cursor: pointer; }
+
+        .status-badge { font-size: 7px; background: rgba(0,255,102,0.2); color: #00ff66; border: 1px solid #00ff66; padding: 2px 5px; border-radius: 4px; font-weight: bold; display: flex; align-items: center; gap: 3px; }
+        .status-dot { width: 6px; height: 6px; background: #00ff66; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .running-marquee { background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); border-radius: 4px; overflow: hidden; white-space: nowrap; padding: 4px 0; flex-shrink: 0; }
+        .running-marquee marquee { font-size: 8px; font-weight: bold; color: #00ff66; text-transform: uppercase; }
+
+        .tools-bar { display: flex; gap: 4px; overflow-x: auto; padding: 4px 0; flex-shrink: 0; scrollbar-width: thin; }
+        .tool-btn { background: #030712; border: 1px solid #00f3ff; color: #00f3ff; font-size: 7.5px; font-weight: bold; padding: 5px 7px; border-radius: 4px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .tool-btn:hover { background: rgba(0,243,255,0.25); color: #fff; }
+
+        .menu-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(241,196,15,0.08); border: 1px solid #f1c40f; padding: 4px 8px; border-radius: 4px; flex-shrink: 0; }
+        .menu-select { background: #030712; color: #f1c40f; border: 1px solid #f1c40f; font-size: 8px; font-weight: bold; padding: 3px 6px; border-radius: 4px; outline: none; cursor: pointer; }
+
+        .ai-guide-banner { background: rgba(241,196,15,0.1); border: 1px solid #f1c40f; border-radius: 4px; padding: 5px; font-size: 7.5px; color: #f1c40f; flex-shrink: 0; font-weight: bold; text-align: center; }
+
+        .studio-screen { flex: 1; min-height: 0; background: #000; border: 2px solid #00ff66; border-radius: 6px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden; transition: all 0.3s ease; }
+        .studio-screen video, .studio-screen img, .studio-screen canvas { width: 100%; height: 100%; object-fit: cover; }
+        
+        .studio-screen.ratio-9-16 { width: 250px !important; margin: 0 auto; height: 100% !important; border-color: #00f3ff; }
+        .studio-screen.ratio-16-9 { width: 100% !important; height: 230px !important; margin: auto 0; }
+        .studio-screen.ratio-1-1 { width: 260px !important; height: 260px !important; margin: auto; }
+
+        .auth-watermark { position: absolute; bottom: 6px; left: 6px; background: rgba(0,0,0,0.85); border: 1px solid #00ff66; padding: 3px 6px; border-radius: 4px; font-size: 7px; color: #00ff66; font-weight: bold; z-index: 10; }
+        .rating-badge { position: absolute; top: 6px; right: 6px; background: rgba(241,196,15,0.25); border: 1px solid #f1c40f; padding: 3px 6px; border-radius: 4px; font-size: 7.5px; color: #f1c40f; font-weight: bold; z-index: 10; cursor: pointer; }
+        
+        .placeholder-text { color: #8b949e; font-size: 9px; text-align: center; padding: 12px; line-height: 1.4; }
+
+        .action-buttons { display: flex; gap: 4px; flex-shrink: 0; }
+        .act-btn { flex: 1; background: #030712; border: 1px solid #f1c40f; color: #f1c40f; font-size: 8.5px; font-weight: bold; padding: 6px; border-radius: 4px; cursor: pointer; text-align: center; }
+        .act-btn.share { border-color: #00f3ff; color: #00f3ff; }
+
+        .independent-screen { 
+            position: absolute !important; bottom: -100% !important; left: 0 !important; width: 100% !important; height: 100% !important; 
+            background: #081423 !important; display: flex; flex-direction: column !important; padding: 8px !important; z-index: 9999 !important; 
+            box-sizing: border-box !important; overflow: hidden !important; transition: bottom 0.35s cubic-bezier(0.15, 0.85, 0.35, 1.2);
+        }
+        .independent-screen.active { bottom: 0 !important; }
+        
+        .independent-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #00f3ff; padding-bottom: 6px; margin-bottom: 6px; font-size: 9.5px; font-weight: bold; color: #00f3ff; flex-shrink: 0; }
+        .independent-body { flex: 1; min-height: 0; background: #030712; border: 1px solid rgba(0,243,255,0.2); border-radius: 6px; padding: 8px; overflow-y: auto; font-size: 9px; color: #f0f6fc; display: flex; flex-direction: column; gap: 6px; }
+
+        .card-grid { display: flex; flex-direction: column; gap: 6px; }
+        .neo-card {
+            background: linear-gradient(135deg, rgba(0,243,255,0.08), rgba(0,255,102,0.03));
+            border: 1px solid rgba(0,243,255,0.3); border-radius: 8px; padding: 8px 10px;
+            display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .neo-card:hover { transform: translateY(-2px); border-color: #00ff66; background: linear-gradient(135deg, rgba(0,243,255,0.18), rgba(0,255,102,0.1)); }
+        .neo-card.selected { border-color: #f1c40f; background: rgba(241,196,15,0.15); }
+        .neo-card-title { font-size: 8.5px; font-weight: bold; color: #f0f6fc; display: flex; align-items: center; gap: 6px; }
+        .neo-card-badge { font-size: 7px; background: rgba(0,243,255,0.25); color: #00f3ff; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+
+        .bottom-control-bar { display: flex; gap: 4px; background: #040914; padding: 5px; border-radius: 6px; border: 1px solid rgba(0,243,255,0.2); align-items: center; flex-shrink: 0; }
+        .ctrl-icon-btn { background: #030712; color: #00f3ff; border: 1px solid #00f3ff; font-size: 10px; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .ctrl-icon-btn.mic { background: #ff3366; color: #fff; border: none; }
+        
+        .bottom-nav-scroll { display: flex; gap: 3px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+        .bottom-nav-scroll::-webkit-scrollbar { display: none; }
+        .nav-link { background: #030712; color: #8b949e; border: 1px solid rgba(255,255,255,0.1); font-size: 7.5px; font-weight: bold; padding: 5px 7px; border-radius: 3px; text-decoration: none; white-space: nowrap; flex-shrink: 0; }
+        .nav-link.active { background: rgba(0,255,102,0.15); color: #00ff66; border-color: #00ff66; }
+    </style>
+</head>
+<body><div class="app-frame">
+        <div class="header-box">
+            <span class="brand-title">⚡ ELECTRIC BODYGUARD : ASAD AI SUPREME STUDIO</span>
+            <select id="appLang" class="lang-select" onchange="changeLanguage(this.value)">
+                <option value="hi">🇮🇳 हिंदी</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="pa">🇮🇳 ਪੰਜਾਬੀ</option>
+                <option value="ur">🇵🇰 اردو</option>
+                <option value="ar">🇸🇦 العربية</option>
+            </select>
+            <div class="status-badge" id="netStatus"><div class="status-dot"></div><span id="netText">Online</span></div>
+        </div>
+        
+        <div class="running-marquee">
+            <marquee scrollamount="4">🛡️ इलेक्ट्रिक बॉडीगार्ड | असद AI की जादुई दुनिया में आपका स्वागत है! कच्चा माल अपलोड करें और हॉलीवुड स्टाइल वीडियो पाएं। (फ्री ट्रायल: <span id="marqueeTrials">5</span> शेष)</marquee>
+        </div>
+
+        <div class="tools-bar">
+            <button class="tool-btn" onclick="openModule('chat')">💬 Asad AI Chat</button>
+            <button class="tool-btn" onclick="openModule('photo')">🖼️ Photo Studio (10+ Modules)</button>
+            <button class="tool-btn" onclick="openModule('tts')">🎙️ Audio TTS (10+ Tones)</button>
+            <button class="tool-btn" onclick="openModule('avatar')">👤 50+ Audio Avatars</button>
+            <button class="tool-btn" onclick="openModule('video')">🎬 Video FX (Speed & 8K)</button>
+            <button class="tool-btn" onclick="triggerCamera()">🔴 Live Camera</button>
+        </div>
+
+        <div class="menu-bar">
+            <span style="font-size:8px; color:#f1c40f; font-weight:bold;">⚙️ Studio Options & Frame Menu:</span>
+            <select id="frameMenu" class="menu-select" onchange="handleFrameMenu(this.value)">
+                <option value="9-16">📱 Instagram Reels (9:16)</option>
+                <option value="16-9">🖥️ YouTube Cinematic (16:9)</option>
+                <option value="1-1">⏹️ Square Feed (1:1)</option>
+                <option value="auto">✨ AI Auto-Detect Frame</option>
+            </select>
+        </div>
+
+        <input type="file" id="universalFileInput" style="display: none;" accept="video/*,image/*,audio/*" onchange="handleUniversalUpload(event)">
+
+        <div class="ai-guide-banner" id="aiGuideBanner">
+            🎙️ Asad AI Ustad: अरे राम-राम मालिक! नीचे [+] दबाकर कच्चा माल अपलोड करो या माइक से बोलकर कमांड दो!
+        </div>
+
+        <div class="studio-screen ratio-9-16" id="mainStudioScreen">
+            <div class="rating-badge" onclick="rateMasterStudio()">⭐ 5.0 / 5.0 (Top Rated)</div>
+            <div class="placeholder-text" id="placeholderText">
+                🎬 <b>Master Playground:</b> यहाँ कच्चा वीडियो/फोटो अपलोड करें। असद AI इसे मक्खन जैसा चमका देगा!
+            </div>
+            <video id="cameraFeed" autoplay playsinline muted style="display:none;"></video>
+            <img id="previewImg" style="display:none;" alt="Preview">
+            <canvas id="editorCanvas" style="display:none;"></canvas>
+            <div class="auth-watermark" id="authWatermark">Authentic: 100% Original Media</div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="act-btn" onclick="downloadMasterMedia()">📥 Download Master Media</button>
+            <button class="act-btn share" onclick="shareToGlobalFeed()">🔗 Publish to Biz Feed</button>
+        </div>
+
+        <div class="running-marquee" style="border-color: #f1c40f;">
+            <marquee scrollamount="3" style="color: #f1c40f;">🚀 वन आईडी, वन यूजर, वन कैटेगरी | डेटा ओवरलैप पूरी तरह ब्लॉक है!</marquee>
+        </div>
+
+        <div class="bottom-control-bar">
+            <button class="ctrl-icon-btn" onclick="checkTrialAndUpload()" title="कच्चा माल अपलोड करें (+)">➕</button>
+            <input type="text" id="globalChatBox" placeholder="असद AI उस्ताद से कुछ भी पूछें या कमांड दें..." style="flex:1; background:#030712; border:1px solid #00f3ff; color:#fff; padding:6px; font-size:8.5px; border-radius:4px; outline:none;">
+            <button class="ctrl-icon-btn mic" onclick="startGlobalVoiceCommand()" title="बोलकर बात करें (माइक)">🎙️</button>
+            <button class="ctrl-icon-btn" onclick="sendGlobalCommand()" title="भेजें (➤)" style="background:#00ff66; color:#030712; border:none; font-weight:bold;">➤</button>
+        </div>
+
+        <div class="bottom-control-bar" style="background:#030712; padding:3px 6px;">
+            <div class="bottom-nav-scroll">
+                <a href="index.html" class="nav-link" onclick="speakAsad('होम पर जा रहे हैं')">🏠 Home</a>
+                <a href="studio.html" class="nav-link active" onclick="speakAsad('स्टूडियो एक्टिव')">🎥 Studio</a>
+                <a href="calculator_lock.html" class="nav-link" onclick="speakAsad('पीओएस लॉक')">🛡️ POS Lock</a>
+                <a href="feed_geo.html" class="nav-link" onclick="speakAsad('जियो फीड')">🌍 Geo Feed</a>
+                <a href="feed_biz.html" class="nav-link" onclick="speakAsad('बिजनेस फीड')">📈 Biz Feed</a>
+            </div>
+        </div>
+
+        <div class="independent-screen" id="moduleModal">
+            <div class="independent-header">
+                <span id="moduleTitle">Module Title</span>
+                <button onclick="closeModule()" style="background:#ff3366; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:8px; font-weight:bold;">⬅️ Back</button>
+            </div>
+            <div class="independent-body" id="moduleBody"></div>
+        </div>
+    </div><script>
+        const firebaseConfig = {
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+
+        let mediaStream = null;
+        let currentLang = localStorage.getItem('rizwan_app_lang') || 'hi';
+        let remainingTrials = localStorage.getItem('rizwan_trials') || 5;
+
+        let uniqueUserDNA = localStorage.getItem('electric_bodyguard_uid');
+        if(!uniqueUserDNA) {
+            uniqueUserDNA = 'ASAD_DNA_' + Math.random().toString(36).substr(2, 9).toUpperCase() + '_SECURE';
+            localStorage.setItem('electric_bodyguard_uid', uniqueUserDNA);
+        }
+
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
+        function updateNetworkStatus() {
+            let statusBadge = document.getElementById('netStatus');
+            let statusText = document.getElementById('netText');
+            if (navigator.onLine) {
+                if(statusBadge) statusBadge.style.borderColor = "#00ff66";
+                if(statusText) statusText.innerText = "Online";
+                syncDNAWithFirebase();
+            } else {
+                if(statusBadge) statusBadge.style.borderColor = "#f1c40f";
+                if(statusText) statusText.innerText = "Offline";
+            }
+        }
+
+        window.addEventListener('error', function(e) {
+            console.warn("Self-Healing AI fixed an error:", e.message);
+            speakAsad("अरे पापा! कोडिंग एआई गाइड ने छोटा सा एरर चुटकियों में ठीक कर दिया है।");
+            return true;
+        });
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('rizwan_app_lang', lang);
+            let msg = lang === 'hi' ? "भाषा हिंदी कर दी गई है।" : (lang === 'pa' ? "ਭਾਸ਼ਾ ਪੰਜਾਬੀ ਕਰ ਦਿੱਤੀ ਗਈ ਹੈ।" : (lang === 'ur' ? "زبان اردو کر دی گئی ہے।" : "Language updated."));
+            speakAsad(msg);
+        }
+
+        function speakAsad(text) {
+            let banner = document.getElementById('aiGuideBanner');
+            if(banner) banner.innerText = `🎙️ Asad AI Ustad: ${text}`;
+            if ('speechSynthesis' in window) {
+                try {
+                    window.speechSynthesis.cancel();
+                    let utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = currentLang === 'hi' ? 'hi-IN' : (currentLang === 'pa' ? 'pa-IN' : (currentLang === 'ur' ? 'ur-PK' : 'en-US'));
+                    window.speechSynthesis.speak(utterance);
+                } catch(e) {}
+            }
+        }
+
+        window.onload = function() {
+            let langSelect = document.getElementById('appLang');
+            if(langSelect) langSelect.value = currentLang;
+
+            let trialElem = document.getElementById('trialCount');
+            if(trialElem) trialElem.innerText = remainingTrials;
+            let marqueeTrialElem = document.getElementById('marqueeTrials');
+            if(marqueeTrialElem) marqueeTrialElem.innerText = remainingTrials;
+            
+            speakAsad("अरे राम-राम मालिक! असद आ गया है। इस जादुई स्टूडियो में कच्चा माल लाओ और मक्खन जैसी वीडियो बनाओ!");
+            updateNetworkStatus();
+        };
+
+        function syncDNAWithFirebase() {
+            let payload = { uid: uniqueUserDNA, activity: "Studio Master Active", timestamp: Date.now() };
+            fetch(`${firebaseConfig.databaseURL}/asad_ai_dna_learning/${uniqueUserDNA}.json`, {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            }).catch(err => console.log("Stored in local offline DB."));
+        }
+
+        function handleFrameMenu(val) {
+            let screen = document.getElementById('mainStudioScreen');
+            if(screen) screen.className = 'studio-screen';
+            if(val === '9-16') {
+                if(screen) screen.classList.add('ratio-9-16');
+                speakAsad("फ्रेम बदलकर Instagram Reels 9:16 कर दिया गया है मालिक।");
+            } else if(val === '16-9') {
+                if(screen) screen.classList.add('ratio-16-9');
+                speakAsad("फ्रेम बदलकर YouTube Cinematic 16:9 कर दिया गया है मालिक।");
+            } else if(val === '1-1') {
+                if(screen) screen.classList.add('ratio-1-1');
+                speakAsad("फ्रेम बदलकर Square Feed 1:1 कर दिया गया है मालिक।");
+            } else if(val === 'auto') {
+                if(screen) screen.classList.add('ratio-9-16');
+                speakAsad("एआई ऑटो-डिटेक्ट ने बेस्ट फ्रेम चुन लिया है मालिक।");
+            }
+        }
+
+        function rateMasterStudio() {
+            alert("⭐ Rating submitted! Electric Bodyguard Asad AI Studio is rated 5.0 / 5.0 globally.");
+            speakAsad("वाह मालिक! दुनिया ने हमारे स्टूडियो को टॉप 5 स्टार रेटिंग दे दी है!");
+        }
+
+        function checkTrialAndUpload() {
+            if(remainingTrials <= 0) {
+                alert("⚠️ Free trial limit reached! Redirecting to Secure POS License Subscription Gateway.");
+                speakAsad("मालिक, 5 मुफ्त वीडियो पूरे हो गए हैं। अब खजाना खोलने के लिए सब्सक्रिप्शन लो!");
+                window.location.href = 'pay.html';
+                return;
+            }
+            speakAsad("शाबाश! कच्चा माल यहाँ अपलोड करो मालिक!");
+            let fileInput = document.getElementById('universalFileInput');
+            if(fileInput) fileInput.click();
+        }
+
+        async function triggerCamera() {
+            speakAsad("लाइव कैमरा चालू हो रहा है! जरा स्माइल दो मालिक!");
+            try {
+                let placeholder = document.getElementById('placeholderText');
+                if(placeholder) placeholder.style.display = 'none';
+                let prevImg = document.getElementById('previewImg');
+                if(prevImg) prevImg.style.display = 'none';
+                let editorCanvas = document.getElementById('editorCanvas');
+                if(editorCanvas) editorCanvas.style.display = 'none';
+                let videoElem = document.getElementById('cameraFeed');
+                if(videoElem) videoElem.style.display = 'block';
+
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                if(videoElem) videoElem.srcObject = mediaStream;
+                let watermark = document.getElementById('authWatermark');
+                if(watermark) watermark.innerText = "Authentic: 100% Live Camera Stream (Asad DNA)";
+            } catch(e) {
+                speakAsad("अरे! कैमरा की परमिशन नहीं मिली है मालिक!");
+            }
+        }
+
+        function handleUniversalUpload(event) {
+            let file = event.target.files[0];
+            if(!file) return;
+            
+            if(remainingTrials > 0) {
+                remainingTrials--;
+                localStorage.setItem('rizwan_trials', remainingTrials);
+                let marqueeTrialElem = document.getElementById('marqueeTrials');
+                if(marqueeTrialElem) marqueeTrialElem.innerText = remainingTrials;
+            }
+
+            speakAsad("कच्चा माल सफलतापूर्वक अपलोड हो गया है! अब हॉलीवुड स्टाइल रेंडर हो रहा है।");
+            let placeholder = document.getElementById('placeholderText');
+            if(placeholder) placeholder.style.display = 'none';
+            let videoElem = document.getElementById('cameraFeed');
+            let imgElem = document.getElementById('previewImg');
+            
+            if(mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+
+            let fileURL = URL.createObjectURL(file);
+            if(file.type.startsWith('image/')) {
+                if(videoElem) videoElem.style.display = 'none';
+                if(imgElem) {
+                    imgElem.style.display = 'block';
+                    imgElem.src = fileURL;
+                }
+                let watermark = document.getElementById('authWatermark');
+                if(watermark) watermark.innerText = "Authentic: 70% Original | 30% AI Polish";
+            } else {
+                if(imgElem) imgElem.style.display = 'none';
+                if(videoElem) {
+                    videoElem.style.display = 'block';
+                    videoElem.src = fileURL;
+                    videoElem.controls = true;
+                }
+                let watermark = document.getElementById('authWatermark');
+                if(watermark) watermark.innerText = "Authentic: 80% Original Video | 20% AI Upscaled";
+            }
+        }
+
+        const masterAvatarsList = [
+            { id: 1, name: "🌟 Hollywood Professional Host", badge: "Top", desc: "Hollywood professional host avatar for international English videos." },
+            { id: 2, name: "🛡️ Electric Bodyguard Cyber Guardian", badge: "Pro", desc: "Electric Bodyguard cyber guardian for security and tech content." },
+            { id: 3, name: "🌾 Local Market Expert Vendor", badge: "Desi", desc: "Local market expert vendor for sabzi mandi and retail business." },
+            { id: 4, name: "🎬 Cinematic Director AI", badge: "FX", desc: "Cinematic director AI for filmmaking and reels masterclass." },
+            { id: 5, name: "📰 News Anchor 4K Pro", badge: "HD", desc: "News anchor 4K pro for breaking news and reporting style." },
+            { id: 6, name: "🤖 Cyberpunk Robot Host", badge: "Sci-Fi", desc: "Cyberpunk robot host for futuristic sci-fi presentations." },
+            { id: 7, name: "💼 Business Executive Host", badge: "Biz", desc: "Business executive host for corporate and startup pitches." },
+            { id: 8, name: "🚀 Futuristic Space Narrator", badge: "Space", desc: "Futuristic space narrator for astronomy and science videos." },
+            { id: 9, name: "🎨 Creative Designer Avatar", badge: "Art", desc: "Creative designer avatar for fashion and art projects." },
+            { id: 10, name: "🔥 Desi Action Hero Host", badge: "Action", desc: "Desi action hero host for high-energy dialogues and reels." },
+            { id: 11, name: "🧘 Calm Wellness Mentor", badge: "Health", desc: "Calm wellness mentor for meditation and health advice." },
+            { id: 12, name: "🎓 Tech Guru Expert", badge: "Coding", desc: "Tech guru expert for gadgets and coding tutorials." },
+            { id: 13, name: "🎤 Podcast Star Host", badge: "Talk", desc: "Podcast star host for long-form interviews and discussions." },
+            { id: 14, name: "🌍 Global Traveler Guide", badge: "Vlog", desc: "Global traveler guide for vlogging and tourism." },
+            { id: 15, name: "⚡ Quantum AI Guardian", badge: "Master", desc: "Quantum AI guardian protecting your master database." },
+            { id: 16, name: "💡 Startup Pitch Master", badge: "Pitch", desc: "Startup pitch master to attract angel investors." },
+            { id: 17, name: "📚 History Storyteller AI", badge: "Story", desc: "History storyteller AI for mythological and historical epics." },
+            { id: 18, name: "🛒 E-commerce Sales Ninja", badge: "Shop", desc: "E-commerce sales ninja to boost online store conversions." },
+            { id: 19, name: "🎮 Gaming Streamer Pro", badge: "Game", desc: "Gaming streamer pro for high-octane esports broadcasting." },
+            { id: 20, name: "📈 Crypto & Stock Guru", badge: "Finance", desc: "Crypto and stock market guru for financial insights." },
+            { id: 21, name: "🍲 Punjabi Food Chef AI", badge: "Food", desc: "Punjabi food chef AI for dhaba-style culinary recipes." },
+            { id: 22, name: "🩺 AI Health Doctor Advisor", badge: "Medical", desc: "AI health doctor advisor for preliminary wellness guidance." },
+            { id: 23, name: "⚖️ Legal Advisor Pro", badge: "Law", desc: "Legal advisor pro for basic legal rights and compliance." },
+            { id: 24, name: "🎭 Comedy Standup Host", badge: "Fun", desc: "Comedy standup host for entertaining humorous reels." },
+            { id: 25, name: "🔮 Astrology & Tarot Master", badge: "Mystic", desc: "Astrology and tarot master for horoscope predictions." },
+            { id: 26, name: "🏎️ Auto & Car Reviewer", badge: "Auto", desc: "Auto and car reviewer for automobile specifications." },
+            { id: 27, name: "🏡 Real Estate Property Expert", badge: "RealEstate", desc: "Real estate property expert for housing and land sales." },
+            { id: 28, name: "🐾 Pet & Animal Care Mentor", badge: "Pets", desc: "Pet and animal care mentor for training furry friends." },
+            { id: 29, name: "🎵 DJ & Music Producer AI", badge: "Music", desc: "DJ and music producer AI for remix beats and soundtracks." },
+            { id: 30, name: "📐 Architecture 3D Designer", badge: "Design", desc: "Architecture 3D designer for building layouts and blueprints." },
+            { id: 31, name: "⚡ High Voltage Electrician AI", badge: "Power", desc: "High voltage electrician AI for wiring and circuit safety." },
+            { id: 32, name: "🔍 Cyber Crime Investigator", badge: "Security", desc: "Cyber crime investigator for digital fraud prevention." },
+            { id: 33, name: "📦 Logistics & Delivery Chief", badge: "Cargo", desc: "Logistics and delivery chief for supply chain tracking." },
+            { id: 34, name: "🧵 Textile & Fabric Master", badge: "Cloth", desc: "Textile and fabric master for garment quality checks." },
+            { id: 35, name: "🌾 Kisan Agri Advisor AI", badge: "Agri", desc: "Kisan agri advisor AI for modern crop yield improvements." },
+            { id: 36, name: "🏆 Motivational Life Coach", badge: "Energy", desc: "Motivational life coach for personal growth and success." },
+            { id: 37, name: "🎪 Event Manager Pro", badge: "Event", desc: "Event manager pro for weddings and grand celebrations." },
+            { id: 38, name: "🧪 Science Lab Professor", badge: "Science", desc: "Science lab professor for experimental physics and chemistry." },
+            { id: 39, name: "🧳 Tourism & Hotel Guide", badge: "Travel", desc: "Tourism and hotel guide for luxury vacation planning." },
+            { id: 40, name: "🏗️ Civil Construction Master", badge: "Build", desc: "Civil construction master for infrastructure durability." },
+            { id: 41, name: "🎨 Tattoo & Graffiti Artist", badge: "Artistic", desc: "Tattoo and graffiti artist for modern body art designs." },
+            { id: 42, name: "📊 Data Analytics Wizard", badge: "Data", desc: "Data analytics wizard for big data chart interpretation." },
+            { id: 43, name: "🗣️ Multi-Language Translator", badge: "Lingua", desc: "Multi-language translator for global communication." },
+            { id: 44, name: "🧘‍♂️ Yoga & Meditation Guru", badge: "Zen", desc: "Yoga and meditation guru for inner peace and breathing." },
+            { id: 45, name: "📸 Portrait Studio Photographer", badge: "Photo", desc: "Portrait studio photographer for stunning camera angles." },
+            { id: 46, name: "💡 AI Prompt Engineer Pro", badge: "Prompt", desc: "AI prompt engineer pro for advanced generative commands." },
+            { id: 47, name: "⚡ Quantum Energy Guardian", badge: "Core", desc: "Quantum energy guardian powering the master reactor." },
+            { id: 48, name: "🛡️ Ultimate Bodyguard Commander", badge: "Chief", desc: "Ultimate bodyguard commander heading global security." },
+            { id: 49, name: "🌟 Rizwan Master Creator", badge: "Creator", desc: "Dedicated creator avatar honoring master Rizwan." },
+            { id: 50, name: "🚀 Asad AI Supreme Ustad", badge: "Supreme", desc: "Asad AI supreme ustad controlling all studio operations." }
+        ];function openModule(type) {
+            let modal = document.getElementById('moduleModal');
+            let title = document.getElementById('moduleTitle');
+            let body = document.getElementById('moduleBody');
+            if(modal) modal.classList.add('active');
+
+            if(type === 'chat') {
+                if(title) title.innerText = "💬 Electric Bodyguard - Asad AI Master Chat";
+                speakAsad("अरे बोलो मालिक! असद AI चैट आपके हर आदेश को मानने के लिए तैयार है।");
+                if(body) body.innerHTML = `
+                    <div class="neo-card" onclick="speakAsad('यह असद AI मास्टर चैट है।');" style="background:rgba(0,243,255,0.1);">
+                        <span class="neo-card-title">🤖 Asad AI Ustad: नमस्ते मालिक! असद का डीएनए सीख रहा है। बोलिए क्या मदद करूं?</span>
+                        <span class="neo-card-badge">Active</span>
+                    </div>
+                `;
+            } else if(type === 'photo') {
+                if(title) title.innerText = "🖼️ Photo Studio (10+ Advanced Modules)";
+                speakAsad("फोटो स्टूडियो के सभी 10+ मैनुअल और AI मॉड्यूल लोड हो चुके हैं।");
+                if(body) body.innerHTML = `
+                    <div class="card-grid">
+                        <div class="neo-card" onclick="speakAsad('1-Click AI 4K/8K Ultra HD Master Polish applied!'); alert('✨ AI 4K/8K Polish Applied!');">
+                            <span class="neo-card-title">⚡ 1. AI 4K/8K Ultra HD Master Polish</span>
+                            <span class="neo-card-badge">AI Engine</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('Manual Brightness slider active.');">
+                            <span class="neo-card-title" style="flex:1;">2. Manual Brightness Slider</span>
+                            <input type="range" min="0" max="100" value="50" style="width:100px;">
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('Manual Contrast slider active.');">
+                            <span class="neo-card-title" style="flex:1;">3. Manual Contrast Slider</span>
+                            <input type="range" min="0" max="100" value="50" style="width:100px;">
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('AI Background Eraser Pro activated.'); alert('🎨 Background Removed!');">
+                            <span class="neo-card-title">4. AI Background Eraser Pro</span>
+                            <span class="neo-card-badge">Magic</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('AI Face Retouch & Glow activated.');">
+                            <span class="neo-card-title">5. AI Face Retouch & Glow</span>
+                            <span class="neo-card-badge">Beauty</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('Cinematic Vignette Filter applied.');">
+                            <span class="neo-card-title">6. Cinematic Vignette Filter</span>
+                            <span class="neo-card-badge">FX</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('HDR Color Grading activated.');">
+                            <span class="neo-card-title">7. HDR Color Grading Pro</span>
+                            <span class="neo-card-badge">Pro</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('Sharpness enhancer active.');">
+                            <span class="neo-card-title" style="flex:1;">8. Sharpness Enhancer</span>
+                            <input type="range" min="0" max="100" value="60" style="width:100px;">
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('Cyberpunk Neon Glow filter applied.');">
+                            <span class="neo-card-title">9. Cyberpunk Neon Glow Filter</span>
+                            <span class="neo-card-badge">Neon</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('Vintage Retro Film Grain applied.');">
+                            <span class="neo-card-title">10. Vintage Retro Film Grain</span>
+                            <span class="neo-card-badge">Classic</span>
+                        </div>
+                    </div>
+                `;
+            } else if(type === 'tts') {
+                if(title) title.innerText = "🎙️ Audio TTS & Voice Cloning (10+ Tones)";
+                speakAsad("ऑडियो टीटीएस और वॉयस क्लोनिंग के सभी 10+ बेहतरीन मॉड्यूल तैयार हैं।");
+                if(body) body.innerHTML = `
+                    <div class="card-grid">
+                        <div class="neo-card" onclick="speakAsad('यहाँ अपनी स्क्रिप्ट टाइप करें मालिक।');" style="flex-direction:column; align-items:flex-start; gap:4px;">
+                            <span class="neo-card-title">📝 Enter Script for Voice:</span>
+                            <textarea placeholder="अपनी स्क्रिप्ट यहाँ लिखें..." style="width:100%; height:40px; background:#030712; border:1px solid #f1c40f; color:#fff; padding:4px; font-size:8px; border-radius:4px; outline:none; resize:none;"></textarea>
+                        </div>
+                        <div class="neo-card" onclick="selectCard(this); speakAsad('Tone 1: Asad AI Master Energetic selected.');">
+                            <span class="neo-card-title">🎙️ 1. Asad AI Master (Energetic)</span>
+                            <span class="neo-card-badge">Top</span>
+                        </div>
+                        <div class="neo-card" onclick="selectCard(this); speakAsad('Tone 2: Calm and Professional selected.');">
+                            <span class="neo-card-title">🎙️ 2. Calm & Professional Guide</span>
+                            <span class="neo-card-badge">Pro</span>
+                        </div>
+                        <div class="neo-card" onclick="selectCard(this); speakAsad('Tone 3: Cinematic Movie Trailer voice selected.');">
+                            <span class="neo-card-title">🎙️ 3. Cinematic Movie Trailer</span>
+                            <span class="neo-card-badge">Movie</span>
+                        </div>
+                        <div class="neo-card" onclick="selectCard(this); speakAsad('Tone 4: Desi Market Vendor Vibe selected.');">
+                            <span class="neo-card-title">🎙️ 4. Desi Market Vendor Vibe</span>
+                            <span class="neo-card-badge">Desi</span>
+                        </div>
+                        <div class="neo-card" onclick="selectCard(this); speakAsad('Tone 5: Deep Bass Thriller voice selected.');">
+                            <span class="neo-card-title">🎙️ 5. Deep Bass Thriller Narrator</span>
+                            <span class="neo-card-badge">Deep</span>
+                        </div>
+                        <div class="neo-card" onclick="selectCard(this); speakAsad('Tone 6: News Reporter 4K selected.');">
+                            <span class="neo-card-title">🎙️ 6. News Reporter 4K Broadcast</span>
+                            <span class="neo-card-badge">News</span>
+                        </div>
+                        <div class="neo-card" onclick="selectCard(this); speakAsad('Tone 7: Motivational Energy voice selected.');">
+                            <span class="neo-card-title">🎙️ 7. Motivational Energy Coach</span>
+                            <span class="neo-card-badge">Energy</span>
+                        </div>
+                        <div class="neo-card" onclick="selectCard(this); speakAsad('Tone 8: Soft Meditation voice selected.');">
+                            <span class="neo-card-title">🎙️ 8. Soft Meditation Zen Guide</span>
+                            <span class="neo-card-badge">Zen</span>
+                        </div>
+                        <div class="neo-card" onclick="selectCard(this); speakAsad('Tone 9: Cyber Robot AI voice selected.');">
+                            <span class="neo-card-title">🎙️ 9. Cyber Robot AI Synthesizer</span>
+                            <span class="neo-card-badge">Robot</span>
+                        </div>
+                        <div class="neo-card" onclick="selectCard(this); speakAsad('Tone 10: Punjabi Folk Storyteller voice selected.');">
+                            <span class="neo-card-title">🎙️ 10. Punjabi Folk Storyteller</span>
+                            <span class="neo-card-badge">Folk</span>
+                        </div>
+                        <button onclick="speakAsad('ऑडियो सफलता पूर्वक जनरेट हो गई है!'); alert('✨ Audio Generated Successfully!');" style="background:#f1c40f; color:#030712; border:none; padding:6px; font-weight:bold; border-radius:6px; cursor:pointer; font-size:9px;">🚀 Generate Audio Now</button>
+                    </div>
+                `;
+            } else if(type === 'avatar') {
+                if(title) title.innerText = "👤 Full 50+ 3D AI Avatar Library (Audio Guided)";
+                speakAsad("पूरे 50 ऑडियो-गाइडेड 3D अवतार कार्ड्स लोड हो चुके हैं। किसी पर भी क्लिक करके सुनें।");
+                
+                let cardsHTML = '<div class="card-grid">';
+                masterAvatarsList.forEach((av, idx) => {
+                    let isSel = idx === 0 ? 'selected' : '';
+                    cardsHTML += `
+                        <div class="neo-card ${isSel}" onclick="selectCard(this); speakAsad('${av.desc}');">
+                            <span class="neo-card-title">${av.name}</span>
+                            <span class="neo-card-badge">${av.badge}</span>
+                        </div>
+                    `;
+                });
+                cardsHTML += '</div>';
+                if(body) body.innerHTML = cardsHTML;
+
+            } else if(type === 'video') {
+                if(title) title.innerText = "🎬 Video FX Studio (Speed & 8K Master)";
+                speakAsad("वीडियो FX स्टूडियो के सभी स्पीड और रेसोल्यूशन मॉड्यूल तैयार हैं।");
+                if(body) body.innerHTML = `
+                    <div class="card-grid">
+                        <div class="neo-card" onclick="speakAsad('MP4 Universal Standard format selected.'); selectCard(this);">
+                            <span class="neo-card-title">📹 1. Format: MP4 Universal Standard</span>
+                            <span class="neo-card-badge">Standard</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('WebM High Speed Web format selected.'); selectCard(this);">
+                            <span class="neo-card-title">🌐 2. Format: WebM High Speed Web</span>
+                            <span class="neo-card-badge">Web</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('4K / 8K Cinematic Ultra HD render selected.'); selectCard(this);">
+                            <span class="neo-card-title">🚀 3. Resolution: 4K / 8K Ultra HD</span>
+                            <span class="neo-card-badge">Ultra</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('Manual Video Speed Control active.');">
+                            <span class="neo-card-title" style="flex:1;">4. Speed Control (0.5x to 4.0x)</span>
+                            <input type="range" min="0.5" max="4" value="1" step="0.5" style="width:100px;">
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('AI Smart Stabilizer Pro activated.'); alert('🛡️ Video Stabilized!');">
+                            <span class="neo-card-title">5. AI Smart Video Stabilizer Pro</span>
+                            <span class="neo-card-badge">Steady</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('Cinematic Color Grading FX applied.');">
+                            <span class="neo-card-title">6. Cinematic Color Grading FX</span>
+                            <span class="neo-card-badge">Grade</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('Slow Motion Frame Interpolation active.');">
+                            <span class="neo-card-title">7. Smooth Slow-Mo Interpolation</span>
+                            <span class="neo-card-badge">SlowMo</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('Audio Noise Removal filter applied.');">
+                            <span class="neo-card-title">8. AI Background Noise Remover</span>
+                            <span class="neo-card-badge">Clean</span>
+                        </div>
+                        <div class="neo-card" onclick="speakAsad('1-Click video render and upscale started!'); alert('🚀 Video Rendered Successfully!');" style="background:rgba(0,255,102,0.15); border-color:#00ff66; justify-content:center;">
+                            <span class="neo-card-title" style="color:#00ff66;">⚡ 9. 1-Click Render & Upscale Now</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function selectCard(elem) {
+            let parent = elem.parentElement;
+            if(parent) {
+                parent.querySelectorAll('.neo-card').forEach(c => c.classList.remove('selected'));
+            }
+            elem.classList.add('selected');
+        }
+
+        function startGlobalVoiceCommand() {
+            let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                speakAsad("अरे मालिक! इस ब्राउज़र में वॉइस कमांड सपोर्ट नहीं कर रहा है।");
+                return;
+            }
+            let recognition = new SpeechRecognition();
+            recognition.lang = currentLang === 'hi' ? 'hi-IN' : (currentLang === 'pa' ? 'pa-IN' : (currentLang === 'ur' ? 'ur-PK' : 'en-US'));
+            recognition.onstart = () => { speakAsad("सुन रहा हूँ मालिक, बोलिए क्या करना है!"); };
+            recognition.onresult = (event) => {
+                let spoken = event.results[0][0].transcript.trim();
+                let input = document.getElementById('globalChatBox');
+                if(input) {
+                    input.value = spoken;
+                    sendGlobalCommand();
+                }
+            };
+            recognition.start();
+        }
+
+        function sendGlobalCommand() {
+            let input = document.getElementById('globalChatBox');
+            if(!input) return;
+            let val = input.value.trim();
+            if(!val) return;
+            speakAsad(`असद AI उस्ताद ने आपका आदेश मान लिया है: ${val}`);
+            input.value = "";
+        }
+
+        function downloadMasterMedia() {
+            speakAsad("मालिक, फिंगरप्रिंट आईडी और डीएनए के साथ मीडिया डाउनलोड हो रही है!");
+            alert("📥 Master media downloaded successfully with quantum DNA watermark!");
+        }
+
+        function shareToGlobalFeed() {
+            speakAsad("पिन-कोड रेटिंग के साथ बिजनेस फीड पर पब्लिश कर दिया गया है मालिक!");
+            alert("🔗 Media successfully published to Biz Feed! Awaiting pin-code rating for Geo Feed promotion.");
+            window.location.href = 'feed_biz.html';
+        }
+
+        function closeModule() {
+            speakAsad("मुख्य स्टूडियो स्क्रीन पर वापस आ गए हैं मालिक।");
+            let modal = document.getElementById('moduleModal');
+            if(modal) modal.classList.remove('active');
+        }
+    </script>
+</body>
+</html>

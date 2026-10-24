@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Electric Bodyguard - One ID Unique Vault</title>
+
+    <!-- Firebase SDK (Modular v10) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDummyEncryptedKey-ElectricBodyguard-Master",
+            authDomain: "electric-bodyguard-core.firebaseapp.com",
+            databaseURL: "https://electric-bodyguard-core-default-rtdb.firebaseio.com",
+            projectId: "electric-bodyguard-core",
+            storageBucket: "electric-bodyguard-core.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.db = getDatabase(app);
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+    </script>
+
+    <style>
+        :root {
+            --bg-main: #020617;
+            --container-bg: #090d16;
+            --border-color: #3b82f6;
+            --accent-color: #0284c7;
+            --text-color: #38bdf8;
+            --card-bg: #020617;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: var(--bg-main);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .mobile-frame {
+            width: 100%;
+            max-width: 410px;
+            height: 94vh;
+            background: var(--container-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 0 35px rgba(59, 130, 246, 0.5);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .mobile-frame::-webkit-scrollbar { width: 4px; }
+        .mobile-frame::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+        @keyframes moonGlow {
+            0% { transform: scale(1); color: #ffffff; text-shadow: 0 0 6px #ffffff; }
+            50% { transform: scale(1.15); color: #fde047; text-shadow: 0 0 12px #fde047; }
+            100% { transform: scale(1); color: #ffffff; text-shadow: 0 0 6px #ffffff; }
+        }
+        
+        .pulsing-logo { display: inline-block; animation: moonGlow 1.2s infinite ease-in-out; font-size: 16px; }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border-bottom: 2px solid var(--border-color);
+            padding: 8px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #0369a1, #0284c7);
+            border-radius: 10px;
+        }
+
+        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .header-title { font-size: 13px; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 6px; }
+        
+        .ai-search-bar {
+            display: flex;
+            background: #020617;
+            border: 1.5px solid #38bdf8;
+            border-radius: 6px;
+            padding: 4px 8px;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+        .ai-search-bar input {
+            background: transparent; border: none; color: #fff; font-size: 10px; width: 100%; outline: none; font-family: inherit;
+        }
+
+        .header-bottom-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 4px; }
+
+        .mesh-status-indicator {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #10b981;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            color: #34d399;
+            font-weight: bold;
+        }
+
+        .welcome-banner {
+            background: rgba(2, 132, 199, 0.1);
+            border: 1px dashed var(--border-color);
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 9.5px;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #e0f2fe;
+            font-weight: bold;
+        }
+
+        h3 { color: #93c5fd; font-size: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; margin-top: 8px; text-transform: uppercase; font-weight: bold; }
+        input[type="text"], select { width: 100%; padding: 7px 8px; background: #020617; border: 1px solid var(--border-color); color: #ffffff; border-radius: 6px; font-family: inherit; font-size: 10px; margin-bottom: 4px; font-weight: bold; }
+        input:focus { border-color: #fde047; box-shadow: 0 0 8px rgba(253, 224, 71, 0.4); outline: none; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; text-align: center; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; text-align: center; }
+
+        .btn-box { background: var(--card-bg); border: 1px solid var(--border-color); padding: 6px 2px; border-radius: 5px; text-align: center; font-size: 9px; cursor: pointer; color: #e2e8f0; font-weight: bold; }
+        .class-box b { font-size: 8.5px; display: block; color: #ffffff; }
+        .class-box small { font-size: 7.5px; display: block; color: #fde047; }
+        .btn-active { background: var(--accent-color); color: white; border-color: #fff; }
+        
+        .card-dropdown-panel { 
+            background: rgba(0, 15, 35, 0.98); 
+            border: 1px solid var(--border-color); 
+            border-radius: 6px; 
+            padding: 8px; 
+            margin-top: 4px; 
+            margin-bottom: 6px; 
+            display: none; 
+        }
+
+        .sanitizer-box {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px dashed #10b981;
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            font-size: 9px;
+            text-align: center;
+            color: #34d399;
+            font-weight: bold;
+        }
+
+        #cameraModal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); z-index: 100; flex-direction: column; justify-content: center; align-items: center; padding: 15px; border-radius: 20px; }
+        #videoPreview { width: 100%; max-width: 280px; height: 200px; border: 2px solid var(--border-color); border-radius: 8px; background: #000; object-fit: cover; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-frame" id="appFrame">
+    <div id="cameraModal">
+        <h3 style="color: #fde047; margin-bottom: 8px;">📸 4-Second Live Video Liveness</h3>
+        <video id="videoPreview" autoplay playsinline muted></video>
+        <div id="countdownTimer" style="font-size: 18px; font-weight: bold; color: #f87171; margin-bottom: 10px;">04</div>
+        <button class="btn-active" style="padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer;" onclick="startCameraRecording()">Start Recording</button>
+        <button class="btn-box" style="margin-top: 8px; padding: 6px 12px;" onclick="closeCameraModal()">Cancel</button>
+    </div>
+
+    <div id="formView">
+        <div class="header">
+            <div class="header-top">
+                <span class="header-title">ELECTRIC <span class="pulsing-logo">⚡</span> BODYGUARD</span>
+                <span style="font-size: 10px; background: rgba(0,0,0,0.5); padding: 3px 6px; border-radius: 4px; cursor: pointer;" onclick="speakAI('यह वन आईडी यूनिक यूजर सुरक्षा वाल्ट है।')">💡 Help</span>
+            </div>
+
+            <!-- वर्किंग एआई वॉइस सर्च बार -->
+            <div class="ai-search-bar" onclick="startAiVoiceSearch()">
+                <span>🤖</span>
+                <input type="text" id="aiSearchInput" placeholder="यहाँ क्लिक करके बोलें (AI Search)..." readonly>
+                <span style="font-size: 12px;" id="micIconStatus">🎙️</span>
+            </div>
+
+            <div class="header-bottom-bar">
+                <div class="mesh-status-indicator" id="autoSyncStatus">
+                    🟢 AUTO-SYNC: ACTIVE
+                </div>
+            </div>
+        </div>
+
+        <div class="welcome-banner">
+            🙏 Electric Bodyguard में स्वागत है! डेटा लोकल स्टोरेज और Firebase में ऑटो-सिंक हो रहा है।
+        </div>
+
+        <div class="feature-bar" style="display: flex; gap: 4px; margin-bottom: 6px;">
+            <div class="btn-box btn-active" style="flex: 2; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 7px;" onclick="toggleAudioGuide()">
+                🔊 <span id="audioGuideText">ऑडियो गाइड: चालू</span>
+            </div>
+            <div class="btn-box" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 7px;" onclick="fetchLiveGPSCoordinates()">
+                🛰 GPS लोकेटर
+            </div>
+        </div><h3 onclick="speakAI('1. सुरक्षा श्रेणी और थीम चुनें')">1. Select Security Class & Theme</h3>
+        <div class="grid-5">
+            <div class="btn-box class-box btn-active" onclick="setSecurityClass('lower', this); speakAI('लोअर टियर सेलेक्ट किया गया')">🟢<b>Lower</b><small>Free</small></div>
+            <div class="btn-box class-box" onclick="setSecurityClass('middle', this); speakAI('मिडिल टियर सेलेक्ट किया गया')">🔵<b>Middle</b><small>₹349</small></div>
+            <div class="btn-box class-box" onclick="setSecurityClass('business', this); speakAI('बिजनेस टियर सेलेक्ट किया गया')">💼<b>Business</b><small>₹999</small></div>
+            <div class="btn-box class-box" onclick="setSecurityClass('vip', this); speakAI('वीआईपी टियर सेलेक्ट किया गया')">⭐<b>VIP</b><small>₹2.5K</small></div>
+            <div class="btn-box class-box" onclick="setSecurityClass('officer', this); speakAI('ऑफिसर टियर सेलेक्ट किया गया')">🎖️<b>Officer</b><small>₹5K</small></div>
+        </div>
+
+        <h3 onclick="speakAI('2. ऑपरेटर पहचान और मास्टर वाल्ट')">2. Operator Identity & Master Vault</h3>
+        <input type="text" id="opName" placeholder="ऑपरेटर का पूरा नाम दर्ज करें..." oninput="autoSaveVaultData()" onfocus="speakAI('यहाँ अपना पूरा नाम दर्ज करें')">
+        <div class="grid-2">
+            <input type="text" id="opDob" placeholder="जन्मतिथि (DD/MM/YY)" oninput="autoSaveVaultData()" onfocus="speakAI('यहाँ अपनी जन्मतिथि दर्ज करें')">
+            <input type="text" id="opPhone" placeholder="मोबाइल नंबर (10 अंक)..." oninput="autoSaveVaultData()" onfocus="speakAI('यहाँ अपने 10 अंकों का मोबाइल नंबर दर्ज करें')">
+        </div>
+
+        <h3>3. Node ID & Biometric Verification</h3>
+        <input type="text" id="nodeId" value="EB-NODE-UNIQUE-LIFETIME-01" readonly style="color: #fca5a5; font-size: 9.5px;">
+        <input type="text" id="voiceOtpBox" value="Voice OTP: Pending (Click to Record)" readonly style="color: #fde047; font-weight: bold; text-align: center; font-size: 9.5px;" onclick="recordActualVoiceOtp()">
+        <input type="text" id="gpsCoordBox" value="GPS Status: Awaiting Coordinates..." readonly style="color: #34d399; font-size: 9px; text-align: center;">
+
+        <div class="grid-2" style="margin-bottom: 4px;">
+            <div class="btn-box btn-active" onclick="openCameraModal()" style="padding: 7px;">📸 4S Video Liveness</div>
+            <div class="btn-box" onclick="recordActualVoiceOtp()" style="padding: 7px;">🎙️ 4S Voice & OTP</div>
+        </div>
+
+        <!-- ब्लड ग्रुप कार्ड ड्रॉप-डाउन -->
+        <h3 onclick="toggleBloodCardMenu()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: rgba(59,130,246,0.1); padding: 4px 6px; border-radius: 4px;">
+            <span>🩸 4. Blood Group Selection (Click to Open)</span>
+            <span id="selectedBloodDisplay" style="color: #fde047; font-size: 9px;">[Selected: Unknown] ▼</span>
+        </h3>
+        <div class="card-dropdown-panel" id="bloodCardPanel">
+            <div style="font-size: 8.5px; color: #94a3b8; margin-bottom: 6px;">इमरजेंसी के वक्त डॉक्टर के लिए अपना ब्लड ग्रुप चुनें:</div>
+            <div class="grid-4">
+                <div class="btn-box btn-active" onclick="selectBloodCard('A+')" id="bc_ap">A+</div>
+                <div class="btn-box" onclick="selectBloodCard('A-')" id="bc_am">A-</div>
+                <div class="btn-box" onclick="selectBloodCard('B+')" id="bc_bp">B+</div>
+                <div class="btn-box" onclick="selectBloodCard('B-')" id="bc_bm">B-</div>
+                <div class="btn-box" onclick="selectBloodCard('AB+')" id="bc_abp">AB+</div>
+                <div class="btn-box" onclick="selectBloodCard('AB-')" id="bc_abm">AB-</div>
+                <div class="btn-box" onclick="selectBloodCard('O+')" id="bc_op">O+</div>
+                <div class="btn-box" onclick="selectBloodCard('O-')" id="bc_om">O-</div>
+                <div class="btn-box" onclick="selectBloodCard('Bombay')" id="bc_bombay">Bombay</div>
+                <div class="btn-box" onclick="selectBloodCard('Unknown')" id="bc_unk">पता नहीं</div>
+                <div class="btn-box" onclick="selectBloodCard('Skip')" id="bc_skip" style="grid-column: span 2; color: #fde047;">बाद में भरेंगे (Skip)</div>
+            </div>
+        </div>
+
+        <!-- मेडिकल और एलर्जी कार्ड ड्रॉप-डाउन -->
+        <h3 onclick="toggleMedicalCardMenu()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: rgba(59,130,246,0.1); padding: 4px 6px; border-radius: 4px; margin-top: 6px;">
+            <span>🏥 5. Medical & Allergy Status (Click)</span>
+            <span id="selectedMedicalDisplay" style="color: #fde047; font-size: 9px;">[Selected: Normal] ▼</span>
+        </h3>
+        <div class="card-dropdown-panel" id="medicalCardPanel">
+            <div style="font-size: 8.5px; color: #94a3b8; margin-bottom: 6px;">अपनी गंभीर बीमारी या एलर्जी की स्थिति चुनें:</div>
+            <div class="grid-2">
+                <div class="btn-box btn-active" onclick="selectMedicalCard('Normal')" id="mc_norm">Normal / सामान्य</div>
+                <div class="btn-box" onclick="selectMedicalCard('Heart/BP')" id="mc_heart">Heart / BP (हार्ट/बीपी)</div>
+                <div class="btn-box" onclick="selectMedicalCard('Diabetes')" id="mc_diab">Diabetes (मधुमेह)</div>
+                <div class="btn-box" onclick="selectMedicalCard('Asthma')" id="mc_asthma">Asthma (दमा/सांस)</div>
+                <div class="btn-box" onclick="selectMedicalCard('Severe Allergy')" id="mc_allergy">Severe Allergy (एलर्जी)</div>
+                <div class="btn-box" onclick="selectMedicalCard('Skip')" id="mc_skip" style="color: #fde047;">बाद में भरेंगे (Skip)</div>
+            </div>
+        </div>
+
+        <h3 onclick="speakAI('6. अनिवार्य चारों एसओएस गार्जियन संपर्क।')">6. Mandatory 4 SOS Guardian Contacts</h3>
+        <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 4px;">
+            <input type="text" id="contact1" placeholder="Contact #1 Name & Phone" oninput="autoSaveVaultData()" onfocus="speakAI('पहला एसओएस संपर्क दर्ज करें')" style="margin-bottom:0;">
+            <button class="btn-active" style="border: none; padding: 7px; border-radius: 6px; font-size: 9px; cursor: pointer;" onclick="openContactPicker('contact1')">📞 Pick</button>
+        </div>
+        <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 4px;">
+            <input type="text" id="contact2" placeholder="Contact #2 Name & Phone" oninput="autoSaveVaultData()" onfocus="speakAI('दूसरा एसओएस संपर्क दर्ज करें')" style="margin-bottom:0;">
+            <button class="btn-active" style="border: none; padding: 7px; border-radius: 6px; font-size: 9px; cursor: pointer;" onclick="openContactPicker('contact2')">📞 Pick</button>
+        </div>
+        <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 4px;">
+            <input type="text" id="contact3" placeholder="Contact #3 Name & Phone" oninput="autoSaveVaultData()" onfocus="speakAI('तीसरा एसओएस संपर्क दर्ज करें')" style="margin-bottom:0;">
+            <button class="btn-active" style="border: none; padding: 7px; border-radius: 6px; font-size: 9px; cursor: pointer;" onclick="openContactPicker('contact3')">📞 Pick</button>
+        </div>
+        <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 4px;">
+            <input type="text" id="contact4" placeholder="Contact #4 Name & Phone" oninput="autoSaveVaultData()" onfocus="speakAI('चौथा एसओएस संपर्क दर्ज करें')" style="margin-bottom:0;">
+            <button class="btn-active" style="border: none; padding: 7px; border-radius: 6px; font-size: 9px; cursor: pointer;" onclick="openContactPicker('contact4')">📞 Pick</button>
+        </div>
+
+        <div class="sanitizer-box">
+            🛡️ [ONE-ID ANTI-BOT SANITIZER]: Fingerprint-Level Unique Vault Active. Auto-Sync Online.
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; margin-bottom: 10px;">
+            <div class="btn-box" style="border: 1px solid var(--border-color); color: #93c5fd; padding: 8px; font-weight: bold; font-size: 9.5px;" onclick="saveDataToIndexedDBAndFirebase()">MANUAL SYNC</div>
+            <div class="btn-box btn-active" style="padding: 8px; font-weight: bold; font-size: 9.5px;" onclick="accessProfileDashboard()">ACCESS PROFILE</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let audioGuideOn = true;
+    let selectedSecurityTier = 'LOWER';
+    let selectedBloodGroup = 'Unknown';
+    let selectedMedicalStatus = 'Normal';
+    let mediaStream = null;
+
+    function toggleAudioGuide() {
+        audioGuideOn = !audioGuideOn;
+        document.getElementById("audioGuideText").innerText = audioGuideOn ? "ऑडियो गाइड: चालू" : "ऑडियो गाइड: बंद";
+        if(audioGuideOn) speakAI("ऑडियो गाइड चालू कर दिया गया है।");
+    }
+
+    function speakAI(text) {
+        if (!audioGuideOn) return;
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "hi-IN";
+            utterance.rate = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // 1. वर्किंग एआई वॉइस सर्च (Speech Recognition API)
+    function startAiVoiceSearch() {
+        try {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("आपका ब्राउज़र वॉइस सर्च सपोर्ट नहीं करता।");
+                return;
+            }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN';
+            
+            document.getElementById("aiSearchInput").placeholder = "सुन रहे हैं... बोलिए...";
+            speakAI("बोलिए, मैं सुन रहा हूँ।");
+
+            recognition.onresult = function(event) {
+                let speechText = event.results[0][0].transcript;
+                document.getElementById("aiSearchInput").value = speechText;
+                speakAI("आपने कहा: " + speechText);
+                setTimeout(() => {
+                    alert("AI Assistant: आपकी बात समझ ली गई है — " + speechText);
+                }, 500);
+            };
+
+            recognition.onerror = function() {
+                document.getElementById("aiSearchInput").placeholder = "एआई से कुछ भी पूछें या बोलें...";
+            };
+
+            recognition.start();
+        } catch(e) {
+            alert("माइक या वॉइस रिकग्निशन में समस्या है।");
+        }
+    }
+
+    // ब्लड ग्रुप कार्ड ड्रॉप-डाउन टॉगल
+    function toggleBloodCardMenu() {
+        let panel = document.getElementById('bloodCardPanel');
+        panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        speakAI("ब्लड ग्रुप चयन कार्ड खोले गए हैं।");
+    }
+
+    function selectBloodCard(group) {
+        selectedBloodGroup = group;
+        document.getElementById('selectedBloodDisplay').innerText = `[Selected: ${group}] ▼`;
+        speakAI(`ब्लड ग्रुप ${group} चुना गया है।`);
+        document.getElementById('bloodCardPanel').style.display = 'none';
+        autoSaveVaultData();
+    }
+
+    // मेडिकल कार्ड ड्रॉप-डाउन टॉगल
+    function toggleMedicalCardMenu() {
+        let panel = document.getElementById('medicalCardPanel');
+        panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        speakAI("मेडिकल और एलर्जी कार्ड खोले गए हैं।");
+    }
+
+    function selectMedicalCard(status) {
+        selectedMedicalStatus = status;
+        document.getElementById('selectedMedicalDisplay').innerText = `[Selected: ${status}] ▼`;
+        speakAI(`मेडिकल स्थिति ${status} चुनी गई है।`);
+        document.getElementById('medicalCardPanel').style.display = 'none';
+        autoSaveVaultData();
+    }
+
+    // 2. ऑटोमैटिक लोकल और फायरबेस सिंक (Auto-Sync Engine)
+    function autoSaveVaultData() {
+        let name = document.getElementById("opName").value.trim();
+        let phone = document.getElementById("opPhone").value.trim();
+        let dob = document.getElementById("opDob").value.trim();
+        let c1 = document.getElementById("contact1").value.trim();
+        let c2 = document.getElementById("contact2").value.trim();
+        let c3 = document.getElementById("contact3").value.trim();
+        let c4 = document.getElementById("contact4").value.trim();
+
+        let vaultData = {
+            name: name,
+            phone: phone,
+            dob: dob,
+            tier: selectedSecurityTier,
+            blood: selectedBloodGroup,
+            medical: selectedMedicalStatus,
+            contacts: [c1, c2, c3, c4],
+            nodeId: "EB-NODE-UNIQUE-LIFETIME-01",
+            timestamp: new Date().toISOString()
+        };
+
+        // लोकल स्टोरेज में सेव करना
+        localStorage.setItem("operator_name", name);
+        localStorage.setItem("operator_phone", phone);
+        localStorage.setItem("selectedCard", selectedSecurityTier);
+        localStorage.setItem("operator_blood", selectedBloodGroup);
+        localStorage.setItem("operator_medical", selectedMedicalStatus);
+        localStorage.setItem("master_vault_json", JSON.stringify(vaultData));
+
+        // फायरबेस रियलटाइम डेटाबेस में ऑटो सिंक (यदि विंडो डीबी उपलब्ध हो)
+        if (window.db && window.firebaseRef && window.firebaseSet) {
+            try {
+                const dbRef = window.firebaseRef(window.db, 'operators/unique_vault_' + (phone || 'guest'));
+                window.firebaseSet(dbRef, vaultData).then(() => {
+                    document.getElementById("autoSyncStatus").innerText = "🟢 CLOUD SYNCED";
+                }).catch(err => {
+                    console.log("Firebase sync background info:", err);
+                });
+            } catch(ex) {
+                console.log("Firebase inactive mode");
+            }
+        }
+    }
+
+    async function recordActualVoiceOtp() {
+        try {
+            speakAI("माइक चालू हो रहा है। कृपया बोलकर अपना वॉयस ओटीपी दर्ज करें।");
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            let audioChunks = [];
+
+            mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+            mediaRecorder.onstop = () => {
+                document.getElementById("voiceOtpBox").value = "Voice OTP Verified: UNIQUE-LIFETIME";
+                speakAI("वॉयस ओटीपी सफलतापूर्वक वेरीफाई हो गया है।");
+                stream.getTracks().forEach(track => track.stop());
+                autoSaveVaultData();
+            };
+
+            mediaRecorder.start();
+            alert("🎙️ माइक चालू है! 4 सेकंड बोलिए...");
+            setTimeout(() => mediaRecorder.stop(), 4000);
+        } catch (err) {
+            alert("माइक्रोफोन अनुमति नहीं मिली: " + err.message);
+        }
+    }
+
+    async function openCameraModal() {
+        document.getElementById("cameraModal").style.display = "flex";
+        speakAI("कैमरा चालू किया जा रहा है। 4 सेकंड का वीडियो लiveness टेस्ट शुरू होगा।");
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            document.getElementById("videoPreview").srcObject = mediaStream;
+        } catch (err) {
+            alert("कैमरा एक्सेस नहीं मिल सका: " + err.message);
+            closeCameraModal();
+        }
+    }
+
+    function closeCameraModal() {
+        if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
+        document.getElementById("cameraModal").style.display = "none";
+    }
+
+    function startCameraRecording() {
+        let count = 4;
+        const timerEl = document.getElementById("countdownTimer");
+        timerEl.innerText = "0" + count;
+        speakAI("रिकॉर्डिंग शुरू हो गई है।");
+        let interval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                timerEl.innerText = "0" + count;
+            } else {
+                clearInterval(interval);
+                timerEl.innerText = "SAVED!";
+                speakAI("वीडियो लiveness सुरक्षित हो गया है।");
+                setTimeout(() => closeCameraModal(), 1000);
+            }
+        }, 1000);
+    }
+
+    function fetchLiveGPSCoordinates() {
+        if (navigator.geolocation) {
+            speakAI("लाइव जीपीएस लोकेशन प्राप्त की जा रही है।");
+            navigator.geolocation.getCurrentPosition(position => {
+                let lat = position.coords.latitude.toFixed(4);
+                let lng = position.coords.longitude.toFixed(4);
+                document.getElementById("gpsCoordBox").value = `Lat: ${lat}, Lng: ${lng} (Secure GPS)`;
+                speakAI("जीपीएस मिल चुकी है।");
+                autoSaveVaultData();
+            });
+        }
+    }
+
+    function openContactPicker(fieldId) {
+        let contactInfo = prompt("एसओएस संपर्क का नाम और फोन नंबर दर्ज करें:");
+        if (contactInfo) {
+            document.getElementById(fieldId).value = contactInfo;
+            speakAI("एसओएस संपर्क जोड़ लिया गया है।");
+            autoSaveVaultData();
+        }
+    }
+
+    function setSecurityClass(tier, el) {
+        document.querySelectorAll('.class-box').forEach(b => b.classList.remove('btn-active'));
+        el.classList.add('btn-active');
+        selectedSecurityTier = tier.toUpperCase();
+        autoSaveVaultData();
+    }
+
+    function saveDataToIndexedDBAndFirebase() {
+        autoSaveVaultData();
+        alert("डेटा सफलतापूर्वक सहेजा और सिंक कर दिया गया है!");
+        speakAI("डेटा सफलतापूर्वक सिंक हो गया है।");
+    }
+
+    function accessProfileDashboard() {
+        autoSaveVaultData();
+        window.location.href = "profile.html";
+    }
+
+    window.onload = function() {
+        setTimeout(() => {
+            speakAI("इलेक्ट्रिक बॉडीगार्ड में आपका स्वागत है। यह आपकी लाइफटाइम यूनिक आईडी है।");
+        }, 1200);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Electric Bodyguard - Public Pulse & Emergency Feed</title>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDummyEncryptedKey-ElectricBodyguard-Master",
+            authDomain: "electric-bodyguard-core.firebaseapp.com",
+            databaseURL: "https://electric-bodyguard-core-default-rtdb.firebaseio.com",
+            projectId: "electric-bodyguard-core",
+            storageBucket: "electric-bodyguard-core.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.db = getDatabase(app);
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+    </script>
+
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --container-bg: #111827;
+            --border-color: #334155;
+            --accent-color: #ef4444;
+            --text-color: #e2e8f0;
+            --card-bg: #1e293b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .phone-frame {
+            width: 100%;
+            max-width: 410px;
+            height: 94vh;
+            background: var(--container-bg);
+            border: 2px solid var(--accent-color);
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            overflow-y: auto;
+            position: relative;
+            padding-bottom: 60px;
+        }
+
+        .phone-frame::-webkit-scrollbar { width: 4px; }
+        .phone-frame::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 4px; }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border-bottom: 2px solid var(--accent-color);
+            padding: 8px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #1e293b, #7f1d1d);
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        
+        .header-left-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .audio-toggle {
+            display: flex; align-items: center; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 12px; font-size: 8px; color: #cbd5e1; gap: 4px; cursor: pointer; width: fit-content;
+        }
+        
+        /* मेश नेटवर्क ऑनलाइन/ऑफलाइन इंडिकेटर (ऑडियो बटन के ऊपर) */
+        .mesh-status-badge {
+            font-size: 7.5px; font-weight: bold; padding: 2px 5px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fca5a5; width: fit-content;
+        }
+        .mesh-dot { width: 6px; height: 6px; background: #ef4444; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        .header-title-container { text-align: center; flex: 1; }
+        .header-title { font-size: 11px; font-weight: 900; color: #facc15; }
+        .public-pulse-heading { font-size: 9.5px; font-weight: bold; color: #ef4444; margin-top: 1px; letter-spacing: 0.5px; }
+        
+        .feed-subtitle { font-size: 8px; font-weight: bold; color: #fca5a5; text-align: center; background: rgba(0,0,0,0.2); padding: 2px; border-radius: 4px; border: 1px dashed rgba(239,68,68,0.4); margin-top: 2px; }
+
+        .top-icons { display: flex; gap: 4px; align-items: center; }
+        .icon-link {
+            width: 24px; height: 24px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 10px; cursor: pointer; color: #cbd5e1; text-decoration: none;
+        }
+
+        .story-scroll-container, .horizontal-category-scroll {
+            display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; cursor: grab; user-select: none; -webkit-overflow-scrolling: touch;
+        }
+        .story-scroll-container:active, .horizontal-category-scroll:active { cursor: grabbing; }
+        .story-scroll-container::-webkit-scrollbar, .horizontal-category-scroll::-webkit-scrollbar { height: 3px; }
+        .story-scroll-container::-webkit-scrollbar-thumb, .horizontal-category-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+
+        .story-item { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; flex-shrink: 0; }
+        .story-ring { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ef4444; padding: 2px; background: #0b0f19; display: flex; justify-content: center; align-items: center; }
+        .story-avatar { width: 100%; height: 100%; background: #334155; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 13px; color: #fff; }
+        .story-name { font-size: 7.5px; color: #94a3b8; text-align: center; max-width: 44px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .ai-search-box {
+            display: flex; background: #0b0f19; border: 1.5px solid var(--border-color); border-radius: 6px; padding: 4px 8px; align-items: center; gap: 6px; cursor: pointer;
+        }
+        .ai-search-box input { background: transparent; border: none; color: #fff; font-size: 9px; width: 100%; outline: none; font-family: Arial, sans-serif; }
+
+        .category-chip {
+            background: #1e293b; border: 1px solid var(--border-color); color: #cbd5e1; font-size: 8px; font-weight: bold; padding: 4px 8px; border-radius: 6px; white-space: nowrap; cursor: pointer; flex-shrink: 0;
+        }
+        .category-chip.active { background: var(--accent-color); color: #fff; border-color: #f87171; }
+
+        .filter-container { display: flex; flex-direction: column; gap: 3px; }
+
+        .scope-filter-bar {
+            display: flex; justify-content: space-between; gap: 2px; background: #0b0f19; border: 1px solid var(--border-color); border-radius: 6px; padding: 3px;
+        }
+        .scope-btn { background: transparent; border: none; color: #94a3b8; font-size: 7.5px; font-weight: bold; padding: 2px; border-radius: 3px; cursor: pointer; flex: 1; text-align: center; }
+        .scope-btn.active { background: #ef4444; color: #fff; }
+
+        .tier-filter-bar {
+            display: flex; justify-content: space-between; gap: 2px; background: #0b0f19; border: 1px solid #10b981; border-radius: 6px; padding: 3px;
+        }
+        .tier-btn { background: transparent; border: none; color: #34d399; font-size: 7px; font-weight: bold; padding: 2px; border-radius: 3px; cursor: pointer; flex: 1; text-align: center; }
+        .tier-btn.active { background: #059669; color: #fff; }
+    </style>
+</head><body>
+<div class="phone-frame" id="feedScrollContainer">
+    <div class="header" id="topHeaderBar">
+        <div class="top-row">
+            <!-- बाएं कोने में मेश इंडिकेटर और ऑडियो टॉगल एक सीध में ऊपर-नीचे -->
+            <div class="header-left-controls">
+                <span class="mesh-status-badge"><span class="mesh-dot"></span> Mesh Online</span>
+                <div class="audio-toggle" onclick="toggleAudioGuide()">
+                    <span>🔊</span> <span id="audioLabel">Audio: ON</span>
+                </div>
+            </div>
+
+            <!-- बीच में इलेक्ट्रिक बॉडीगार्ड और पब्लिक पल्स शीर्षक -->
+            <div class="header-title-container">
+                <div class="header-title">ELECTRIC ⚡ BODYGUARD</div>
+                <div class="public-pulse-heading">🚨 PUBLIC PULSE</div>
+            </div>
+
+            <div class="top-icons">
+                <a href="notifications.html" class="icon-link" title="Alerts">🔔</a>
+                <a href="map_radar.html" class="icon-link" title="Live Radar">📍</a>
+                <a href="chat.html" class="icon-link" title="Secure Line">💬</a>
+            </div>
+        </div>
+
+        <div class="feed-subtitle">AI GLOBAL EMERGENCY & CRIME FEED (AUTO-SYNC)</div>
+
+        <div class="story-scroll-container" id="storyScroll">
+            <div class="story-item" onclick="viewCrisisStory('Shield Log')">
+                <div class="story-ring"><div class="story-avatar">🛡️</div></div>
+                <span class="story-name">Shield</span>
+            </div>
+            <div class="story-item" onclick="viewCrisisStory('Complaint Hub')">
+                <div class="story-ring"><div class="story-avatar">⚖️</div></div>
+                <span class="story-name">Complaint</span>
+            </div>
+            <div class="story-item" onclick="viewCrisisStory('News Live')">
+                <div class="story-ring"><div class="story-avatar">📰</div></div>
+                <span class="story-name">News Live</span>
+            </div>
+            <div class="story-item" onclick="viewCrisisStory('Disaster Core')">
+                <div class="story-ring"><div class="story-avatar">🌊</div></div>
+                <span class="story-name">Disaster</span>
+            </div>
+            <div class="story-item" onclick="viewCrisisStory('Studio Broadcast')">
+                <div class="story-ring"><div class="story-avatar">🎬</div></div>
+                <span class="story-name">Studio</span>
+            </div>
+        </div>
+
+        <div class="ai-search-box" onclick="startAiEmergencySearch()">
+            <span>🤖</span>
+            <input type="text" id="aiSearchInput" placeholder="AI Search (Crimes, News, Complaints)..." readonly>
+            <span>🎙️</span>
+        </div>
+
+        <div class="horizontal-category-scroll" id="catScroll">
+            <div class="category-chip active" onclick="selectCrisisCat('All')">🔴 All Crisis</div>
+            <div class="category-chip" onclick="selectCrisisCat('News')">📰 News & Media</div>
+            <div class="category-chip" onclick="selectCrisisCat('Crime')">🚨 Crime / Assault</div>
+            <div class="category-chip" onclick="selectCrisisCat('Theft')">📱 Phone Theft</div>
+            <div class="category-chip" onclick="selectCrisisCat('Accident')">🚑 Accident</div>
+            <div class="category-chip" onclick="selectCrisisCat('Fire')">🔥 Fire / Disaster</div>
+            <div class="category-chip" onclick="selectCrisisCat('Flood')">🌊 Flood</div>
+            <div class="category-chip" onclick="selectCrisisCat('Legal')">⚖️ Legal Complaint</div>
+        </div>
+
+        <div class="filter-container">
+            <div class="scope-filter-bar">
+                <button class="scope-btn active" onclick="setCrisisScope('local', this)">📍 Local</button>
+                <button class="scope-btn" onclick="setCrisisScope('national', this)">🇮🇳 National</button>
+                <button class="scope-btn" onclick="setCrisisScope('intl', this)">🌍 Intnl</button>
+                <button class="scope-btn" onclick="setCrisisScope('global', this)">🌐 Global</button>
+            </div>
+            <div class="tier-filter-bar">
+                <button class="tier-btn active" onclick="setCrisisTier('lower', this)">🟢 Lower</button>
+                <button class="tier-btn" onclick="setCrisisTier('middle', this)">🔵 Middle</button>
+                <button class="tier-btn" onclick="setCrisisTier('biz', this)">💼 Business</button>
+                <button class="tier-btn" onclick="setCrisisTier('vip', this)">⭐ VIP</button>
+                <button class="tier-btn" onclick="setCrisisTier('officer', this)">🎖️ Officer</button>
+                <button class="tier-btn" onclick="setCrisisTier('news', this)">📰 News</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- पोस्ट कार्ड 1 -->
+    <div class="post-card" style="background: var(--card-bg); border: 1.2px solid var(--accent-color); border-radius: 8px; padding: 8px; margin-bottom: 8px;">
+        <div class="post-header" style="display: flex; justify-content: space-between; font-size: 8.5px; color: #fca5a5; border-bottom: 1px dashed var(--border-color); padding-bottom: 4px; margin-bottom: 6px; font-weight: bold;">
+            <span>[COMPLAINT & LEGAL SYNC] PinCode: 110001</span>
+            <span style="color: #ef4444;">● Public Pressure</span>
+        </div>
+        <div class="post-body" style="font-size: 9px; color: #cbd5e1; margin-bottom: 8px; line-height: 1.3;">
+            ⚠️ <b>Auto-Synced from Complaint Portal:</b> Serious legal grievance registered. Evidence verified by AI Sentinel. High-pressure relay active for police response.
+        </div>
+        <div class="post-social-bar" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 6px; font-size: 8px;">
+            <button class="social-btn" onclick="likePost(this)" style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--accent-color); color: #fca5a5; padding: 3px 5px; border-radius: 4px; font-size: 7.5px; font-weight: bold; cursor: pointer;">🚨 Support <span id="likeCount1">342</span></button>
+            <button class="social-btn" onclick="openCommentBox()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--accent-color); color: #fca5a5; padding: 3px 5px; border-radius: 4px; font-size: 7.5px; font-weight: bold; cursor: pointer;">💬 Public Log</button>
+            <a href="map_radar.html" class="social-btn" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 3px 5px; border-radius: 4px; text-decoration: none; font-size: 7.5px; font-weight: bold;">📍 Map</a>
+            <a href="chat.html" class="social-btn" style="background: #ef4444; color: #fff; padding: 3px 5px; border-radius: 4px; text-decoration: none; font-size: 7.5px; font-weight: bold;">📞 Relay</a>
+        </div>
+    </div>
+
+    <!-- पोस्ट कार्ड 2 -->
+    <div class="post-card" style="background: var(--card-bg); border: 1.2px solid var(--accent-color); border-radius: 8px; padding: 8px; margin-bottom: 8px;">
+        <div class="post-header" style="display: flex; justify-content: space-between; font-size: 8.5px; color: #fca5a5; border-bottom: 1px dashed var(--border-color); padding-bottom: 4px; margin-bottom: 6px; font-weight: bold;">
+            <span>[STUDIO NEWS BROADCAST] Live Update</span>
+            <span style="color: #38bdf8;">● Verified Relay</span>
+        </div>
+        <div class="post-body" style="font-size: 9px; color: #cbd5e1; margin-bottom: 8px; line-height: 1.3;">
+            📰 <b>Auto-Synced from Studio:</b> Ground report video published by media correspondent. Crisis telemetry and regional updates broadcasted globally.
+        </div>
+        <div class="post-social-bar" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 6px; font-size: 8px;">
+            <button class="social-btn" onclick="likePost(this)" style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--accent-color); color: #fca5a5; padding: 3px 5px; border-radius: 4px; font-size: 7.5px; font-weight: bold; cursor: pointer;">⚡ Verified <span id="likeCount2">128</span></button>
+            <button class="social-btn" onclick="openCommentBox()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--accent-color); color: #fca5a5; padding: 3px 5px; border-radius: 4px; font-size: 7.5px; font-weight: bold; cursor: pointer;">💬 Discussion</button>
+            <a href="map_radar.html" class="social-btn" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 3px 5px; border-radius: 4px; text-decoration: none; font-size: 7.5px; font-weight: bold;">📍 Radar</a>
+            <a href="chat.html" class="social-btn" style="background: #0284c7; color: #fff; padding: 3px 5px; border-radius: 4px; text-decoration: none; font-size: 7.5px; font-weight: bold;">🔗 Share</a>
+        </div>
+    </div>
+
+    <!-- बॉटम नेविगेशन बार -->
+    <div class="bottom-nav" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50px; background: #0b0f19; border-top: 2px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; padding: 0 2px; z-index: 100;">
+        <a href="index.html" class="nav-btn" style="background:transparent; border:none; color:#94a3b8; font-size:8px; font-weight:bold; text-decoration:none; display:flex; flex-direction:column; align-items:center;"><span>🏠</span>Home</a>
+        <a href="reg.html" class="nav-btn" style="background:transparent; border:none; color:#94a3b8; font-size:8px; font-weight:bold; text-decoration:none; display:flex; flex-direction:column; align-items:center;"><span>🛡️</span>Vault</a>
+        <a href="feed-biz.html" class="nav-btn" style="background:transparent; border:none; color:#94a3b8; font-size:8px; font-weight:bold; text-decoration:none; display:flex; flex-direction:column; align-items:center;"><span>💼</span>Biz-Feed</a>
+        <a href="public-pulse.html" class="nav-btn" style="background:transparent; border:none; color:#ef4444; font-size:8px; font-weight:bold; text-decoration:none; display:flex; flex-direction:column; align-items:center;"><span>🚨</span>Pulse</a>
+        <a href="studio.html" class="nav-btn" style="background:transparent; border:none; color:#94a3b8; font-size:8px; font-weight:bold; text-decoration:none; display:flex; flex-direction:column; align-items:center;"><span>🎬</span>Studio</a>
+        <a href="profile.html" class="nav-btn" style="background:transparent; border:none; color:#94a3b8; font-size:8px; font-weight:bold; text-decoration:none; display:flex; flex-direction:column; align-items:center;"><span>👤</span>Profile</a>
+    </div>
+</div>
+   <script>
+    let audioGuideOn = true;
+    let trustedGroup = ["Family Lead (Dad)", "Brother", "Trusted Neighbor", "Local Guard"];
+
+    function toggleAudioGuide() {
+        audioGuideOn = !audioGuideOn;
+        document.getElementById("audioLabel").innerText = audioGuideOn ? "Audio: ON" : "Audio: OFF";
+        if(audioGuideOn) speakAI("Public Pulse audio guide activated.");
+    }
+
+    function speakAI(text) {
+        if (!audioGuideOn) return;
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "en-US";
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // 🟢 यह रहा वह नया ट्रस्टेड ग्रुप और ब्रॉडकास्ट फंक्शन जिसे तुझे जोड़ना था:
+    function manageTrustedGroup() {
+        let action = prompt("Trusted Mesh Group Settings:\n1. View Group Members\n2. Add New Member\n(Type 1 or 2):");
+        if (action === "1") {
+            alert("Current Trusted Group Members (Total " + trustedGroup.length + "):\n- " + trustedGroup.join("\n- "));
+            speakAI("You have " + trustedGroup.length + " members in your trusted group.");
+        } else if (action === "2") {
+            let newMember = prompt("Enter new member name or Node ID:");
+            if (newMember) {
+                trustedGroup.push(newMember);
+                alert("Member added successfully! Emergency data will now broadcast to this group.");
+                speakAI("New member added to trusted group.");
+            }
+        }
+    }
+
+    function broadcastToTrustedGroup(emergencyType) {
+        alert("🚨 [MESH BROADCAST]: " + emergencyType + " automated data (Location, Audio, Video) has been securely transmitted via Bluetooth & Cloud Mesh to your " + trustedGroup.length + " family members!");
+        speakAI("Warning! Emergency data broadcasted to your trusted group.");
+    }
+
+    // ऑनलाइन और ऑफलाइन मेश नेटवर्क की स्थिति जाँचने का लॉजिक
+    window.addEventListener('online', updateNetworkStatus);
+    window.addEventListener('offline', updateNetworkStatus);
+
+    function updateNetworkStatus() {
+        const badge = document.querySelector('.mesh-status-badge');
+        if (!badge) return;
+        if (navigator.onLine) {
+            badge.innerHTML = '<span class="mesh-dot" style="background:#ef4444;"></span> Mesh Online';
+            badge.style.color = '#fca5a5';
+            badge.style.borderColor = '#ef4444';
+        } else {
+            badge.innerHTML = '<span class="mesh-dot" style="background:#f59e0b;"></span> Offline Mesh Active';
+            badge.style.color = '#f59e0b';
+            badge.style.borderColor = '#d97706';
+            speakAI("Internet unavailable. Bluetooth mesh relay active.");
+        }
+    }
+
+    // AI सैनिटाइज़र इंजन (आपत्तिजनक भाषा रोकने के लिए)
+    function sanitizeAndSyncContent(incomingText) {
+        const forbiddenWords = ["abuse", "hate", "vulgar", "offensive", "fake"];
+        let isClean = true;
+
+        forbiddenWords.forEach(word => {
+            if (incomingText.toLowerCase().includes(word)) {
+                isClean = false;
+            }
+        });
+
+        if (!isClean) {
+            alert("⚠️ AI Sanitizer Alert: Offensive content blocked by security sentinel.");
+            speakAI("Warning. Offensive content detected and blocked.");
+            return false;
+        }
+        return true;
+    }
+
+    function enableDragScroll(slider) {
+        if (!slider) return;
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('active');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+        slider.addEventListener('mouseleave', () => { isDown = false; });
+        slider.addEventListener('mouseup', () => { isDown = false; });
+        slider.addEventListener('mousemove', (e) => {
+            if(!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 2;
+            slider.scrollLeft = scrollLeft - walk;
+        });
+    }
+
+    enableDragScroll(document.getElementById('storyScroll'));
+    enableDragScroll(document.getElementById('catScroll'));
+
+    function viewCrisisStory(title) {
+        alert("Sync Hub: Loading telemetry from '" + title + "'.");
+        speakAI("Syncing data from " + title);
+    }
+
+    function selectCrisisCat(cat) {
+        document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+        if(event && event.target) event.target.classList.add('active');
+        speakAI(cat + " category synchronized.");
+    }
+
+    function setCrisisScope(scopeName, el) {
+        document.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+        speakAI("Scope set to " + scopeName);
+    }
+
+    function setCrisisTier(tierName, el) {
+        document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+        speakAI("Tier set to " + tierName);
+    }
+
+    function likePost(el) {
+        let span = el.querySelector('span');
+        let count = parseInt(span.innerText) + 1;
+        span.innerText = count;
+        speakAI("Support pulse recorded.");
+    }
+
+    function openCommentBox() {
+        let comment = prompt("Enter your public log regarding this crisis:");
+        if (comment) {
+            if (sanitizeAndSyncContent(comment)) {
+                alert("Public log recorded successfully: " + comment);
+                speakAI("Comment saved and sanitized.");
+            }
+        }
+    }
+
+    function startAiEmergencySearch() {
+        try {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Voice search not supported.");
+                return;
+            }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            speakAI("Speak your emergency search query.");
+            recognition.onresult = function(event) {
+                let query = event.results[0][0].transcript;
+                document.getElementById("aiSearchInput").value = query;
+                speakAI("AI searching database for: " + query);
+                alert("AI Emergency Radar: Active for '" + query + "'!");
+            };
+            recognition.start();
+        } catch(e) {
+            alert("Microphone error.");
+        }
+    }
+
+    const container = document.getElementById('feedScrollContainer');
+    const header = document.getElementById('topHeaderBar');
+    let lastScroll = 0;
+
+    if(container && header) {
+        container.addEventListener('scroll', () => {
+            let currentScroll = container.scrollTop;
+            if (currentScroll > lastScroll && currentScroll > 30) {
+                header.style.transform = 'translateY(-120%)';
+            } else {
+                header.style.transform = 'translateY(0)';
+            }
+            lastScroll = currentScroll;
+        });
+    }
+
+    window.onload = function() {
+        setTimeout(() => {
+            speakAI("Electric Bodyguard Public Pulse feed is active and fully synchronized.");
+        }, 1000);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ELECTRIC BODYGUARD - MASTER CYBER SHIELD OS</title>
+    
+    <style>
+        :root {
+            --bg-base: #000205;
+            --panel-bg: rgba(3, 8, 15, 0.98);
+            --border-color: rgba(255, 0, 85, 0.5);
+            --border-active: #ff0055;
+            --neon-green: #00ff88;
+            --neon-amber: #ffaa00;
+            --neon-red: #ff0055;
+            --text-main: #ffffff;
+            --text-sub: #ff88cc;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            background-color: var(--bg-base); color: var(--text-main);
+            display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; overflow: hidden;
+        }
+        .phone-container {
+            width: 100%; max-width: 410px; height: 96vh;
+            background: var(--panel-bg); border: 2.5px solid var(--border-active); border-radius: 24px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 0 50px rgba(255, 0, 85, 0.3); overflow: hidden; position: relative; padding-bottom: 50px;
+        }
+        
+        .shield-header {
+            padding: 10px 14px; background: rgba(15, 0, 5, 0.99);
+            border-bottom: 2px solid var(--border-active); display: flex; flex-direction: column; gap: 4px; z-index: 1000;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .brand-main { font-size: 11px; font-weight: 900; color: var(--neon-amber); letter-spacing: 1.5px; }
+        .page-title { font-size: 8.5px; font-weight: bold; color: var(--neon-red); text-transform: uppercase; }
+        .back-btn { font-size: 8.5px; color: var(--border-active); text-decoration: none; background: rgba(255,0,85,0.15); padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border-active); font-weight: bold; }
+
+        /* 🌐 ऑनलाइन/ऑफलाइन और एडमिन वफादारी इंडिकेटर बार */
+        .connectivity-bar {
+            background: rgba(0, 20, 10, 0.9); padding: 5px 12px; border-bottom: 1px solid var(--neon-green);
+            display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; font-weight: bold;
+        }
+        .conn-indicator { color: var(--neon-green); display: flex; align-items: center; gap: 4px; }
+        .conn-dot { width: 6px; height: 6px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 6px var(--neon-green); }
+
+        /* 📡 पल्सिंग रडार व्यूपोर्ट */
+        .shield-viewport {
+            width: 100%; height: 110px; background: radial-gradient(circle, rgba(40,0,20,0.95) 0%, rgba(5,0,2,0.99) 85%);
+            border-bottom: 2px solid var(--border-color); position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        .shield-ring {
+            position: absolute; width: 20px; height: 20px; border: 1.5px solid var(--border-active);
+            border-radius: 50%; animation: shieldPulse 3s cubic-bezier(0.1, 0.8, 0.3, 1) infinite; opacity: 0;
+        }
+        .shield-ring:nth-child(2) { animation-delay: 1s; }
+        .shield-ring:nth-child(3) { animation-delay: 2s; }
+
+        @keyframes shieldPulse {
+            0% { width: 15px; height: 15px; opacity: 1; border-color: var(--neon-green); }
+            50% { border-color: var(--border-active); }
+            100% { width: 110px; height: 110px; opacity: 0; border-color: var(--neon-amber); }
+        }
+
+        .shield-core {
+            width: 10px; height: 10px; background: var(--neon-red); border-radius: 50%;
+            box-shadow: 0 0 15px var(--neon-red); z-index: 10;
+        }
+        .shield-status-badge {
+            position: absolute; bottom: 4px; font-size: 7px; color: var(--neon-green); font-weight: bold;
+            background: rgba(0,0,0,0.85); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-color);
+        }
+
+        .shield-controls {
+            padding: 8px 12px; background: rgba(10, 0, 5, 0.95); border-bottom: 2px solid var(--border-color);
+            display: flex; gap: 6px;
+        }
+        .action-btn {
+            flex: 1; background: linear-gradient(135deg, var(--neon-red), var(--neon-amber)); color: #000; border: none; padding: 7px;
+            border-radius: 6px; font-size: 8.5px; font-weight: bold; cursor: pointer; text-align: center;
+            box-shadow: 0 0 10px rgba(255,0,85,0.4);
+        }
+
+        /* 📊 लाइव फीड और कच्चा चिट्ठा व्यूपोर्ट */
+        .log-viewport { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 7px; }
+        .log-card {
+            background: rgba(20, 0, 10, 0.85); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 8px 10px;
+            display: flex; flex-direction: column; gap: 4px; backdrop-filter: blur(4px);
+        }
+        .log-card.danger { border-color: var(--neon-red); background: rgba(50, 0, 15, 0.85); }
+        .log-card.success { border-color: var(--neon-green); background: rgba(0, 30, 15, 0.85); }
+        
+        .log-header-row { display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: bold; color: var(--text-main); }
+        .log-desc { font-size: 8px; color: var(--text-sub); line-height: 1.3; }
+        .badge { font-size: 7.5px; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+        .badge.danger { background: rgba(255, 0, 85, 0.2); color: var(--neon-red); border: 1px solid var(--neon-red); }
+        .badge.success { background: rgba(0, 255, 136, 0.2); color: var(--neon-green); border: 1px solid var(--neon-green); }
+        
+        .destroy-btn {
+            background: var(--neon-red); color: #fff; border: none; padding: 5px 10px; border-radius: 5px;
+            font-size: 8px; font-weight: bold; cursor: pointer; align-self: flex-start;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.6); margin-top: 2px;
+        }
+
+        .bottom-nav {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(4, 0, 2, 0.99); border-top: 2px solid var(--border-color);
+            display: flex; justify-content: space-around; padding: 6px 2px; z-index: 1000;
+        }
+        .nav-tab { color: var(--text-sub); text-decoration: none; font-size: 7.5px; text-align: center; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+        .nav-tab.active, .nav-tab:hover { color: var(--neon-green); }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="shield-header">
+        <div class="header-top">
+            <div>
+                <div class="brand-main">⚡ ELECTRIC BODYGUARD</div>
+                <div class="page-title">🛡️ Admin Loyal Cyber Shield OS</div>
+            </div>
+            <a href="mesh-net.html" class="back-btn">⬅ Mesh OS</a>
+        </div>
+    </div>
+
+    <!-- 🌐 ऑनलाइन/ऑफलाइन और एडमिन वफादारी स्टेटस बार -->
+    <div class="connectivity-bar">
+        <div class="conn-indicator">
+            <div class="conn-dot" id="connDot"></div>
+            <span id="connStatusText">ONLINE & SYNCED</span>
+        </div>
+        <span style="color:var(--neon-amber);" id="adminLoyaltyBadge">👑 Admin Loyal: Rizwan</span>
+    </div>
+
+    <!-- 📡 पल्सिंग रडार व्यूपोर्ट -->
+    <div class="shield-viewport">
+        <div class="shield-ring"></div>
+        <div class="shield-ring"></div>
+        <div class="shield-ring"></div>
+        <div class="shield-core"></div>
+        <div class="shield-status-badge" id="shieldStateLabel">🟢 MASTER GATEWAY: ARMED & READY</div>
+    </div>
+
+    <div class="shield-controls">
+        <button class="action-btn" onclick="triggerMasterSecurityScan()">⚡ Test Incoming Threat / Link Event</button>
+    </div>
+
+    <div class="log-viewport" id="liveFeedContainer">
+        <div class="log-card success">
+            <div class="log-header-row">
+                <span>👑 Admin Loyalty & Master Checkpoint Armed</span>
+                <span class="badge success">SECURE</span>
+            </div>
+            <div class="log-desc">सिस्टम प्राइमरी एडमिन (रिज़वान) के प्रति पूरी तरह वफादार है। बैटरी बचाने के लिए स्लीप मोड सक्रिय है। नया पैकेट आते ही यह स्कैन करेगा और हर एक्शन का हिसाब एडमिन के लिए लॉग करेगा।</div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-tab"><span>🏠</span><span>Home</span></a>
+        <a href="mesh-net.html" class="nav-tab"><span>🌐</span><span>Mesh</span></a>
+        <a href="notifications.html" class="nav-tab"><span>🔔</span><span>Notifs</span></a>
+        <a href="pay.html" class="nav-tab"><span>💳</span><span>Pay OS</span></a>
+        <a href="chat.html" class="nav-tab"><span>💬</span><span>Chat</span></a>
+    </div>
+</div>
+
+<script>
+    // 👑 1. एडमिन वफादारी और मास्टर अथॉरिटी प्रोटोकॉल
+    class AdminLoyaltyProtocol {
+        constructor() {
+            this.adminID = "RIZWAN_MASTER_ADMIN";
+        }
+
+        logAutonomousAction(actionDetails) {
+            let emergencyLog = {
+                timestamp: new Date().toISOString(),
+                admin: this.adminID,
+                action: actionDetails,
+                status: "LOGGED_FOR_ADMIN_SYNC"
+            };
+
+            let existingLogs = JSON.parse(localStorage.getItem('EB_ADMIN_AUDIT_LOGS') || '[]');
+            existingLogs.push(emergencyLog);
+            localStorage.setItem('EB_ADMIN_AUDIT_LOGS', JSON.stringify(existingLogs));
+            console.warn("👑 Admin Loyalty Protocol: Action recorded under master authority.", emergencyLog);
+        }
+    }
+
+    const adminLoyalty = new AdminLoyaltyProtocol();
+
+    // 🌐 ऑनलाइन/ऑफलाइन मॉनिटर
+    function updateConnectivityStatus() {
+        const dot = document.getElementById('connDot');
+        const text = document.getElementById('connStatusText');
+        if (navigator.onLine) {
+            dot.style.background = "var(--neon-green)";
+            dot.style.boxShadow = "0 0 6px var(--neon-green)";
+            text.innerText = "ONLINE (Firebase Synced)";
+        } else {
+            dot.style.background = "var(--neon-amber)";
+            dot.style.boxShadow = "0 0 6px var(--neon-amber)";
+            text.innerText = "OFFLINE (Local P2P Mesh)";
+        }
+    }
+    window.addEventListener('online', updateConnectivityStatus);
+    window.addEventListener('offline', updateConnectivityStatus);
+    updateConnectivityStatus();
+
+    // 🧬 2. मास्टर थ्रेट डीएनए, सेल्फ-इवॉल्विंग और हनीट्रैप इंजन
+    class MasterCyberShieldDaemon {
+        constructor() {
+            this.masterDNA = [
+                "steganography_hidden_payload_jpg",
+                "phish_credential_harvest_xyz",
+                "trojan_sms_stealer_mod",
+                "zero_day_buffer_overflow_hex",
+                "malicious_eval_script_inject",
+                "fake_bank_login_popup",
+                "casino_win_mod_apk"
+            ];
+        }
+
+        inspectPacket(payloadString) {
+            let raw = payloadString.toLowerCase();
+            for (let dna of this.masterDNA) {
+                if (raw.includes(dna)) {
+                    return {
+                        status: "THREAT_TRAPPED",
+                        matchedDNA: dna,
+                        attackerIP: "192.168.43." + Math.floor(Math.random() * 200),
+                        action: "Honey-trap triggered, attacker fingerprint locked & counter-vaccine prepared."
+                    };
+                }
+            }
+            return { status: "CLEAN", matchedDNA: "None", action: "Passed securely through checkpoint." };
+        }
+    }
+
+    const shieldDaemon = new MasterCyberShieldDaemon();
+
+    // 🚀 3. मास्टर स्कैन ट्रिगर और ऑडियो गाइड
+    function triggerMasterSecurityScan() {
+        let container = document.getElementById('liveFeedContainer');
+        document.getElementById('shieldStateLabel').innerText = "WAKE UP: SCANNING MASTER DNA...";
+        
+        speakAudioGuide("Incoming network or application event detected. Scanning threat DNA.");
+
+        setTimeout(() => {
+            let testPayloads = [
+                "Incoming image file containing steganography_hidden_payload_jpg",
+                "Phishing link clicked: phish_credential_harvest_xyz",
+                "Installed App APK running trojan_sms_stealer_mod",
+                "Normal encrypted peer mesh chat message"
+            ];
+            
+            let currentIncoming = testPayloads[Math.floor(Math.random() * testPayloads.length)];
+            let result = shieldDaemon.inspectPacket(currentIncoming);
+
+            let card = document.createElement('div');
+            
+            if (result.status === "THREAT_TRAPPED") {
+                card.className = "log-card danger";
+                card.innerHTML = `
+                    <div class="log-header-row">
+                        <span>🚨 Cyber Threat Intercepted & Trapped!</span>
+                        <span class="badge danger">CRITICAL</span>
+                    </div>
+                    <div class="log-desc">
+                        <b>पेलोड / गतिविधि:</b> ${currentIncoming}<br>
+                        <b>डीएनए मिलान:</b> ${result.matchedDNA}<br>
+                        <b>हनीट्रैप एक्शन:</b> ${result.action}<br>
+                        <b>हमलावर IP / GPS:</b> ${result.attackerIP} (Locked)
+                    </div>
+                    <button class="destroy-btn" onclick="executeCounterAttack(this, '${result.attackerIP}')">💥 Destroy / Counter-Attack Attacker</button>
+                `;
+                speakAudioGuide("Dangerous threat detected and trapped in honey-trap. Counter attack ready.");
+                
+                // एडमिन वफादारी के तहत एक्शन लॉग करना
+                adminLoyalty.logAutonomousAction(`Intercepted and entrapped threat with DNA: ${result.matchedDNA}`);
+            } else {
+                card.className = "log-card success";
+                card.innerHTML = `
+                    <div class="log-header-row">
+                        <span>✅ Packet Passed Master DNA</span>
+                        <span class="badge success">SECURE</span>
+                    </div>
+                    <div class="log-desc">पेलोड एकदम साफ है। बैटरी बचाने के लिए चेकपोस्ट वापस स्लीप मोड में जा रहा है।</div>
+                `;
+                speakAudioGuide("Packet is clean. Returning to sleep mode.");
+            }
+
+            container.prepend(card);
+            document.getElementById('shieldStateLabel').innerText = "🟢 MASTER GATEWAY: ARMED & READY";
+        }, 700);
+    }
+
+    // 💥 4. काउंटर-अटैक डिस्ट्रॉय बटन
+    function executeCounterAttack(btnElement, ip) {
+        speakAudioGuide("Counter attack initiated. Injecting counter vaccine payload to destroy attacker system.");
+        btnElement.innerText = "💥 ATTACKER SYSTEM FLOODED & CRASHED!";
+        btnElement.style.background = "#00ff88";
+        btnElement.style.color = "#000";
+        
+        let parentCard = btnElement.closest('.log-card');
+        let descDiv = parentCard.querySelector('.log-desc');
+        descDiv.innerHTML += `<br><span style="color:var(--neon-green); font-weight:bold;">[SUCCESS] हमलावर (${ip}) के सर्वर पर काउंटर-वैक्सीन भेजकर उसका पूरा सिस्टम तबाह कर दिया गया है! (Action logged for Admin Rizwan)</span>`;
+        
+        adminLoyalty.logAutonomousAction(`Executed successful counter-attack on attacker IP: ${ip}`);
+    }
+
+    // 🔊 5. टेक्स्ट-टू-स्पीच ऑडियो गाइड
+    function speakAudioGuide(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+</script>
+</body>
+</html>

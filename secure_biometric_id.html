@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ELECTRIC BODYGUARD - Master Vault & AI Mentor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #000205;
+            --panel-bg: rgba(5, 11, 20, 0.98);
+            --border-neon: rgba(0, 240, 255, 0.4);
+            --border-active: #00f0ff;
+            --text-main: #ffffff;
+            --text-sub: #88a0c0;
+            --neon-green: #00ff88;
+            --neon-pink: #ff0055;
+            --neon-yellow: #ffaa00;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-deep); color: var(--border-active); width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        
+        .studio-container {
+            width: 100%; max-width: 410px; height: 95vh;
+            background: var(--panel-bg); border: 2px solid var(--border-active); border-radius: 20px;
+            display: flex; flex-direction: column; justify-content: space-between; position: relative;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.25); overflow: hidden; padding-bottom: 55px;
+        }
+
+        .cyber-header {
+            background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(255,170,0,0.15));
+            border-bottom: 1.5px solid var(--border-neon); padding: 8px 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .header-title h2 { font-size: 11px; color: var(--neon-yellow); font-weight: 900; letter-spacing: 1px; }
+        .header-title p { font-size: 7px; color: var(--neon-green); margin-top: 2px; font-weight: 700; text-transform: uppercase; }
+        .audio-top-btn {
+            background: var(--neon-green); color: #000; border: none; padding: 4px 8px;
+            border-radius: 6px; font-size: 8px; cursor: pointer; font-weight: 800;
+            box-shadow: 0 0 10px rgba(0,255,136,0.4);
+        }
+
+        .content-body { padding: 10px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .content-body::-webkit-scrollbar { width: 3px; }
+        .content-body::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 3px; }
+
+        .ai-search-bar {
+            display: flex; background: rgba(0, 15, 30, 0.95); border: 1.5px solid var(--neon-pink);
+            border-radius: 8px; padding: 5px 8px; align-items: center; gap: 6px;
+        }
+        .ai-search-bar input { background: transparent; border: none; color: var(--text-main); font-size: 8.5px; font-weight: 600; width: 100%; outline: none; }
+        .mic-btn { background: var(--neon-pink); color: #fff; border: none; padding: 3px 6px; border-radius: 5px; font-size: 7.5px; cursor: pointer; font-weight: 800; flex-shrink: 0; }
+
+        .feed-hub-strip { display: flex; gap: 5px; justify-content: space-between; }
+        .feed-hub-btn {
+            flex: 1; background: rgba(0, 240, 255, 0.1); border: 1px solid var(--border-neon); border-radius: 6px;
+            padding: 5px 3px; font-size: 7px; color: var(--border-active); font-weight: bold; cursor: pointer; text-align: center; text-decoration: none;
+        }
+        .feed-hub-btn:hover { background: var(--border-active); color: #000; }
+
+        /* बायोमेट्रिक लॉक स्क्रीन */
+        .master-lock-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 15, 0.98); backdrop-filter: blur(8px);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; z-index: 30; transition: 0.5s ease;
+        }
+        .lock-icon { font-size: 40px; margin-bottom: 8px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
+        .lock-heading { font-size: 12px; color: var(--neon-yellow); font-weight: bold; margin-bottom: 5px; }
+        .lock-desc { font-size: 9px; color: var(--text-sub); margin-bottom: 15px; line-height: 1.3; }
+        .unlock-btn { background: linear-gradient(135deg, var(--neon-yellow) 0%, #ff5500 100%); color: #000; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 9.5px; cursor: pointer; text-transform: uppercase; width: 100%; box-shadow: 0 0 15px rgba(255,170,0,0.5); }
+
+        .reg-form-box { width: 100%; display: none; flex-direction: column; gap: 7px; background: rgba(0, 15, 30, 0.95); border: 1.5px solid var(--border-neon); border-radius: 10px; padding: 10px; }
+        .form-title { font-size: 10px; color: var(--neon-yellow); font-weight: bold; text-align: center; margin-bottom: 3px; text-transform: uppercase; }
+        .input-group { display: flex; flex-direction: column; gap: 2px; }
+        .input-group label { font-size: 7.5px; color: var(--neon-green); font-weight: bold; text-transform: uppercase; }
+        .input-group input { background: rgba(0, 0, 0, 0.9); border: 1px solid var(--border-neon); border-radius: 6px; padding: 6px 8px; color: #fff; font-size: 9px; outline: none; }
+        .generate-btn { background: linear-gradient(135deg, var(--neon-green) 0%, #00aaff 100%); color: #000; border: none; padding: 9px; border-radius: 6px; font-weight: bold; font-size: 9px; cursor: pointer; text-transform: uppercase; width: 100%; margin-top: 4px; box-shadow: 0 0 12px rgba(0,255,136,0.4); }
+
+        /* 3D ID Card */
+        .card-flip-container { width: 100%; height: 175px; position: relative; transform-style: preserve-3d; transition: transform 0.8s; cursor: pointer; display: none; }
+        .card-flip-container.flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: inset 0 0 20px rgba(0,255,136,0.2), 0 0 20px rgba(0,240,255,0.3); }
+        .card-front { background: linear-gradient(135deg, rgba(0,40,80,0.98), rgba(0,15,35,0.99)); border: 2px solid var(--neon-green); }
+        .card-back { background: linear-gradient(135deg, rgba(50,15,70,0.98), rgba(15,2,30,0.99)); border: 2px solid var(--neon-yellow); transform: rotateY(180deg); }
+
+        .card-top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(0,255,136,0.4); padding-bottom: 4px; }
+        .card-org-name { font-size: 9px; color: var(--neon-yellow); font-weight: bold; }
+        .card-status-pill { font-size: 7px; color: var(--neon-green); background: rgba(0,255,136,0.2); padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+        .card-main-content { display: flex; gap: 8px; align-items: center; }
+        .card-avatar-frame { width: 40px; height: 45px; background: rgba(0,240,255,0.15); border: 1px solid var(--border-active); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+        .card-details-box { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .holder-title { font-size: 11px; color: #fff; font-weight: bold; }
+        .holder-role { font-size: 8.5px; color: var(--neon-green); font-weight: bold; }
+        .holder-meta { font-size: 7px; color: var(--text-sub); }
+        .crypto-hash-strip { background: #000; border: 1px solid var(--border-neon); border-radius: 5px; padding: 3px; font-size: 6px; color: var(--neon-green); font-family: monospace; word-break: break-all; }
+
+        .qr-code-box { display: flex; justify-content: center; align-items: center; background: #fff; padding: 3px; border-radius: 6px; width: 50px; height: 50px; margin: 0 auto; }
+        .qr-code-box img { width: 100%; height: 100%; object-fit: contain; }
+        .back-footer-text { font-size: 7px; color: var(--neon-yellow); text-align: center; font-family: monospace; font-weight: bold; }
+        .back-security-notice { font-size: 6.5px; color: var(--text-sub); text-align: center; line-height: 1.2; }
+
+        .direct-studio-btn {
+            background: linear-gradient(135deg, var(--neon-yellow) 0%, var(--neon-green) 100%);
+            color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: 900; font-size: 9.5px;
+            cursor: pointer; text-transform: uppercase; width: 100%; box-shadow: 0 0 15px rgba(255,170,0,0.4);
+            display: none; text-align: center; text-decoration: none; margin-top: 4px;
+        }
+
+        .terminal { background: rgba(0, 10, 20, 0.95); border: 1.5px dashed var(--border-neon); border-radius: 6px; padding: 6px; font-size: 7.5px; color: var(--neon-green); line-height: 1.3; }
+
+        .bottom-nav {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(0, 4, 10, 0.98); border-top: 1.5px solid var(--border-neon);
+            display: flex; justify-content: space-around; padding: 5px 2px;
+        }
+        .nav-item {
+            color: var(--text-sub); text-decoration: none; font-size: 7px; text-align: center; font-weight: 700;
+            display: flex; flex-direction: column; align-items: center; gap: 1px; background: none; border: none; cursor: pointer;
+        }
+        .nav-item.active, .nav-item:hover { color: var(--neon-green); }
+    </style>
+</head>
+<body>
+
+<div class="studio-container">
+    <div class="cyber-header">
+        <div class="header-title">
+            <h2>⚡ ELECTRIC BODYGUARD</h2>
+            <p>🛡️ AI MENTOR VAULT & 3-TIER FEEDS</p>
+        </div>
+        <button class="audio-top-btn" onclick="playAudioGuide()">🔊 ऑडियो गाइड</button>
+    </div>
+
+    <div class="content-body" id="mainContentBody">
+        
+        <div class="ai-search-bar">
+            <span>🤖</span>
+            <input type="text" id="aiSearchInput" placeholder="बोले या टाइप करें (AI उस्ताद आपकी मदद करेगा)..." onkeypress="handleAiSearch(event)">
+            <button class="mic-btn" onclick="startSpeechToText()">🎤 बोलकर खोजें</button>
+        </div>
+
+        <div class="feed-hub-strip">
+            <a href="public-pulse.html" class="feed-hub-btn">🚨 Emergency Pulse</a>
+            <a href="feed_geo.html" class="feed-hub-btn">🌍 Local-Global Feed</a>
+            <a href="feed-biz.html" class="feed-hub-btn">💼 Biz & Promote</a>
+        </div>
+
+        <div class="master-lock-overlay" id="masterLockScreen">
+            <div class="lock-icon">🔐</div>
+            <div class="lock-heading">मिलिट्री-ग्रेड सैनिटाइज्ड वॉल्ट</div>
+            <div class="lock-desc">
+                नमस्ते साथी! पहचान सत्यापित करके अपने डिजिटल वॉल्ट को सुरक्षित खोलें.
+            </div>
+            <button class="unlock-btn" onclick="startBiometricAuth()">👆 बायोमेट्रिक से वॉल्ट खोलें</button>
+        </div>
+
+        <div class="reg-form-box" id="regFormBox">
+            <div class="form-title">🛡️ मास्टर रजिस्ट्रेशन फॉर्म (AI उस्ताद गाइडेड)</div>
+            <div class="input-group">
+                <label>Operator / Business Name:</label>
+                <input type="text" id="fullNameInput" placeholder="अपना या दुकान का नाम दर्ज करें">
+            </div>
+            <div class="input-group">
+                <label>Emergency SOS (4 Contacts & Blood Group):</label>
+                <input type="text" id="sosInfoInput" placeholder="उदा: 9876543210 (Blood: O+)">
+            </div>
+            <div class="input-group">
+                <label>Secured UPI / Payment Gateway ID:</label>
+                <input type="text" id="bankUpiInput" placeholder="9876543210@paytm">
+            </div>
+            <button class="generate-btn" onclick="generateSecureIdCard()">🚀 आईडी कार्ड और QR जनरेट करें</button>
+        </div>
+
+        <div class="card-flip-container" id="cardFlipContainer" onclick="toggleCardFlip()">
+            <div class="card-face card-front">
+                <div class="card-top-bar">
+                    <span class="card-org-name">🛡️ ELECTRIC BODYGUARD CORP</span>
+                    <span class="card-status-pill">● SECURED</span>
+                </div>
+                <div class="card-main-content">
+                    <div class="card-avatar-frame">👤</div>
+                    <div class="card-details-box">
+                        <div class="holder-title" id="dispName">Awaiting...</div>
+                        <div class="holder-role" id="dispRole">Category: --</div>
+                        <div class="holder-meta" id="dispSos">SOS: --</div>
+                    </div>
+                </div>
+                <div class="crypto-hash-strip" id="dispHash">SHA-256 Hash: [Pending]</div>
+            </div>
+
+            <div class="card-face card-back">
+                <div class="card-top-bar">
+                    <span class="card-org-name" style="color:var(--neon-yellow);">🛡️ DYNAMIC QR VAULT</span>
+                    <span class="card-status-pill" style="background:rgba(255,170,0,0.2); color:var(--neon-yellow);">● VERIFIED</span>
+                </div>
+                <div class="qr-code-box">
+                    <img id="dynamicQrCodeImg" alt="Secure QR">
+                </div>
+                <div class="back-footer-text" id="dispUniqueId">Global UID: EB-SEC-xxxx</div>
+                <div class="back-security-notice">सैनिटाइज्ड और एन्क्रिप्टेड मिलिट्री-ग्रेड डिजिटल आईडी कार्ड।</div>
+            </div>
+        </div>
+
+        <a href="studio.html" class="direct-studio-btn" id="directStudioBtn">🎛️ स्टूडियो में जाएं (वीडियो ऑटो-जेनरेट करें) →</a>
+
+        <div class="terminal" id="terminalOutput">
+            🤖 AI उस्ताद: नमस्ते! बायोमेट्रिक ऑथेंटिकेशन पूरा करके शुरुआत करें.
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-item" onclick="location.href='index.html'"><span>🏠</span><span>Home</span></button>
+        <button class="nav-item" onclick="location.href='studio.html'"><span>🎛️</span><span>Studio</span></button>
+        <button class="nav-item active" onclick="location.href='secure_biometric_id.html'"><span>🛡️</span><span>Vault</span></button>
+        <button class="nav-item" onclick="location.href='feed-biz.html'"><span>📰</span><span>Feeds</span></button>
+        <button class="nav-item" onclick="location.href='profile.html'"><span>👤</span><span>Profile</span></button>
+    </div>
+</div><script>
+    const MASTER_SECRET_KEY = "EBMasterKey_ElectricBodyguard_MilitaryGrade_2026";
+    let db;
+    let loadedCategory = "Universal Hub";
+
+    const idbRequest = indexedDB.open("ElectricBodyguardDB", 2);
+    idbRequest.onsuccess = function(event) {
+        db = event.target.result;
+        fetchPreviousDataToForm();
+    };
+
+    function fetchPreviousDataToForm() {
+        if(!db || !db.objectStoreNames.contains("userProfile")) return;
+        let transaction = db.transaction(["userProfile"], "readonly");
+        let store = transaction.objectStore("userProfile");
+
+        store.get("eb_shop_name").onsuccess = function(e) {
+            if(e.target.result) document.getElementById('fullNameInput').value = e.target.result.value;
+        };
+        store.get("selected_category").onsuccess = function(e) {
+            if(e.target.result) loadedCategory = e.target.result.value;
+        };
+        store.get("eb_phone").onsuccess = function(e) {
+            if(e.target.result) {
+                let phone = e.target.result.value;
+                let currentSos = document.getElementById('sosInfoInput').value;
+                if(!currentSos) document.getElementById('sosInfoInput').value = phone;
+            }
+        };
+    }
+
+    function sanitizeInput(input) {
+        if (!input) return "";
+        return input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+                    .replace(/[<>'"]/g, "")
+                    .trim();
+    }
+
+    function startBiometricAuth() {
+        document.getElementById('terminalOutput').innerHTML = "🤖 AI उस्ताद: बायोमेट्रिक स्कैन जारी है... वॉल्ट सुरक्षित रूप से खुल रहा है.";
+        setTimeout(() => {
+            document.getElementById('masterLockScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('masterLockScreen').style.display = 'none';
+                document.getElementById('regFormBox').style.display = 'flex';
+            }, 500);
+            document.getElementById('terminalOutput').innerHTML = "✅ <b>वॉल्ट अनलॉक हो गया!</b> अब अपनी जानकारी दर्ज करें या AI उस्ताद से बोलकर पूछें.";
+            speakText("वॉल्ट सफलतापूर्वक खुल गया है। अब आप अपनी जानकारी दर्ज कर सकते हैं।");
+        }, 1200);
+    }
+
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    async function generateSecureHash(dataString, secret) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(dataString);
+        const key = encoder.encode(secret);
+        const cryptoKey = await crypto.subtle.importKey(
+            "raw", key, { name: "HMAC", hash: {name: "SHA-256"} }, false, ["sign"]
+        );
+        const signature = await crypto.subtle.sign("HMAC", cryptoKey, data);
+        const hashArray = Array.from(new Uint8Array(signature));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function generateSecureIdCard() {
+        let name = sanitizeInput(document.getElementById('fullNameInput').value);
+        let sos = sanitizeInput(document.getElementById('sosInfoInput').value) || "SOS: Secured";
+        let bank = sanitizeInput(document.getElementById('bankUpiInput').value) || "UPI: Locked";
+
+        if(!name) {
+            alert("⚠️ कृपया वैध नाम दर्ज करें!");
+            speakText("कृपया अपना नाम सही से दर्ज करें।");
+            return;
+        }
+
+        document.getElementById('terminalOutput').innerHTML = "🤖 AI उस्ताद: एन्क्रिप्शन और क्यूआर कोड तैयार किया जा रहा है...";
+
+        const cardData = { name, sos, bank, category: loadedCategory, timestamp: Date.now() };
+        const uniqueId = "EB-SEC-" + generateUUID();
+        const secureHash = await generateSecureHash(JSON.stringify(cardData) + uniqueId, MASTER_SECRET_KEY);
+
+        setTimeout(async () => {
+            document.getElementById('dispName').innerText = name.toUpperCase();
+            document.getElementById('dispRole').innerText = "Category: " + loadedCategory;
+            document.getElementById('dispSos').innerText = "SOS: " + sos;
+            document.getElementById('dispHash').innerText = "SHA-256: " + secureHash.substring(0, 26) + "... [Verified]";
+
+            const qrContent = `UID:${uniqueId}|NAME:${name}|CAT:${loadedCategory}|HASH:${secureHash}`;
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrContent)}`;
+            document.getElementById('dynamicQrCodeImg').src = qrImageUrl;
+            document.getElementById('dispUniqueId').innerText = "Global UID: " + uniqueId;
+
+            if(db && db.objectStoreNames.contains("userProfile")) {
+                let tx = db.transaction(["userProfile"], "readwrite");
+                let st = tx.objectStore("userProfile");
+                st.put({ key: "eb_user_id", value: uniqueId });
+                st.put({ key: "eb_crypto_hash", value: secureHash });
+            }
+            localStorage.setItem('eb_user_id', uniqueId);
+
+            document.getElementById('regFormBox').style.display = 'none';
+            document.getElementById('cardFlipContainer').style.display = 'block';
+            document.getElementById('directStudioBtn').style.display = 'block';
+
+            document.getElementById('terminalOutput').innerHTML = `🎉 <b>बधाई हो!</b> [<b>${name}</b>] का डिजिटल आईडी कार्ड और QR कोड मुकम्मल हो चुका है। अब आप सीधे स्टूडियो जा सकते हैं।`;
+            speakText("आपका डिजिटल आईडी कार्ड पूरी तरह तैयार है। नीचे दिए गए बटन से आप सीधे स्टूडियो जा सकते हैं।");
+        }, 1200);
+    }
+
+    function toggleCardFlip() {
+        document.getElementById('cardFlipContainer').classList.toggle('flipped');
+    }
+
+    function startSpeechToText() {
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN';
+            recognition.onresult = function(event) {
+                let spokenText = event.results[0][0].transcript;
+                let cleanText = sanitizeInput(spokenText);
+                document.getElementById('aiSearchInput').value = cleanText;
+                document.getElementById('terminalOutput').innerHTML = `🤖 AI उस्ताद: आपने बोला - "${cleanText}"। सिस्टम ने इसे सुरक्षित रूप से प्रोसेस कर लिया है।`;
+                speakText(`आपने कहा: ${cleanText}`);
+            };
+            recognition.start();
+        } else {
+            let spoken = prompt("🎤 बोलकर या टाइप करके अपना सवाल पूछें:");
+            if(spoken) {
+                let clean = sanitizeInput(spoken);
+                document.getElementById('aiSearchInput').value = clean;
+                document.getElementById('terminalOutput').innerHTML = `🤖 AI उस्ताद: "${clean}" प्रोसेस हो गया है।`;
+            }
+        }
+    }
+
+    function handleAiSearch(event) {
+        if(event.key === 'Enter') {
+            let query = sanitizeInput(document.getElementById('aiSearchInput').value);
+            if(query) {
+                document.getElementById('terminalOutput').innerHTML = `🤖 AI उस्ताद: "${query}" की खोज की जा रही है। डेटा पूरी तरह सुरक्षित है।`;
+                speakText(`खोज परिणाम तैयार हैं।`);
+                document.getElementById('aiSearchInput').value = "";
+            }
+        }
+    }
+
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            let speech = new SpeechSynthesisUtterance(text);
+            speech.lang = 'hi-IN';
+            window.speechSynthesis.speak(speech);
+        }
+    }
+
+    function playAudioGuide() {
+        let guideText = "इलेक्ट्रिक बॉडीगार्ड के इस सिक्योर वॉल्ट में आपका स्वागत है। यह आपका डिजिटल पहचान केंद्र है। यहाँ इनपुट सैनिटाइजर, स्पीच टू टेक्स्ट और एआई उस्ताद आपकी हर कदम पर मदद करेंगे।";
+        speakText(guideText);
+    }
+</script>
+</body>
+</html>

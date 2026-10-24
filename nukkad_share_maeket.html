@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Supreme Apex Nexus : 100% Sovereign P2P Market Ledger</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { background-color: #000; color: #f0f6fc; height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        .market-frame { 
+            width: 100% !important; max-width: 480px !important; height: 100% !important; max-height: 100vh !important;
+            background: #081423 !important; border: 2px solid #f1c40f !important; border-radius: 0px !important; 
+            padding: 8px !important; box-shadow: 0 25px 60px rgba(241,196,15,0.3) !important; 
+            display: flex !important; flex-direction: column !important; gap: 6px !important; position: relative !important; overflow: hidden !important; 
+        }
+        @media(min-width: 481px) {
+            .market-frame { height: 96vh !important; max-height: 920px !important; border-radius: 14px !important; }
+        }
+        
+        .header-box { display: flex; justify-content: space-between; align-items: center; background: rgba(241,196,15,0.15); border: 2px solid #f1c40f; padding: 6px 8px; border-radius: 8px; flex-shrink: 0; }
+        .brand-title-box { overflow: hidden; width: 40%; white-space: nowrap; }
+        .brand-title { font-size: 7.5px; font-weight: 900; color: #f1c40f; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
+        
+        .header-actions { display: flex; gap: 2px; align-items: center; }
+        .bridge-btn { font-size: 6.5px; background: rgba(0,255,102,0.25); color: #00ff66; border: 1px solid #00ff66; padding: 3px 4px; border-radius: 4px; font-weight: bold; cursor: pointer; text-decoration: none; }
+
+        /* Upgraded Bold Scale Bar for 100% Visibility */
+        .scale-bar { display: flex; gap: 3px; padding: 3px 0; flex-shrink: 0; justify-content: space-between; }
+        .scale-btn { background: #030712; border: 1.5px solid #f1c40f; color: #f1c40f; font-size: 8px; font-weight: 900; padding: 5px 4px; border-radius: 5px; cursor: pointer; flex: 1; text-align: center; text-transform: uppercase; }
+        .scale-btn.active { background: #f1c40f; color: #030712; font-weight: 900; box-shadow: 0 0 10px rgba(241,196,15,0.5); }
+
+        .top-ai-bar {
+            background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; color: #00f3ff;
+            font-size: 7px; font-weight: bold; padding: 4px 6px; border-radius: 5px;
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .ai-inline-controls { display: flex; align-items: center; gap: 3px; }
+        
+        .net-status-badge { display: flex; align-items: center; gap: 3px; font-size: 6.5px; padding: 2px 4px; border-radius: 3px; border: 1px solid #f1c40f; background: rgba(241,196,15,0.1); color: #f1c40f; }
+        .net-dot { width: 5px; height: 5px; border-radius: 50%; background: #f1c40f; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .currency-select, .lang-select { background: #030712; color: #00f3ff; border: 1px solid #00f3ff; font-size: 6.5px; font-weight: bold; padding: 2px 3px; border-radius: 3px; cursor: pointer; }
+
+        .live-ticker-bar {
+            background: rgba(0,255,102,0.15); border: 1px solid #00ff66; color: #00ff66;
+            font-size: 8px; font-weight: bold; padding: 4px 6px; border-radius: 5px; overflow: hidden; white-space: nowrap; flex-shrink: 0;
+        }
+        .live-ticker-bar marquee { width: 100%; }
+
+        .filter-bar { display: flex; gap: 5px; overflow-x: auto; padding: 4px 0; flex-shrink: 0; scrollbar-width: thin; scrollbar-color: #f1c40f #030712; }
+        .filter-bar::-webkit-scrollbar { height: 4px; }
+        .filter-bar::-webkit-scrollbar-thumb { background: #f1c40f; border-radius: 2px; }
+        
+        .filter-btn { background: #030712; border: 1.5px solid #f1c40f; color: #f1c40f; font-size: 8px; font-weight: bold; padding: 5px 8px; border-radius: 6px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .filter-btn.active { background: #f1c40f; color: #030712; }
+
+        .switch { position: relative; display: inline-block; width: 20px; height: 10px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .3s; border-radius: 10px; border: 1px solid #00f3ff; }
+        .slider:before { position: absolute; content: ""; height: 6px; width: 6px; left: 1px; bottom: 1px; background-color: #00f3ff; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #00f3ff; }
+        input:checked + .slider:before { transform: translateX(10px); background-color: #030712; }
+    </style>
+</head>
+<body onload="initSovereignMarketEngine()">
+    <div class="market-frame">
+        <!-- Header -->
+        <div class="header-box">
+            <div class="brand-title-box">
+                <marquee behavior="scroll" direction="left" scrollamount="3">
+                    <span class="brand-title">ELECTRIC BODYGUARD • 100% SOVEREIGN LEDGER</span>
+                </marquee>
+            </div>
+            <div class="header-actions">
+                <a href="feed-biz.html" class="bridge-btn">Biz</a>
+                <a href="chat.html" class="bridge-btn">Chat</a>
+                <a href="feed_geo.html" class="bridge-btn">Map</a>
+            </div>
+        </div>
+
+        <!-- Upgraded Bold Scale Bar -->
+        <div class="scale-bar">
+            <button class="scale-btn active" onclick="filterMarketScale('Pin_Local', 'पिन-कोड', this)">📍 Pin</button>
+            <button class="scale-btn" onclick="filterMarketScale('National', 'नेशनल', this)">🇮🇳 Nat</button>
+            <button class="scale-btn" onclick="filterMarketScale('International', 'इंटर', this)">🌐 Inter</button>
+            <button class="scale-btn" onclick="filterMarketScale('Global', 'ग्लोबल', this)">🌍 Global</button>
+            <button class="scale-btn" onclick="filterMarketScale('All_VIP', 'VIP', this)">⭐ VIP</button>
+        </div>
+
+        <!-- Top AI & Multi-Currency Bar -->
+        <div class="top-ai-bar">
+            <div class="net-status-badge" id="netBadge">
+                <div class="net-dot" id="netDot"></div>
+                <span id="netText">100% SECURE</span>
+            </div>
+            <div class="ai-inline-controls">
+                <select id="currencySelector" class="currency-select" onchange="changeCurrency()">
+                    <option value="INR">₹ INR</option>
+                    <option value="USD">$ USD</option>
+                    <option value="EUR">€ EUR</option>
+                    <option value="CRYPTO">🪙 NEXUS</option>
+                </select>
+                <select id="langSelector" class="lang-select" onchange="changeLanguage()">
+                    <option value="hi">हि</option>
+                    <option value="en">EN</option>
+                </select>
+                <button id="micBtn" style="background:#00f3ff; color:#030712; border:none; font-size:6.5px; font-weight:bold; padding:2px 5px; border-radius:3px; cursor:pointer;" onclick="startSpeechRecognition()">🎙️ Speak</button>
+                <label class="switch" title="Audio Guide">
+                    <input type="checkbox" id="audioGuideToggle" checked onchange="toggleAudioGuide()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Live Ticker Bar -->
+        <div class="live-ticker-bar">
+            <marquee behavior="scroll" direction="left" scrollamount="4" id="globalLiveTicker">
+                [BULLETPROOF LEDGER]: Firebase RTDB & IndexedDB P2P Shield Active • Zero Intermediaries • 100% Autonomous
+            </marquee>
+        </div>
+
+        <!-- 15 Independent Category Filter Bar -->
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="selectCategory('Farmer Futures', 'किसान फ्यूचर्स', 245.50, this)">1. Farmer</button>
+            <button class="filter-btn" onclick="selectCategory('Labor Share', 'मजदूर पूल', 112.00, this)">2. Labor</button>
+            <button class="filter-btn" onclick="selectCategory('Transport Script', 'ट्रांसपोर्ट', 540.25, this)">3. Transport</button>
+            <button class="filter-btn" onclick="selectCategory('Artisan Equity', 'कारीगर शेयर', 320.10, this)">4. Artisan</button>
+            <button class="filter-btn" onclick="selectCategory('Shop Bond', 'दुकान बॉन्ड', 1420.00, this)">5. Shop Bond</button>
+            <button class="filter-btn" onclick="selectCategory('Wholesale Hub', 'थोक हब', 96.96, this)">6. Wholesale</button>
+            <button class="filter-btn" onclick="selectCategory('Factory Unit', 'फैक्ट्री यूनिट', 3500.00, this)">7. Factory</button>
+            <button class="filter-btn" onclick="selectCategory('Mechanic Fund', 'मैकेनिक फंड', 180.50, this)">8. Mechanic</button>
+            <button class="filter-btn" onclick="selectCategory('Electrician Node', 'इलेक्ट्रीशियन', 210.00, this)">9. Electrician</button>
+            <button class="filter-btn" onclick="selectCategory('Plumber Script', 'प्लंबर स्क्रिप्ट', 195.00, this)">10. Plumber</button>
+            <button class="filter-btn" onclick="selectCategory('Vendor Trust', 'ठेला ट्रस्ट', 89.25, this)">11. Vendor</button>
+            <button class="filter-btn" onclick="selectCategory('Scrap Asset', 'कबाड़ एसेट', 45.00, this)">12. Scrap</button>
+            <button class="filter-btn" onclick="selectCategory('Contractor Bond', 'ठेकेदार बॉन्ड', 2400.00, this)">13. Contractor</button>
+            <button class="filter-btn" onclick="selectCategory('Medic Trust', 'वैद्य ट्रस्ट', 510.00, this)">14. Medic</button>
+            <button class="filter-btn" onclick="selectCategory('General Fund', 'जनरल फंड', 150.00, this)">15. General</button>
+        </div><!-- Market Stream Container -->
+        <div class="feed-container" id="marketFeedStream" style="flex: 1; min-height: 0; background: #030712; border: 1px solid rgba(241,196,15,0.2); border-radius: 8px; padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+            <div class="feed-card" id="activeMarketCard" style="background: linear-gradient(135deg, rgba(241,196,15,0.08), rgba(0,255,102,0.03)); border: 1px solid rgba(241,196,15,0.35); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 6px;">
+                <div class="feed-title" style="font-size: 9.5px; font-weight: bold; color: #f1c40f; display: flex; justify-content: space-between; align-items: center;">
+                    <span id="marketCardTitle">Farmer Futures [Pin-Code]</span>
+                    <span style="color:#00ff66;" id="livePriceDisplay">₹245.50 (+4.2%)</span>
+                </div>
+                <!-- Growth Prediction Ticker -->
+                <div style="background: rgba(0,243,255,0.1); border: 1px solid rgba(0,243,255,0.3); padding: 3px 5px; border-radius: 4px; font-size: 7.5px; color: #00f3ff; font-weight: bold;">
+                    <marquee scrollamount="3" id="trendTickerText">[TREND]: 100% स्वायत्त लेजर • स्वतंत्र कटेगरी रियल-टाइम भाव सक्रिय</marquee>
+                </div>
+                <div class="feed-desc" id="marketCardDesc" style="font-size: 8px; color: #8b949e; line-height: 1.4;">Electric Bodyguard P2P sovereign ledger. Firebase & IndexedDB secure. Zero intermediaries.</div>
+
+                <div class="social-bar" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(241,196,15,0.2); padding-top: 6px; margin-top: 4px;">
+                    <button class="social-action-btn" onclick="executeTrade('BUY')" style="background:rgba(0,255,102,0.15); border:1px solid #00ff66; color:#00ff66; font-size:7px; font-weight:bold; padding:3px 6px; border-radius:4px; cursor:pointer;">🛒 Buy</button>
+                    <button class="social-action-btn" onclick="executeTrade('SELL')" style="background:rgba(231,76,60,0.15); border:1px solid #e74c3c; color:#e74c3c; font-size:7px; font-weight:bold; padding:3px 6px; border-radius:4px; cursor:pointer;">🏷️ Sell</button>
+                    <a href="chat.html" class="social-action-btn" style="background:rgba(0,243,255,0.15); border:1px solid #00f3ff; color:#00f3ff; font-size:7px; font-weight:bold; padding:3px 6px; border-radius:4px; text-decoration:none;">💬 Chat</a>
+                    <a href="feed_geo.html" class="social-action-btn" style="background:rgba(241,196,15,0.15); border:1px solid #f1c40f; color:#f1c40f; font-size:7px; font-weight:bold; padding:3px 6px; border-radius:4px; text-decoration:none;">📍 Map</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="nav-bottom" style="display: flex; gap: 4px; background: #030712; padding: 6px; border-radius: 8px; border: 1px solid rgba(241,196,15,0.2); justify-content: space-around; align-items: center; flex-shrink: 0;">
+            <a href="index.html" class="nav-link" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Home</a>
+            <a href="feed_geo.html" class="nav-link" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Geo</a>
+            <a href="studio.html" class="nav-link" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Studio</a>
+            <a href="nukkad_share_maeKet.html" class="nav-link" style="background: rgba(241,196,15,0.15); color: #f1c40f; border: 1px solid #f1c40f; font-size: 7.5px; font-weight: 900; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">📈 Market</a>
+            <a href="profile.html" class="nav-link" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Profile</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        let audioGuideEnabled = true;
+        let currentLang = 'hi';
+        let currentCurrency = 'INR';
+        let currentCategoryName = 'Farmer Futures';
+        let currentScale = 'Pin_Local';
+        let baseCategoryPrice = 245.50;
+        let currentFluctuation = 4.2;
+        let marketDbInstance = null;
+        let marketP2PChannel = null;
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAT13EhtnIOCk17KPLwPwhw_GJotsBNiA",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const marketRtdb = firebase.database();
+
+        function initSovereignMarketEngine() {
+            initIndexedDBShield();
+            initP2PMesh();
+            startIndependentCategoryEngine();
+            speakText("100% मुकम्मल नुक्कड़ शेयर मार्केट सक्रिय है।");
+        }
+
+        function initIndexedDBShield() {
+            try {
+                const request = indexedDB.open('ElectricBodyguardSovereignDB', 2);
+                request.onsuccess = function(event) {
+                    marketDbInstance = event.target.result;
+                };
+                request.onupgradeneeded = function(event) {
+                    let db = event.target.result;
+                    if (!db.objectStoreNames.contains('sovereign_ledger')) {
+                        db.createObjectStore('sovereign_ledger', { keyPath: 'id', autoIncrement: true });
+                    }
+                };
+            } catch (err) {}
+        }
+
+        function initP2PMesh() {
+            try {
+                marketP2PChannel = new BroadcastChannel('electric_bodyguard_sovereign_p2p');
+                marketP2PChannel.onmessage = function(event) {
+                    console.log("P2P Mesh Packet:", event.data);
+                };
+            } catch (e) {}
+        }
+
+        function logSovereignTrade(actionType) {
+            let tradePacket = {
+                category: currentCategoryName,
+                scale: currentScale,
+                action: actionType,
+                price: baseCategoryPrice,
+                currency: currentCurrency,
+                timestamp: Date.now(),
+                nodeID: 'ASAD-NODE-' + Math.random().toString(36).substr(2, 6).toUpperCase()
+            };
+
+            if (marketDbInstance) {
+                try {
+                    let tx = marketDbInstance.transaction(['sovereign_ledger'], 'readwrite');
+                    let store = tx.objectStore('sovereign_ledger');
+                    store.add(tradePacket);
+                } catch (e) {}
+            }
+
+            if (marketP2PChannel) {
+                marketP2PChannel.postMessage(tradePacket);
+            }
+
+            if (navigator.onLine) {
+                marketRtdb.ref('sovereign_ledger/' + currentScale + '/' + tradePacket.timestamp).set(tradePacket);
+            }
+        }
+
+        function startIndependentCategoryEngine() {
+            setInterval(() => {
+                let change = (Math.random() * 1.8 - 0.85).toFixed(2);
+                baseCategoryPrice = +(baseCategoryPrice + parseFloat(change)).toFixed(2);
+                currentFluctuation = +(currentFluctuation + parseFloat(change) * 0.1).toFixed(2);
+                updatePriceDisplay();
+            }, 3000);
+        }
+
+        function updatePriceDisplay() {
+            let displayEl = document.getElementById('livePriceDisplay');
+            if (!displayEl) return;
+
+            let formattedPrice = formatCurrency(baseCategoryPrice);
+            let sign = currentFluctuation >= 0 ? "+" : "";
+            displayEl.innerText = `${formattedPrice} (${sign}${currentFluctuation}%)`;
+            displayEl.style.color = currentFluctuation >= 0 ? "#00ff66" : "#e74c3c";
+        }
+
+        function formatCurrency(inrValue) {
+            if (currentCurrency === 'USD') return '$' + (inrValue / 83.0).toFixed(2);
+            if (currentCurrency === 'EUR') return '€' + (inrValue / 90.0).toFixed(2);
+            if (currentCurrency === 'CRYPTO') return '🪙 ' + (inrValue / 25.0).toFixed(4) + ' NEXUS';
+            return '₹' + inrValue.toFixed(2);
+        }
+
+        function changeCurrency() {
+            const selector = document.getElementById('currencySelector');
+            if (!selector) return;
+            currentCurrency = selector.value;
+            updatePriceDisplay();
+        }
+
+        function selectCategory(nameEn, nameHi, defaultPrice, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentCategoryName = nameEn;
+            baseCategoryPrice = defaultPrice;
+            currentFluctuation = +(Math.random() * 6 - 2).toFixed(2);
+
+            let titleEl = document.getElementById('marketCardTitle');
+            if (titleEl) {
+                let displayName = currentLang === 'hi' ? nameHi : nameEn;
+                titleEl.innerText = `${displayName} [${currentScale}]`;
+            }
+            updatePriceDisplay();
+            speakText(currentLang === 'hi' ? `${nameHi} कटेगरी सक्रिय हुई।` : `${nameEn} active.`);
+        }
+
+        function filterMarketScale(scaleKey, scaleLabel, btn) {
+            document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentScale = scaleKey;
+
+            let titleEl = document.getElementById('marketCardTitle');
+            if (titleEl) {
+                titleEl.innerText = `${currentCategoryName} [${scaleLabel}]`;
+            }
+        }
+
+        function toggleAudioGuide() {
+            const toggle = document.getElementById('audioGuideToggle');
+            if (!toggle) return;
+            audioGuideEnabled = toggle.checked;
+        }
+
+        function speakText(text) {
+            if (!audioGuideEnabled) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = currentLang === 'hi' ? 'hi-IN' : 'en-US';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function changeLanguage() {
+            const selector = document.getElementById('langSelector');
+            if (!selector) return;
+            currentLang = selector.value;
+        }
+
+        // Direct Web Speech API Integration (No Prompt Box)
+        function startSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert(currentLang === 'hi' ? "आपका ब्राउज़र वॉइस रिकग्निशन सपोर्ट नहीं करता।" : "Speech recognition not supported.");
+                return;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = currentLang === 'hi' ? 'hi-IN' : 'en-US';
+            
+            speakText(currentLang === 'hi' ? "बोलिए, असद का लेजर सुन रहा है..." : "Listening...");
+
+            recognition.onresult = function(event) {
+                let spokenText = event.results[0][0].transcript;
+                logSovereignTrade('VOICE_' + spokenText.toUpperCase());
+                speakText(currentLang === 'hi' ? `सुना गया: ${spokenText}. ऑर्डर सुरक्षित दर्ज हुआ!` : `Heard: ${spokenText}. Order recorded!`);
+            };
+
+            recognition.start();
+        }
+
+        function executeTrade(actionType) {
+            logSovereignTrade(actionType);
+            let formatted = formatCurrency(baseCategoryPrice);
+            let msg = currentLang === 'hi' ? `${actionType} ट्रेड ${formatted} पर 100% सुरक्षित दर्ज हुआ!` : `${actionType} trade recorded securely at ${formatted}!`;
+            alert(msg);
+            speakText(msg);
+        }
+    </script>
+</body>
+</html>

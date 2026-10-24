@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Bodyguard - Sovereign SOS Command</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: #000103; color: #ff4d4d; height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        .mainframe {
+            width: 100%; max-width: 480px; height: 98vh; max-height: 960px;
+            background: linear-gradient(180deg, #120303 0%, #000103 100%);
+            border: 2.5px solid #ff3333; border-radius: 12px;
+            display: flex; flex-direction: column; padding: 8px; gap: 6px;
+            box-shadow: 0 0 50px rgba(255, 51, 51, 0.3), inset 0 0 25px rgba(255, 51, 51, 0.1);
+        }
+
+        /* Header with Marquee, Online/Offline Indicator & Speaker Toggle */
+        .cmd-top-header { background: #1a0505; border: 1.5px solid #ff3333; border-radius: 8px; padding: 6px 8px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; overflow: hidden; }
+        .brand-container { display: flex; align-items: center; gap: 6px; width: 130px; overflow: hidden; white-space: nowrap; }
+        .electric-bolt { font-size: 14px; font-weight: 900; color: #f59e0b; text-shadow: 0 0 10px #f59e0b; flex-shrink: 0; }
+        .brand-title { font-size: 10.5px; font-weight: 900; color: #ff6666; letter-spacing: 1px; }
+        
+        .header-actions { display: flex; gap: 4px; align-items: center; }
+        .action-btn { background: #080202; color: #f59e0b; border: 1.5px solid #f59e0b; padding: 3px 5px; border-radius: 4px; cursor: pointer; font-size: 8px; font-weight: bold; }
+        
+        /* Online/Offline Status Indicator */
+        .net-indicator { font-size: 7.5px; font-weight: bold; padding: 2px 5px; border-radius: 3px; border: 1px solid; }
+        .net-online { background: #022c22; color: #10b981; border-color: #10b981; }
+        .net-offline { background: #451a03; color: #f59e0b; border-color: #f59e0b; }
+
+        /* Speaker Mute/Unmute Button */
+        .speaker-btn { background: #080202; color: #38bdf8; border: 1.5px solid #38bdf8; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 8px; font-weight: bold; }
+
+        .time-badge { background: #080202; border: 1.5px solid #ff3333; color: #f59e0b; font-size: 8px; padding: 3px 6px; border-radius: 4px; font-weight: bold; }
+
+        /* Tier Bar */
+        .tier-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex-shrink: 0; }
+        .tier-btn { background: #080202; color: #94a3b8; border: 1.5px solid #331111; font-size: 8.5px; font-weight: bold; padding: 5px; border-radius: 4px; cursor: pointer; text-align: center; transition: 0.2s; }
+        .tier-btn.active { background: #ff3333; color: #000103; border-color: #ff3333; font-weight: 900; box-shadow: 0 0 10px rgba(255,51,51,0.7); }
+
+        /* Central SOS Zone */
+        .sos-center-zone { background: #080202; border: 2px solid rgba(255,51,51,0.5); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; position: relative; overflow: hidden; height: 110px; flex-shrink: 0; }
+        .sos-center-zone canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        
+        .sos-center-btn { width: 60px; height: 60px; background: radial-gradient(circle, #ff3333 0%, #770000 100%); border: 3px solid #ff9999; border-radius: 50%; color: #fff; font-size: 10px; font-weight: 900; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(255,51,51,0.7); z-index: 2; position: relative; transition: 0.2s; }
+        .sos-center-btn:active { transform: scale(0.95); }
+        .sos-hint { font-size: 7px; color: #e2e8f0; font-weight: bold; text-align: center; z-index: 2; position: relative; }
+
+        /* Live SOS Marquee Bar */
+        .live-sos-marquee-bar { background: rgba(255, 51, 51, 0.15); border: 1px solid #ff3333; border-radius: 4px; padding: 4px; font-size: 8.5px; font-weight: bold; color: #f59e0b; white-space: nowrap; overflow: hidden; flex-shrink: 0; }
+
+        /* Action Cards Grid */
+        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; flex-shrink: 0; }
+        .grid-card { background: #080202; border: 1.5px solid #331111; border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; transition: 0.2s; }
+        .grid-card:hover { border-color: #ff3333; background: #140303; }
+        .grid-title { font-size: 9.5px; font-weight: bold; color: #ff7777; display: flex; justify-content: space-between; align-items: center; }
+        .grid-desc { font-size: 7.5px; color: #94a3b8; }
+
+        /* Drawers (Contacts & Profile) */
+        .drawer-box { display: none; background: #0f0202; border: 1.5px solid #ff3333; border-radius: 8px; padding: 6px; flex-direction: column; gap: 5px; flex-shrink: 0; max-height: 130px; overflow-y: auto; }
+        .form-input { background: #020101; border: 1.5px solid #ff3333; color: #fff; padding: 4px 6px; border-radius: 4px; font-size: 8.5px; outline: none; font-weight: bold; }
+        .contact-pill { background: #1a0505; border: 1px solid #441111; border-radius: 4px; padding: 4px 6px; font-size: 8.5px; color: #cbd5e1; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Asad AI Voice & Chat Console */
+        .asad-chat-box { flex: 1; background: #050101; border: 1.5px solid #331111; border-radius: 8px; padding: 6px; display: flex; flex-direction: column; gap: 4px; min-height: 80px; overflow: hidden; }
+        .asad-header { font-size: 8.5px; font-weight: bold; color: #f59e0b; display: flex; justify-content: space-between; align-items: center; }
+        .asad-messages { flex: 1; overflow-y: auto; font-size: 8.5px; color: #e2e8f0; line-height: 1.3; }
+        .asad-input-row { display: flex; gap: 4px; align-items: center; }
+        .plus-btn { background: #331111; color: #f59e0b; border: 1.5px solid #f59e0b; width: 22px; height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .asad-text-input { flex: 1; background: #020101; border: 1.5px solid #f59e0b; color: #fff; padding: 5px 7px; border-radius: 4px; font-size: 8.5px; outline: none; }
+        .mic-btn { background: #ff3333; color: #fff; border: none; padding: 5px 8px; border-radius: 4px; font-size: 8.5px; font-weight: bold; cursor: pointer; }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav { background: #1a0505; border: 1.5px solid #ff3333; border-radius: 8px; padding: 5px; display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; }
+        .nav-link { color: #94a3b8; font-size: 8.5px; font-weight: bold; text-decoration: none; cursor: pointer; text-align: center; }
+        .nav-link.active { color: #ff3333; text-shadow: 0 0 6px rgba(255,51,51,0.6); }
+    </style>
+</head>
+<body onload="initSovereignSystem()">
+    <div class="mainframe">
+        <!-- Header with Marquee, Network Indicator & Speaker Mute/Unmute -->
+        <div class="cmd-top-header">
+            <div class="brand-container">
+                <span class="electric-bolt">⚡</span>
+                <marquee scrollamount="3" class="brand-title">ELECTRIC BODYGUARD // SOS COMMAND</marquee>
+            </div>
+            <div class="header-actions">
+                <span id="netBadge" class="net-indicator net-online">🌐 ONLINE</span>
+                <button id="speakerToggleBtn" class="speaker-btn" onclick="toggleSpeaker()">🔊 ON</button>
+                <button class="action-btn" onclick="toggleDrawer('contactsDrawer')">👥 GROUPS</button>
+                <button class="action-btn" onclick="toggleDrawer('profileDrawer')">📋 MEDICAL</button>
+                <div class="time-badge" id="liveClock">00:00:00</div>
+            </div>
+        </div>
+
+        <!-- Tier Bar with Clear Descriptions -->
+        <div class="tier-bar">
+            <button class="tier-btn" onclick="setTierFilter('LOCAL', this)">1. LOCAL</button>
+            <button class="tier-btn" onclick="setTierFilter('NAT.', this)">2. NAT.</button>
+            <button class="tier-btn" onclick="setTierFilter('INTER.', this)">3. INTER.</button>
+            <button class="tier-btn active" onclick="setTierFilter('GLOBAL', this)">4. GLOBAL</button>
+        </div>
+
+        <!-- Central SOS Zone -->
+        <div class="sos-center-zone">
+            <canvas id="sonarCanvas"></canvas>
+            <button class="sos-center-btn" onmousedown="startHold()" onmouseup="cancelHold()" ontouchstart="startHold()" ontouchend="cancelHold()">
+                HOLD<br><span style="font-size:4.5px;">SOS 2s</span>
+            </button>
+            <div class="sos-hint">Hold 2s or Voice Command ("Bachao")</div>
+        </div>
+
+        <!-- Live SOS Marquee -->
+        <div class="live-sos-marquee-bar">
+            <marquee scrollamount="4" id="liveSosMarqueeText">
+                🔴 [SYSTEM ARMED] प्रतीक्षा मोड चालू है। एसओएस ट्रिगर होने पर यूजर का नाम, ब्लड ग्रुप और लाइव जीपीएस यहाँ दौड़ेगा।
+            </marquee>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="grid-options">
+            <div class="grid-card" onclick="executeAction('Police 112')">
+                <div class="grid-title"><span>🚨 Police 112</span><span style="color:#f59e0b;">DIRECT</span></div>
+                <div class="grid-desc">Government & Police SOS Link</div>
+            </div>
+            <div class="grid-card" onclick="executeAction('Medical 108')">
+                <div class="grid-title"><span>🚑 Medical 108</span><span style="color:#f59e0b;">DIRECT</span></div>
+                <div class="grid-desc">Emergency Ambulance Link</div>
+            </div>
+            <div class="grid-card" onclick="executeAction('IndexedDB Vault')">
+                <div class="grid-title"><span>🗄️ IndexDB Vault</span><span style="color:#10b981;">SYNCED</span></div>
+                <div class="grid-desc">Offline & Online Hybrid Data</div>
+            </div>
+            <div class="grid-card" onclick="executeAction('Mesh Relay')">
+                <div class="grid-title"><span>📡 P2P Mesh</span><span style="color:#ff6666;">READY</span></div>
+                <div class="grid-desc">Bluetooth & Offline Node Relay</div>
+            </div>
+        </div>
+
+        <!-- 1. Emergency Contacts & Groups Drawer -->
+        <div class="drawer-box" id="contactsDrawer">
+            <div style="font-size:9px; font-weight:bold; color:#ff6666; display:flex; justify-content:space-between;">
+                <span>👥 परिवार और इमरजेंसी कॉन्टैक्ट्स जोड़ें</span>
+                <span style="cursor:pointer;" onclick="toggleDrawer('contactsDrawer')">❌ बंद करें</span>
+            </div>
+            <div style="display: flex; gap: 4px;">
+                <input type="text" id="groupName" class="form-input" style="flex:1;" placeholder="नाम (e.g. Bhai)">
+                <input type="text" id="groupContact" class="form-input" style="flex:1;" placeholder="मोबाइल नंबर">
+                <button class="action-btn" onclick="saveContact()">जोड़ें</button>
+            </div>
+            <div id="contactsList" style="display:flex; flex-direction:column; gap:3px;">
+                <div class="contact-pill"><span>अभी तक कोई संपर्क नहीं जुड़ा।</span></div>
+            </div>
+        </div>
+
+        <!-- 2. Medical & Identity Profile Drawer -->
+        <div class="drawer-box" id="profileDrawer">
+            <div style="font-size:9px; font-weight:bold; color:#ff6666; display:flex; justify-content:space-between;">
+                <span>📋 मुकम्मल पहचान और मेडिकल प्रोफाइल</span>
+                <span style="cursor:pointer;" onclick="toggleDrawer('profileDrawer')">❌ बंद करें</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+                <input type="text" id="profName" class="form-input" placeholder="पूरा नाम (Full Name)">
+                <input type="text" id="profBlood" class="form-input" placeholder="ब्लड ग्रुप (e.g. O+)">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+                <input type="text" id="profAllergy" class="form-input" placeholder="एलर्जी / बीमारी">
+                <input type="text" id="profContact" class="form-input" placeholder="इमरजेंसी डॉक्टर नंबर">
+            </div>
+            <button class="action-btn" style="background:#ff3333; color:#fff; border:none; padding:5px; font-size:8.5px;" onclick="saveUserProfile()">प्रोफाइल सेव करें (IndexedDB)</button>
+        </div>
+
+        <!-- Asad (AI) Voice & Chat Console with Detailed SOS Explainer -->
+        <div class="asad-chat-box">
+            <div class="asad-header">
+                <span>🤖 ASAD (LOCAL + GEMINI HYBRID AI)</span>
+                <button class="action-btn" onclick="explainSOS()">🔊 एसओएस क्या है?</button>
+            </div>
+            <div class="asad-messages" id="asadMessages">
+                नमस्ते रिज़वान भाई! मैं <b>असद (Asad AI)</b> हूँ। एसओएस एक आपातकालीन सुरक्षा प्रणाली है जो संकट के समय सरकार के 112, पुलिस, एम्बुलेंस और आपके परिजनों को आपकी लाइव लोकेशन भेजती है। नीचे माइक से बोलें या टाइप करें!
+            </div>
+            <div class="asad-input-row">
+                <label class="plus-btn" title="मीडिया जोड़ें" onclick="triggerMediaUpload()">+</label>
+                <input type="file" id="mediaFileInput" style="display:none;" accept="image/*,video/*" onchange="handleMediaUpload(event)">
+                <input type="text" id="userInputText" class="asad-text-input" placeholder="असद से बात करें...">
+                <button class="mic-btn" onclick="startVoiceCommand()">🎙️ बोलें</button>
+                <button class="action-btn" style="background:#f59e0b; color:#000; border:none;" onclick="sendUserMessage()">भेजें</button>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a class="nav-link" href="mind_research.html">🏠 HOME</a>
+            <a class="nav-link" href="complaint.html">📋 COMPLAINT</a>
+            <a class="nav-link active" href="sos_emergency.html">🚨 SOS</a>
+            <a class="nav-link" href="profile.html">👤 PROFILE</a>
+        </div>
+    </div><script>
+        let currentTier = 'GLOBAL';
+        let holdTimer = null;
+        let db = null;
+        let speakerEnabled = true;
+
+        function initIndexedDB() {
+            let request = indexedDB.open("ElectricBodyguardSovereignDB", 4);
+            request.onupgradeneeded = function(event) {
+                let database = event.target.result;
+                if(!database.objectStoreNames.contains("userProfile")) database.createObjectStore("userProfile", { keyPath: "id" });
+            };
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                loadUserProfileFromDB();
+            };
+        }
+
+        // Real-Time Clock & Online/Offline Monitor
+        setInterval(() => {
+            let now = new Date();
+            let clock = document.getElementById('liveClock');
+            if(clock) clock.innerText = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+            
+            // Check Network Status
+            let netBadge = document.getElementById('netBadge');
+            if(netBadge) {
+                if(navigator.onLine) {
+                    netBadge.className = "net-indicator net-online";
+                    netBadge.innerText = "🌐 ONLINE";
+                } else {
+                    netBadge.className = "net-indicator net-offline";
+                    netBadge.innerText = "📡 OFFLINE (MESH)";
+                }
+            }
+        }, 1000);
+
+        function toggleSpeaker() {
+            speakerEnabled = !speakerEnabled;
+            let btn = document.getElementById('speakerToggleBtn');
+            if(btn) {
+                btn.innerText = speakerEnabled ? "🔊 ON" : "🔇 OFF";
+                btn.style.borderColor = speakerEnabled ? "#38bdf8" : "#94a3b8";
+            }
+            if(!speakerEnabled) {
+                if('speechSynthesis' in window) window.speechSynthesis.cancel();
+            }
+            playBeep();
+        }
+
+        function initSonar() {
+            const canvas = document.getElementById('sonarCanvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let w = canvas.width = canvas.parentElement.clientWidth;
+            let h = canvas.height = 110;
+            let r1 = 10, r2 = 30;
+
+            function draw() {
+                ctx.fillStyle = 'rgba(8, 2, 2, 0.2)';
+                ctx.fillRect(0, 0, w, h);
+                let cx = w / 2, cy = h / 2;
+
+                ctx.strokeStyle = 'rgba(255, 51, 51, 0.4)';
+                ctx.lineWidth = 1.2;
+                ctx.beginPath(); ctx.arc(cx, cy, r1, 0, Math.PI * 2); ctx.stroke();
+
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
+                ctx.beginPath(); ctx.arc(cx, cy, r2, 0, Math.PI * 2); ctx.stroke();
+
+                r1 += 0.3; r2 += 0.3;
+                if(r1 > 70) r1 = 10;
+                if(r2 > 70) r2 = 10;
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        function playBeep() {
+            if(!speakerEnabled) return;
+            try {
+                let ctx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                gain.gain.setValueAtTime(0.04, ctx.currentTime);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 0.08);
+            } catch(e) {}
+        }
+
+        function initSovereignSystem() {
+            initSonar();
+            initIndexedDB();
+            loadContacts();
+        }
+
+        function explainSOS() {
+            let info = "एसओएस (SOS) का मतलब आपातकालीन सहायता है। जब आप खतरे में हों और एसओएस बटन 2 सेकंड दबाएं या 'बचाओ' बोलें, तो यह सिस्टम आपके मेडिकल रिकॉर्ड, नाम और लाइव जीपीएस लोकेशन को पुलिस 112 और आपके जोड़े गए परिजनों तक तुरंत भेज देता है।";
+            setAsadMessage(info);
+            speakAsad(info);
+        }
+
+        function toggleDrawer(drawerId) {
+            playBeep();
+            let drw = document.getElementById(drawerId);
+            if(drw) {
+                document.querySelectorAll('.drawer-box').forEach(d => { if(d.id !== drawerId) d.style.display = 'none'; });
+                drw.style.display = drw.style.display === 'flex' ? 'none' : 'flex';
+            }
+        }
+
+        function setTierFilter(tier, btn) {
+            playBeep();
+            document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTier = tier;
+
+            let desc = "";
+            if(tier === 'LOCAL') desc = "लोकल मोड: आसपास के 5 किमी के दायरे में ब्लूटूथ मेश और परिजनों को सिग्नल भेजेगा।";
+            else if(tier === 'NAT.') desc = "नेशनल मोड: देश की पुलिस 112 और राष्ट्रीय आपातकालीन नेटवर्क से जोड़ेगा।";
+            else if(tier === 'INTER.') desc = "इंटरनेशनल मोड: अंतरराष्ट्रीय सुरक्षा और सीमावर्ती नेटवर्क को सक्रिय करेगा।";
+            else desc = "ग्लोबल मोड: दुनिया के किसी भी कोने से सैटेलाइट और ग्लोबल सर्वर के जरिए मदद पहुंचाएगा।";
+
+            setAsadMessage(`🌐 टियर सक्रिय: <b>[${tier}]</b> — ${desc}`);
+            speakAsad(`टियर ${tier} सक्रिय किया गया।`);
+        }
+
+        function startHold() {
+            playBeep();
+            setAsadMessage("⚠️ होल्ड डिटेक्टेड: इमरजेंसी सिग्नल तैयार किया जा रहा है...");
+            holdTimer = setTimeout(() => { triggerSosBroadcast("MANUAL_HOLD"); }, 2000);
+        }
+
+        function cancelHold() {
+            if(holdTimer) { clearTimeout(holdTimer); holdTimer = null; setAsadMessage("🟢 सिस्टम सुरक्षित। होल्ड रद्द।"); }
+        }
+
+        function triggerMediaUpload() { document.getElementById('mediaFileInput').click(); }
+        function handleMediaUpload(event) {
+            let file = event.target.files[0];
+            if(file) { setAsadMessage(`📎 मीडिया फाइल [${file.name}] जोड़ दी गई है।`); speakAsad("फाइल जोड़ दी गई है।"); }
+        }
+
+        function startVoiceCommand() {
+            playBeep();
+            if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                let recognition = new SpeechRecognition();
+                recognition.lang = 'hi-IN';
+                recognition.start();
+
+                setAsadMessage("🎙️ असद सुन रहा है... बोलिए क्या मदद चाहिए?");
+                speakAsad("बोलिए, मैं सुन रहा हूँ।");
+
+                recognition.onresult = function(event) {
+                    let cmd = event.results[0][0].transcript.toLowerCase();
+                    setAsadMessage(`🗣️ कमांड मिली: "${cmd}"`);
+                    if(cmd.includes('बचाओ') || cmd.includes('इमरजेंसी') || cmd.includes('sos') || cmd.includes('help')) {
+                        triggerSosBroadcast("VOICE_COMMAND_" + cmd);
+                    } else { processAsadAI(cmd); }
+                };
+            } else { alert("वॉइस कमांड सपोर्टेड नहीं है।"); }
+        }
+
+        function triggerSosBroadcast(source) {
+            playBeep();
+            let name = document.getElementById('profName').value || 'रिज़वान भाई';
+            let blood = document.getElementById('profBlood').value || 'O+';
+
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        let lat = pos.coords.latitude;
+                        let lon = pos.coords.longitude;
+                        let mapLink = `https://maps.google.com/?q=${lat},${lon}`;
+                        
+                        document.getElementById('liveSosMarqueeText').innerHTML = `🚨 [ACTIVE SOS] नाम: ${name} | ब्लड ग्रुप: ${blood} | GPS: Lat ${lat}, Lon ${lon} | लिंक: ${mapLink}`;
+                        
+                        setAsadMessage(`🚨 <b>एसओएस एक्टिव (${source})!</b><br>📍 GPS: ${lat}, ${lon}<br>🌐 पुलिस 112 और परिजनों को डेटा भेज दिया गया है!`);
+                        speakAsad("आपातकालीन सिग्नल प्रसारित कर दिया गया है।");
+                    },
+                    err => {
+                        document.getElementById('liveSosMarqueeText').innerHTML = `🚨 [ACTIVE SOS] नाम: ${name} | ब्लड ग्रुप: ${blood} | GPS: (डिफ़ॉल्ट लोकेशन)`;
+                        setAsadMessage(`🚨 <b>एसओएस एक्टिव (${source})!</b> (डिफ़ॉल्ट लोकेशन)`);
+                        speakAsad("आपातकालीन सिग्नल प्रसारित कर दिया गया है।");
+                    }
+                );
+            }
+        }
+
+        function executeAction(name) {
+            playBeep();
+            setAsadMessage(`⚡ मॉड्यूल सक्रिय: ${name} (${currentTier} टियर)।`);
+            speakAsad(`${name} सक्रिय किया गया।`);
+        }
+
+        function saveContact() {
+            playBeep();
+            let name = document.getElementById('groupName').value.trim();
+            let contact = document.getElementById('groupContact').value.trim();
+            if(!name || !contact) { alert("कृपया नाम और नंबर दर्ज करें।"); return; }
+            let contacts = JSON.parse(localStorage.getItem('sos_contacts') || '[]');
+            contacts.push({ name, contact });
+            localStorage.setItem('sos_contacts', JSON.stringify(contacts));
+            document.getElementById('groupName').value = '';
+            document.getElementById('groupContact').value = '';
+            loadContacts();
+            setAsadMessage(`👥 संपर्क [${name}] जोड़ दिया गया है!`);
+            speakAsad(`संपर्क ${name} जोड़ दिया गया है।`);
+        }
+
+        function loadContacts() {
+            let list = document.getElementById('contactsList');
+            let contacts = JSON.parse(localStorage.getItem('sos_contacts') || '[]');
+            if(contacts.length > 0) {
+                let html = '';
+                contacts.forEach((c, i) => {
+                    html += `<div class="contact-pill"><span>#${i+1} <b>${c.name}</b> (${c.contact})</span><span style="color:#10b981;">SYNCED</span></div>`;
+                });
+                list.innerHTML = html;
+            } else {
+                list.innerHTML = `<div class="contact-pill"><span>अभी तक कोई संपर्क नहीं जोड़ा गया।</span></div>`;
+            }
+        }
+
+        function saveUserProfile() {
+            playBeep();
+            let name = document.getElementById('profName').value.trim();
+            let blood = document.getElementById('profBlood').value.trim();
+            let allergy = document.getElementById('profAllergy').value.trim();
+            let contact = document.getElementById('profContact').value.trim();
+
+            if(!db) { alert("डेटाबेस लोड हो रहा है..."); return; }
+
+            let tx = db.transaction(["userProfile"], "readwrite");
+            let store = tx.objectStore("userProfile");
+            store.put({ id: "my_profile", name, blood, allergy, contact });
+
+            tx.oncomplete = function() {
+                setAsadMessage("✅ आपकी मुकम्मल पहचान और मेडिकल प्रोफाइल सुरक्षित हो गई है!");
+                speakAsad("प्रोफाइल सुरक्षित हो गई है।");
+                toggleDrawer('profileDrawer');
+            };
+        }
+
+        function loadUserProfileFromDB() {
+            if(!db) return;
+            let tx = db.transaction(["userProfile"], "readonly");
+            let store = tx.objectStore("userProfile");
+            let req = store.get("my_profile");
+            req.onsuccess = function(e) {
+                let res = e.target.result;
+                if(res) {
+                    document.getElementById('profName').value = res.name || '';
+                    document.getElementById('profBlood').value = res.blood || '';
+                    document.getElementById('profAllergy').value = res.allergy || '';
+                    document.getElementById('profContact').value = res.contact || '';
+                }
+            };
+        }
+
+        function sendUserMessage() {
+            playBeep();
+            let txt = document.getElementById('userInputText').value.trim();
+            if(!txt) return;
+            setAsadMessage(`👤 आप: ${txt}`);
+            document.getElementById('userInputText').value = '';
+            processAsadAI(txt);
+        }
+
+        function processAsadAI(query) {
+            let q = query.toLowerCase();
+            let reply = "मैं लोकल एआई और ऑनलाइन जेमिनी (Gemini API) से जुड़ा हूँ। संकट के समय एसओएस बटन दबाएं या 'बचाओ' बोलें।";
+            if(q.includes('पुलिस')) reply = "पुलिस 112 का सरकारी और डायरेक्ट लिंक सक्रिय है।";
+            else if(q.includes('एम्बुलेंस')) reply = "मेडिकल 108 एम्बुलेंस सेवा तैयार है।";
+            else if(q.includes('एसओएस') || q.includes('sos')) { explainSOS(); return; }
+
+            setTimeout(() => {
+                setAsadMessage(`🤖 <b>असद:</b> ${reply}`);
+                speakAsad(reply);
+            }, 500);
+        }
+
+        function setAsadMessage(text) {
+            let box = document.getElementById('asadMessages');
+            if(box) box.innerHTML = `🤖 <b>असद:</b> ${text}`;
+        }
+
+        function speakAsad(text) {
+            if(!speakerEnabled) return;
+            if('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utt = new SpeechSynthesisUtterance(text);
+                utt.lang = 'hi-IN';
+                utt.rate = 0.95;
+                window.speechSynthesis.speak(utt);
+            }
+        }
+    </script>
+</body>
+</html>

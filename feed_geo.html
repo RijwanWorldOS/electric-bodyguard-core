@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Supreme Apex Nexus : 100% Bullet-Proof Sovereign Engine</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { background-color: #000; color: #f0f6fc; height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        .feed-frame { 
+            width: 100% !important; max-width: 480px !important; height: 100% !important; max-height: 100vh !important;
+            background: #081423 !important; border: 2px solid #00ff66 !important; border-radius: 0px !important; 
+            padding: 8px !important; box-shadow: 0 25px 60px rgba(0,255,102,0.3) !important; 
+            display: flex !important; flex-direction: column !important; gap: 6px !important; position: relative !important; overflow: hidden !important; 
+        }
+        @media(min-width: 481px) {
+            .feed-frame { height: 96vh !important; max-height: 920px !important; border-radius: 14px !important; }
+        }
+        
+        .header-box { display: flex; justify-content: space-between; align-items: center; background: rgba(0,255,102,0.15); border: 2px solid #00ff66; padding: 6px 8px; border-radius: 8px; flex-shrink: 0; }
+        .brand-title-box { overflow: hidden; width: 45%; white-space: nowrap; }
+        .brand-title { font-size: 8px; font-weight: 900; color: #00ff66; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
+        
+        .header-actions { display: flex; gap: 3px; align-items: center; }
+        .bridge-btn { font-size: 7px; background: rgba(241,196,15,0.25); color: #f1c40f; border: 1px solid #f1c40f; padding: 3px 5px; border-radius: 4px; font-weight: bold; cursor: pointer; text-decoration: none; }
+
+        /* Global Scale Hierarchy Bar */
+        .scale-bar { display: flex; gap: 4px; padding: 2px 0; flex-shrink: 0; justify-content: space-between; }
+        .scale-btn { background: #030712; border: 1px solid #00f3ff; color: #00f3ff; font-size: 7px; font-weight: bold; padding: 4px 6px; border-radius: 4px; cursor: pointer; flex: 1; text-align: center; }
+        .scale-btn.active { background: #00f3ff; color: #030712; font-weight: 900; }
+
+        /* Dynamic Stories Pipeline Row */
+        .stories-pipeline { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0; flex-shrink: 0; scrollbar-width: none; }
+        .stories-pipeline::-webkit-scrollbar { display: none; }
+        .story-ring { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #00ff66; padding: 2px; flex-shrink: 0; cursor: pointer; background: rgba(0,255,102,0.1); display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: bold; text-align: center; color: #00ff66; overflow: hidden; }
+        .story-ring.add-story { border-color: #00f3ff; color: #00f3ff; background: rgba(0,243,255,0.1); }
+
+        .top-ai-bar {
+            background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; color: #00f3ff;
+            font-size: 7px; font-weight: bold; padding: 4px 6px; border-radius: 5px;
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .ai-inline-controls { display: flex; align-items: center; gap: 4px; }
+        
+        .net-status-badge { display: flex; align-items: center; gap: 3px; font-size: 6.5px; padding: 2px 4px; border-radius: 3px; border: 1px solid #00ff66; background: rgba(0,255,102,0.1); color: #00ff66; }
+        .net-dot { width: 5px; height: 5px; border-radius: 50%; background: #00ff66; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .lang-select { background: #030712; color: #00f3ff; border: 1px solid #00f3ff; font-size: 7px; font-weight: bold; padding: 2px 4px; border-radius: 3px; cursor: pointer; }
+
+        .live-ticker-bar {
+            background: rgba(241,196,15,0.15); border: 1px solid #f1c40f; color: #f1c40f;
+            font-size: 8px; font-weight: bold; padding: 4px 6px; border-radius: 5px; overflow: hidden; white-space: nowrap; flex-shrink: 0;
+        }
+        .live-ticker-bar marquee { width: 100%; }
+
+        .filter-bar { display: flex; gap: 5px; overflow-x: auto; padding: 4px 0; flex-shrink: 0; scrollbar-width: thin; scrollbar-color: #00ff66 #030712; }
+        .filter-bar::-webkit-scrollbar { height: 4px; }
+        .filter-bar::-webkit-scrollbar-thumb { background: #00ff66; border-radius: 2px; }
+        
+        .filter-btn { background: #030712; border: 1.5px solid #00ff66; color: #00ff66; font-size: 8px; font-weight: bold; padding: 5px 8px; border-radius: 6px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .filter-btn.active { background: #00ff66; color: #030712; }
+
+        .switch { position: relative; display: inline-block; width: 22px; height: 11px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .3s; border-radius: 11px; border: 1px solid #00f3ff; }
+        .slider:before { position: absolute; content: ""; height: 7px; width: 7px; left: 1px; bottom: 1px; background-color: #00f3ff; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #00f3ff; }
+        input:checked + .slider:before { transform: translateX(11px); background-color: #030712; }
+    </style>
+</head>
+<body onload="initMasterBodyguardEngine()">
+    <div class="feed-frame">
+        <!-- Header with Electric Bodyguard Running Brand -->
+        <div class="header-box">
+            <div class="brand-title-box">
+                <marquee behavior="scroll" direction="left" scrollamount="3">
+                    <span class="brand-title" id="brandTitleText">SUPREME APEX NEXUS &bull; ELECTRIC BODYGUARD P2P MESH</span>
+                </marquee>
+            </div>
+            <div class="header-actions">
+                <a href="feed_geo.html" class="bridge-btn" id="navGeoRadar">Geo Radar</a>
+                <a href="nukkad_share_maeKet.html" class="bridge-btn" id="navMarket">Market</a>
+            </div>
+        </div>
+
+        <!-- Global Scale Hierarchy Bar -->
+        <div class="scale-bar">
+            <button class="scale-btn active" onclick="filterScale('Local', 'लोकल (पिन-कोड)', this)">📍 Local</button>
+            <button class="scale-btn" onclick="filterScale('National', 'नेशनल (राज्य)', this)">🇮🇳 National</button>
+            <button class="scale-btn" onclick="filterScale('International', 'इंटरनेशनल (देश)', this)">🌐 Inter</button>
+            <button class="scale-btn" onclick="filterScale('Global', 'ग्लोबल (दुनिया)', this)">🌍 Global</button>
+            <button class="scale-btn" onclick="filterScale('All_VIP', 'ऑल VIP नेटवर्क्स', this)">⭐ All VIP</button>
+        </div>
+
+        <!-- Dynamic Stories Pipeline Row -->
+        <div class="stories-pipeline" id="dynamicStoriesRow">
+            <a href="studio.html" class="story-ring add-story">➕ Add</a>
+            <div class="story-ring" id="storyItem1">🌾 Kisan</div>
+            <div class="story-ring" id="storyItem2">📦 Bulk</div>
+            <div class="story-ring" id="storyItem3">📍 P2P</div>
+        </div>
+
+        <!-- Top AI, Mic & Network Bar -->
+        <div class="top-ai-bar">
+            <div class="net-status-badge" id="netBadge">
+                <div class="net-dot" id="netDot"></div>
+                <span id="netText">BODYGUARD ACTIVE</span>
+            </div>
+            <div class="ai-inline-controls">
+                <select id="langSelector" class="lang-select" onchange="changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                </select>
+                <button id="aiMicBtn" style="background:#00f3ff; color:#030712; border:none; font-size:7px; font-weight:bold; padding:2px 5px; border-radius:3px; cursor:pointer;" onclick="startSpeechRecognition()">🎙️ Speak</button>
+                <label class="switch" title="Toggle AI Voice">
+                    <input type="checkbox" id="aiToggle" checked onchange="toggleAIEngine()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="live-ticker-bar">
+            <marquee behavior="scroll" direction="left" scrollamount="4" id="tickerText">
+                [ELECTRIC BODYGUARD 100% P2P MESH]: Crash-Proof IndexedDB + Direct P2P Broadcast Active
+            </marquee>
+        </div>
+
+        <!-- 15 Business Categories Master Filter Bar -->
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterBiz('kisan', 'Farmer', 'किसान', this)">1. Farmer</button>
+            <button class="filter-btn" onclick="filterBiz('mazdoor', 'Labor', 'मजदूर', this)">2. Labor</button>
+            <button class="filter-btn" onclick="filterBiz('driver', 'Driver', 'ड्राइवर', this)">3. Driver</button>
+            <button class="filter-btn" onclick="filterBiz('karigar', 'Artisan', 'कारीगर', this)">4. Artisan</button>
+            <button class="filter-btn" onclick="filterBiz('chhoti_dukaan', 'Small Shop', 'छोटी दुकान', this)">5. Small Shop</button>
+            <button class="filter-btn" onclick="filterBiz('badi_dukaan', 'Wholesale', 'बड़ी दुकान', this)">6. Wholesale</button>
+            <button class="filter-btn" onclick="filterBiz('factory', 'Factory', 'फैक्ट्री', this)">7. Factory</button>
+            <button class="filter-btn" onclick="filterBiz('mechanic', 'Mechanic', 'मैकेनिक', this)">8. Mechanic</button>
+            <button class="filter-btn" onclick="filterBiz('electrician', 'Electrician', 'इलेक्ट्रीशियन', this)">9. Electrician</button>
+            <button class="filter-btn" onclick="filterBiz('plumber', 'Plumber', 'प्लंबर', this)">10. Plumber</button>
+            <button class="filter-btn" onclick="filterBiz('thelawala', 'Vendor', 'ठेलावाला', this)">11. Vendor</button>
+            <button class="filter-btn" onclick="filterBiz('scrapdealer', 'Scrap Dealer', 'कबाड़ीवाला', this)">12. Scrap</button>
+            <button class="filter-btn" onclick="filterBiz('contractor', 'Contractor', 'ठेकेदार', this)">13. Contractor</button>
+            <button class="filter-btn" onclick="filterBiz('doctor_vaidya', 'Medic/Vaidya', 'वैध/डॉक्टर', this)">14. Medic</button>
+            <button class="filter-btn" onclick="filterBiz('others', 'General Services', 'अन्य सेवाएं', this)">15. Others</button>
+        </div><!-- Feed Container -->
+        <div class="feed-container" id="bizFeedStream" style="flex: 1; min-height: 0; background: #030712; border: 1px solid rgba(0,255,102,0.2); border-radius: 8px; padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+            <div class="feed-card" id="activeCard" style="background: linear-gradient(135deg, rgba(0,255,102,0.08), rgba(0,243,255,0.03)); border: 1px solid rgba(0,255,102,0.35); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 6px;">
+                <div class="feed-title" style="font-size: 9.5px; font-weight: bold; color: #00ff66; display: flex; justify-content: space-between; align-items: center;">
+                    <span id="cardTitle">1. Farmer Supply Node [100% P2P]</span>
+                    <span style="color:#00ff66;" id="scaleStatusBadge">Bodyguard Shielded</span>
+                </div>
+                <div class="feed-desc" id="cardDesc" style="font-size: 8px; color: #8b949e; line-height: 1.4;">Electric Bodyguard 100% autonomous system active. Crash-proof IndexedDB + P2P direct broadcast operational[span_0](start_span)[span_0](end_span).</div>
+
+                <div class="social-bar" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,255,102,0.2); padding-top: 6px; margin-top: 4px;">
+                    <button class="social-action-btn p2p-connect-btn" id="peerBtn" onclick="togglePeerConnection(this)" style="background:rgba(0,243,255,0.1); border:1px solid #00f3ff; color:#00f3ff; font-size:7.5px; font-weight:bold; padding:3px 6px; border-radius:4px; cursor:pointer;">P2P Broadcast Active</button>
+                    <button class="social-action-btn" id="supportBtn" onclick="toggleSupport(this)" style="background:#030712; border:1px solid rgba(0,255,102,0.4); color:#00ff66; font-size:7.5px; font-weight:bold; padding:3px 6px; border-radius:4px; cursor:pointer;">Support (<span class="support-count">24</span>)</button>
+                    <a href="chat.html" class="social-action-btn" style="background:#030712; border:1px solid rgba(0,255,102,0.4); color:#00ff66; font-size:7.5px; font-weight:bold; padding:3px 6px; border-radius:4px; text-decoration:none;">Direct Chat</a>
+                    <a href="feed_geo.html" class="social-action-btn" style="border-color:#f1c40f; color:#f1c40f; background:#030712; border:1px solid #f1c40f; font-size:7.5px; font-weight:bold; padding:3px 6px; border-radius:4px; text-decoration:none;">📍 Geo-Radar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="nav-bottom" style="display: flex; gap: 4px; background: #030712; padding: 6px; border-radius: 8px; border: 1px solid rgba(0,255,102,0.2); justify-content: space-around; align-items: center; flex-shrink: 0;">
+            <a href="index.html" class="nav-link" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Home</a>
+            <a href="feed_geo.html" class="nav-link" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Geo</a>
+            <a href="studio.html" class="nav-link studio-highlight" style="background: rgba(0,255,102,0.15); color: #00ff66; border: 1px solid #00ff66; font-size: 7.5px; font-weight: 900; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">➕ Studio</a>
+            <a href="nukkad_share_maeKet.html" class="nav-link" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Nukkad</a>
+            <a href="profile.html" class="nav-link" style="background: #030712; color: #8b949e; border: 1px solid #fff; font-size: 7.5px; font-weight: bold; padding: 5px 6px; border-radius: 4px; text-decoration: none; text-align: center; flex: 1;">Profile</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        let aiEnabled = true;
+        let currentLang = 'en';
+        let currentCategoryNameEn = 'Farmer';
+        let currentCategoryNameHi = 'किसान';
+        let currentScaleName = 'Local';
+        let dbInstance = null;
+        let p2pChannel = null;
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAT13EhtnIOCk17KPLwPwhw_GJotsBNiA",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const rtdb = firebase.database();
+
+        function initMasterBodyguardEngine() {
+            initCrashProofIndexedDB();
+            initP2PMeshBroadcast();
+            updateNetworkStatus();
+            window.addEventListener('online', handleNetworkOnline);
+            window.addEventListener('offline', updateNetworkStatus);
+            
+            let bodyguardID = localStorage.getItem('electric_bodyguard_id');
+            if (!bodyguardID) {
+                bodyguardID = 'BODYGUARD-100-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                localStorage.setItem('electric_bodyguard_id', bodyguardID);
+            }
+        }
+
+        // Crash-Proof IndexedDB Layer
+        function initCrashProofIndexedDB() {
+            try {
+                const request = indexedDB.open('ElectricBodyguardMasterDB', 2);
+                request.onsuccess = function(event) {
+                    dbInstance = event.target.result;
+                    syncOfflineQueueToFirebase();
+                };
+                request.onupgradeneeded = function(event) {
+                    let db = event.target.result;
+                    if (!db.objectStoreNames.contains('master_nodes')) {
+                        db.createObjectStore('master_nodes', { keyPath: 'id', autoIncrement: true });
+                    }
+                };
+            } catch (err) {
+                console.error("IndexedDB error: ", err);
+            }
+        }
+
+        // P2P Broadcast Channel Layer
+        function initP2PMeshBroadcast() {
+            try {
+                p2pChannel = new BroadcastChannel('electric_bodyguard_p2p_mesh');
+                p2pChannel.onmessage = function(event) {
+                    console.log("P2P Direct Mesh Packet Received:", event.data);
+                };
+                console.log("P2P Direct Mesh Broadcast Active.");
+            } catch (e) {
+                console.error("P2P BroadcastChannel not supported:", e);
+            }
+        }
+
+        function broadcastP2PPacket(category, scale, desc) {
+            let packet = {
+                sender: localStorage.getItem('electric_bodyguard_id'),
+                category: category,
+                scale: scale,
+                description: desc,
+                timestamp: Date.now()
+            };
+            if (p2pChannel) {
+                p2pChannel.postMessage(packet);
+            }
+            saveMasterNodeLocally(category, scale, desc, packet);
+        }
+
+        function saveMasterNodeLocally(category, scale, desc, packet) {
+            if (dbInstance) {
+                try {
+                    let tx = dbInstance.transaction(['master_nodes'], 'readwrite');
+                    let store = tx.objectStore('master_nodes');
+                    store.add(packet);
+                } catch (e) {
+                    localStorage.setItem('fallback_node_' + Date.now(), JSON.stringify(packet));
+                }
+            }
+
+            if (navigator.onLine) {
+                rtdb.ref('bodyguard_master_ledger/' + scale + '/' + packet.timestamp).set(packet);
+            }
+        }
+
+        function handleNetworkOnline() {
+            updateNetworkStatus();
+            syncOfflineQueueToFirebase();
+        }
+
+        function syncOfflineQueueToFirebase() {
+            if (!dbInstance || !navigator.onLine) return;
+            try {
+                let tx = dbInstance.transaction(['master_nodes'], 'readonly');
+                let store = tx.objectStore('master_nodes');
+                let request = store.getAll();
+                request.onsuccess = function() {
+                    request.result.forEach(rec => {
+                        rtdb.ref('bodyguard_master_ledger/' + rec.scale + '/' + rec.timestamp).set(rec);
+                    });
+                };
+            } catch (e) {}
+        }
+
+        function updateNetworkStatus() {
+            const badge = document.getElementById('netBadge');
+            const dot = document.getElementById('netDot');
+            const text = document.getElementById('netText');
+            if (!badge || !dot || !text) return;
+            
+            if (navigator.onLine) {
+                badge.style.borderColor = "#00ff66";
+                badge.style.background = "rgba(0,255,102,0.1)";
+                badge.style.color = "#00ff66";
+                dot.style.background = "#00ff66";
+                text.innerText = currentLang === 'hi' ? "100% बॉडीगार्ड एक्टिव" : "BODYGUARD 100% ACTIVE";
+            } else {
+                badge.style.borderColor = "#f1c40f";
+                badge.style.background = "rgba(241,196,15,0.1)";
+                badge.style.color = "#f1c40f";
+                dot.style.background = "#f1c40f";
+                text.innerText = currentLang === 'hi' ? "ऑफलाइन P2P शील्ड" : "OFFLINE P2P SHIELD";
+            }
+        }
+
+        function changeLanguage() {
+            const selector = document.getElementById('langSelector');
+            if (!selector) return;
+            currentLang = selector.value;
+            updateNetworkStatus();
+            speakText(currentLang === 'hi' ? "भाषा बदलकर हिंदी कर दी गई है।" : "Language switched to English.");
+        }
+
+        function toggleAIEngine() {
+            const toggle = document.getElementById('aiToggle');
+            if(!toggle) return;
+            aiEnabled = toggle.checked;
+            if (!aiEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+
+        function speakText(text) {
+            if (!aiEnabled) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = currentLang === 'hi' ? 'hi-IN' : 'en-US';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function startSpeechRecognition() {
+            if (!aiEnabled) return;
+            let userMsg = prompt(currentLang === 'hi' ? "संदेश टाइप करें:" : "Type message:");
+            if(userMsg) handleAIQuery(userMsg);
+        }
+
+        function handleAIQuery(query) {
+            broadcastP2PPacket(currentCategoryNameEn, currentScaleName, query);
+            speakText(currentLang === 'hi' ? "इलेक्ट्रिक बॉडीगार्ड P2P मेश द्वारा सुरक्षित!" : "Secured by Electric Bodyguard P2P Mesh!");
+        }
+
+        function filterScale(scaleKey, scaleLabel, btn) {
+            document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentScaleName = scaleKey;
+            
+            let titleEl = document.getElementById('cardTitle');
+            let descEl = document.getElementById('cardDesc');
+            let badgeEl = document.getElementById('scaleStatusBadge');
+
+            if(badgeEl) badgeEl.innerText = `${scaleKey} Scale`;
+            if(titleEl) titleEl.innerText = `${currentCategoryNameEn} Node [100% P2P]`;
+            if(descEl) descEl.innerText = `Active scale: ${scaleKey} under Electric Bodyguard 100% autonomous protection.`;
+
+            broadcastP2PPacket(currentCategoryNameEn, scaleKey, `Switched scale view to ${scaleKey}`);
+            speakText(currentLang === 'hi' ? `${scaleLabel} स्तर सक्रिय हो गया है।` : `Switched to ${scaleKey} scale.`);
+        }
+
+        function filterBiz(key, nameEn, nameHi, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentCategoryNameEn = nameEn;
+            currentCategoryNameHi = nameHi;
+            let displayName = currentLang === 'hi' ? nameHi : nameEn;
+            
+            let s1 = document.getElementById('storyItem1');
+            let s2 = document.getElementById('storyItem2');
+            let s3 = document.getElementById('storyItem3');
+
+            if(s1) s1.innerText = `🌾 ${displayName}`;
+            if(s2) s2.innerText = `📦 Bulk`;
+            if(s3) s3.innerText = `🌐 P2P`;
+
+            let titleEl = document.getElementById('cardTitle');
+            let descEl = document.getElementById('cardDesc');
+            
+            if(titleEl) titleEl.innerText = `${displayName} Node [100% P2P]`;
+            if(descEl) descEl.innerText = `Category loaded: ${displayName}. P2P direct broadcast & IndexedDB secure[span_1](start_span)[span_1](end_span).`;
+            
+            broadcastP2PPacket(nameEn, currentScaleName, `Category changed to ${nameEn}`);
+            speakText(currentLang === 'hi' ? `${displayName} कटेगरी लोड हो गई है।` : `${displayName} category loaded.`);
+        }
+
+        function togglePeerConnection(btn) {
+            let badge = document.getElementById('scaleStatusBadge');
+            if(btn.innerText.includes('Active')) {
+                btn.innerText = "P2P Standby";
+                if(badge) badge.innerText = "Standby Mode";
+            } else {
+                btn.innerText = "P2P Broadcast Active";
+                if(badge) badge.innerText = "Bodyguard Shielded";
+            }
+        }
+
+        function toggleSupport(btn) {
+            let span = btn.querySelector('.support-count');
+            if(span) {
+                span.innerText = parseInt(span.innerText) + 1;
+                broadcastP2PPacket(currentCategoryNameEn, currentScaleName, "Support incremented");
+            }
+        }
+    </script>
+</body>
+</html>

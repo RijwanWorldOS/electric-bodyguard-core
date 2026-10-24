@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ELECTRIC BODYGUARD - Multi-Sensor Threat Matrix (Part 1)</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Crypto-JS for SHA-256 Hashing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #030712; color: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        .app-container { width: 100%; max-width: 420px; height: 100vh; max-height: 780px; background: #0b0f19; border: 2.5px solid #00f2ff; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; position: relative; box-shadow: 0 0 50px rgba(0, 242, 255, 0.45); padding-bottom: 55px; }
+
+        .header { background: linear-gradient(180deg, #0f172a 0%, #090d16 100%); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00f2ff; flex-shrink: 0; box-shadow: inset 0 0 15px rgba(0,242,255,0.25); }
+        .nasa-satellite-left, .nasa-mesh-right { font-size: 18px; animation: pulseWave 1.2s infinite alternate; text-shadow: 0 0 12px #00f2ff; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; background: rgba(0,242,255,0.1); border: 1px solid rgba(0,242,255,0.4); }
+        @keyframes pulseWave { from { transform: scale(1); opacity: 0.7; box-shadow: 0 0 5px rgba(0,242,255,0.3); } to { transform: scale(1.15); opacity: 1; box-shadow: 0 0 15px #00f2ff; } }
+        
+        .brand-box { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; }
+        .brand-title { font-size: 12px; font-weight: 900; color: #fff; letter-spacing: 1.5px; text-shadow: 0 0 12px #00f2ff; }
+        .brand-sub { font-size: 7px; color: #38bdf8; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px; }
+
+        .content-body { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+
+        .network-status-bar { display: flex; justify-content: space-between; align-items: center; background: #0f172a; border: 1px solid #1e293b; padding: 6px 10px; border-radius: 6px; font-size: 8.5px; font-weight: 900; }
+        .status-pill { display: flex; align-items: center; gap: 5px; color: #38bdf8; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #22c55e; box-shadow: 0 0 8px #22c55e; transition: 0.3s; }
+        .status-dot.offline { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
+        .audio-control-bar { display: flex; justify-content: space-between; align-items: center; background: #0f172a; border: 1px solid #1e293b; padding: 6px 10px; border-radius: 6px; font-size: 8.5px; font-weight: 900; color: #38bdf8; }
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 18px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #00f2ff; }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        .nasa-card { background: #111827; border: 1.5px solid #00f2ff; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 4px; box-shadow: inset 0 0 10px rgba(0,242,255,0.1); }
+        .nasa-card-title { font-size: 9.5px; font-weight: 900; color: #00f2ff; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+        .nasa-card-desc { font-size: 7.5px; color: #94a3b8; font-weight: 700; line-height: 1.3; }
+
+        .ai-voice-bar { display: flex; gap: 5px; margin-top: 2px; }
+        .ai-btn { flex: 1; background: rgba(0,242,255,0.1); border: 1px solid #00f2ff; color: #00f2ff; padding: 5px; border-radius: 5px; font-size: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; text-align: center; }
+
+        .form-grid { display: flex; flex-direction: column; gap: 5px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 8px; }
+        .input-group { display: flex; flex-direction: column; gap: 2px; position: relative; }
+        .input-group label { font-size: 7.5px; font-weight: 900; color: #38bdf8; text-transform: uppercase; display: flex; justify-content: space-between; }
+        .input-group input, .input-group textarea { background: #111827; border: 1px solid #334155; border-radius: 5px; padding: 5px 30px 5px 6px; color: #fff; font-size: 9px; font-weight: 700; outline: none; resize: none; }
+        .mic-icon, .eye-icon { position: absolute; right: 6px; bottom: 5px; background: none; border: none; color: #00f2ff; font-size: 11px; cursor: pointer; }
+
+        .family-box { display: flex; flex-direction: column; gap: 4px; background: #111827; padding: 6px; border-radius: 5px; border: 1px solid #334155; }
+        .family-list { font-size: 8px; color: #38bdf8; max-height: 45px; overflow-y: auto; }
+
+        .save-btn { background: #00f2ff; color: #030712; font-weight: 900; border: none; border-radius: 5px; padding: 7px; font-size: 9px; cursor: pointer; text-transform: uppercase; text-align: center; }
+        .sim-btn { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; font-weight: 900; border: none; border-radius: 7px; padding: 8px; font-size: 9.5px; cursor: pointer; text-transform: uppercase; text-align: center; box-shadow: 0 0 12px rgba(239,68,68,0.5); }
+
+        .radar-box { background: #090d16; border: 1.5px solid #00f2ff; border-radius: 10px; padding: 8px; display: flex; align-items: center; gap: 10px; }
+        .radar-screen { width: 55px; height: 55px; border-radius: 50%; border: 1.5px solid #00f2ff; position: relative; overflow: hidden; background: radial-gradient(circle, rgba(0,242,255,0.1) 0%, rgba(3,7,18,0.9) 80%); box-shadow: inset 0 0 8px rgba(0,242,255,0.4); flex-shrink: 0; }
+        .radar-sweep { position: absolute; top: 50%; left: 50%; width: 27px; height: 27px; border-right: 2px solid #00f2ff; border-top: 2px solid transparent; border-radius: 0 100% 0 0; transform-origin: top left; animation: spinRadar 2s linear infinite; }
+        @keyframes spinRadar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .radar-dot { position: absolute; top: 18px; left: 30px; width: 4px; height: 4px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 6px #ef4444; animation: blinkDot 1s infinite alternate; }
+        @keyframes blinkDot { from { opacity: 0.2; } to { opacity: 1; } }
+        
+        .radar-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+        .radar-title { font-size: 9px; font-weight: 900; color: #00f2ff; text-transform: uppercase; }
+        .radar-sub { font-size: 7px; color: #94a3b8; font-weight: 700; line-height: 1.2; }
+
+        #alarmOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(239, 68, 68, 0.97); z-index: 99999; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        .alarm-title { font-size: 21px; font-weight: 900; color: #fff; text-transform: uppercase; margin-bottom: 8px; }
+        .alarm-img { width: 95px; height: 95px; border-radius: 50%; border: 4px solid #fff; object-fit: cover; margin-bottom: 12px; }
+        .alarm-desc { font-size: 11px; font-weight: 900; color: #ffed4a; margin-bottom: 15px; line-height: 1.5; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; width: 100%; max-width: 320px; }
+        .unlock-box { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; position: relative; }
+        .unlock-box input { padding: 9px 30px 9px 9px; border-radius: 6px; border: none; text-align: center; font-size: 13px; font-weight: 900; outline: none; }
+        .unlock-btn { background: #000; color: #fff; border: 2px solid #fff; padding: 9px; border-radius: 6px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+
+        .terminal-footer { position: absolute; bottom: 0; left: 0; width: 100%; background: #090d16; padding: 6px 10px; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+        .terminal-footer a { background: #010409; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.15); padding: 3px 6px; border-radius: 5px; font-size: 10px; text-decoration: none; font-weight: 900; text-align: center; text-transform: uppercase; }
+        .terminal-footer a.active { border-color: #00f2ff; color: #00f2ff; background: rgba(0,242,255,0.1); }
+        
+        #hiddenCam { display: none; }
+    </style>
+</head>
+<body onload="initMultiSensorCore()">
+
+    <video id="hiddenCam" autoplay playsinline></video>
+    <canvas id="hiddenCanvas" style="display:none;"></canvas>
+
+    <div id="alarmOverlay">
+        <div class="alarm-title">🚨 MULTI-SENSOR THREAT DETECTED 🚨</div>
+        <img id="alarmPhoto" class="alarm-img" src="" alt="Owner">
+        <div class="alarm-desc" id="alarmText">मल्टी-सेंसर ट्रिगर हुआ, सेल्फी कैप्चर हुई और ब्लैक बॉक्स डंप हो रहा है!</div>
+        <div class="unlock-box">
+            <input type="password" id="unlockPin" placeholder="Enter Secret PIN" maxlength="4">
+            <button type="button" class="eye-icon" onclick="togglePinVisibility('unlockPin', this)" title="पिन दिखाएं/छुपाएं">👁️</button>
+            <button class="unlock-btn" onclick="verifyAndUnlock()">Stop Alarm & Unlock</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <div class="header">
+            <div class="nasa-satellite-left" onclick="explainMultiSensorSystem()" title="NASA Satellite Link">🛰️</div>
+            <div class="brand-box">
+                <div class="brand-title">ELECTRIC BODYGUARD</div>
+                <div class="brand-sub">Layer 1: Multi-Sensor Matrix (Part 1)</div>
+            </div>
+            <div class="nasa-mesh-right" onclick="explainMultiSensorSystem()" title="P2P Mesh Network">🌐</div>
+        </div>
+
+        <div class="content-body">
+            <div class="network-status-bar">
+                <span class="status-pill">
+                    <span id="networkStatusDot" class="status-dot"></span>
+                    <span id="networkStatusText">ONLINE (SYNC READY)</span>
+                </span>
+                <span style="font-size:7.5px; color:#38bdf8;" id="sensorStatusBadge">4 SENSORS ARMED</span>
+            </div>
+
+            <div class="audio-control-bar">
+                <span>🔊 Master Audio Voice Guide:</span>
+                <label class="switch">
+                    <input type="checkbox" id="audioMasterToggle" checked onchange="toggleMasterAudio(this)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="nasa-card">
+                <div class="nasa-card-title">
+                    <span>🛡️ Multi-Sensor Threat Matrix</span>
+                    <span style="font-size:7px; color:#00f2ff;">ACTIVE</span>
+                </div>
+                <div class="nasa-card-desc">छीनने, पॉकेट से निकालने, चार्जिंग तार खींचने और शेक करने—चारों तरीकों के खिलाफ सुरक्षा सक्रिय है।</div>
+                <div class="ai-voice-bar">
+                    <button class="ai-btn" onclick="explainMultiSensorSystem()">🔊 फीचर्स सुनें</button>
+                    <button class="ai-btn" onclick="stopAiVoice()">🔇 आवाज बंद करें</button>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="input-group">
+                    <label><span>ओनर का नाम (प्राइवेट):</span></label>
+                    <input type="text" id="ownerName" placeholder="जैसे: रिज़वान खान">
+                    <button class="mic-icon" onclick="startSpeechToText('ownerName')" title="बोलकर टाइप करें">🎤</button>
+                </div>
+                <div class="input-group">
+                    <label><span>इमरजेंसी ट्रस्टेड कांटेक्ट / नंबर:</span></label>
+                    <input type="text" id="emergencyContact" placeholder="रिश्तेदार का नंबर">
+                    <button class="mic-icon" onclick="startSpeechToText('emergencyContact')" title="बोलकर टाइप करें">🎤</button>
+                </div>
+                <div class="input-group">
+                    <label><span>एरिया नोट / पता:</span></label>
+                    <textarea id="ownerAddress" rows="1" placeholder="अपना पता बोलकर लिखें..."></textarea>
+                    <button class="mic-icon" onclick="startSpeechToText('ownerAddress')" title="बोलकर टाइप करें">🎤</button>
+                </div>
+                <div class="input-group">
+                    <label><span>ओनर फोटो अपलोड (Profile Image):</span></label>
+                    <input type="file" id="ownerPhotoInput" accept="image/*" style="padding: 3px; font-size: 8px;">
+                </div>
+                <div class="family-box">
+                    <label style="font-size:7.5px; font-weight:900; color:#38bdf8; text-transform:uppercase;"><span>फैमिली / ग्रुप मेंबर जोड़ें:</span></label>
+                    <div style="display: flex; gap: 4px;">
+                        <input type="text" id="familyNameInput" placeholder="नाम और नंबर" style="flex:1; background:#111827; border:1px solid #334155; border-radius:4px; padding:4px; color:#fff; font-size:8.5px;">
+                        <button type="button" onclick="addFamilyMember()" style="background:#00f2ff; color:#030712; border:none; padding:4px 8px; border-radius:4px; font-weight:900; font-size:8px; cursor:pointer;">जोड़ें</button>
+                    </div>
+                    <div id="familyListDisplay" class="family-list">कोई मेंबर नहीं जोड़ा गया।</div>
+                </div>
+                <div class="input-group" style="position: relative;">
+                    <label><span>इमरजेंसी सीक्रेट पिन (4 अंक):</span></label>
+                    <input type="password" id="ownerPin" placeholder="1234" maxlength="4">
+                    <button type="button" class="eye-icon" onclick="togglePinVisibility('ownerPin', this)" title="पिन दिखाएं/छुपाएं">👁️</button>
+                </div>
+                <button class="save-btn" onclick="saveMultiSensorProfile()">💾 सेव और सभी सेंसर आर्म करें</button>
+            </div>
+
+            <div class="radar-box">
+                <div class="radar-screen">
+                    <div class="radar-sweep"></div>
+                    <div class="radar-dot"></div>
+                </div>
+                <div class="radar-info">
+                    <div class="radar-title">🛰️ Multi-Threat Detection Array</div>
+                    <div class="radar-sub">मोशन, लाइट, चार्जर और हार्ड रिसेट सेंसर लगातार निगरानी में हैं।</div>
+                </div>
+            </div>
+
+            <button class="sim-btn" onclick="triggerMultiSensorEmergency('MANUAL_SIMULATION')">🚨 Simulate Multi-Sensor Threat</button>
+        </div>
+
+        <div class="terminal-footer">
+            <a href="index.html" title="Home">🏠 Home</a>
+            <a href="shield.html" class="active" title="Shield">🛡️ Shield</a>
+            <a href="complaint.html" title="Complaint">📝 Complaint</a>
+            <a href="helpdesk.html" title="Help">⚖️ Help</a>
+        </div>
+    </div><script>
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAT13EhtnIOLCk17KPLwPhw_GJotsBNiA",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com/",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        let speechInterval = null;
+        let isMasterAudioEnabled = true;
+        let familyMembers = [];
+
+        function initMultiSensorCore() {
+            loadMultiSensorProfile();
+            listenToSelfEvolvingPatterns();
+            initWebRTCDataChannel();
+            registerServiceWorker();
+            updateNetworkStatus();
+            initMultiThreatSensors();
+
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+
+            window.addEventListener('beforeunload', () => {
+                executeMultiSensorDump("HARD_RESET_OR_PURGE_ATTEMPT");
+            });
+        }
+
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('⚡ Service Worker Registered:', reg.scope);
+                }).catch(err => { console.log('SW Reg Failed:', err); });
+            }
+        }
+
+        function updateNetworkStatus() {
+            const dot = document.getElementById('networkStatusDot');
+            const text = document.getElementById('networkStatusText');
+            if (navigator.onLine) {
+                dot.classList.remove('offline');
+                text.innerText = "ONLINE (CLOUD SYNC)";
+            } else {
+                dot.classList.add('offline');
+                text.innerText = "OFFLINE (MESH FALLBACK)";
+            }
+        }
+
+        function initMultiThreatSensors() {
+            // 1. Motion & Snatch Sensor (Accelerometer)
+            if (window.DeviceMotionEvent) {
+                window.addEventListener('devicemotion', (e) => {
+                    let acc = e.accelerationIncludingGravity;
+                    if (!acc) return;
+                    let force = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
+                    if (force > 28.0) {
+                        triggerMultiSensorEmergency('SNATCH_OR_VIOLENT_SHAKE');
+                    }
+                });
+            }
+
+            // 2. Pocket / Bag Extraction Sensor (Ambient Light Sensor)
+            if ('AmbientLightSensor' in window) {
+                try {
+                    const sensor = new AmbientLightSensor();
+                    sensor.onreading = () => {
+                        if (sensor.illuminance > 500) {
+                            triggerMultiSensorEmergency('POCKET_EXTRACTION_DETECTED');
+                        }
+                    };
+                    sensor.start();
+                } catch (e) { console.log("Ambient light sensor not supported."); }
+            }
+
+            // 3. Charger Unplug Detector (Battery API)
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    battery.addEventListener('chargingchange', () => {
+                        if (!battery.charging) {
+                            triggerMultiSensorEmergency('CHARGER_DISCONNECT_THEFT');
+                        }
+                    });
+                });
+            }
+        }
+
+        function loadMultiSensorProfile() {
+            // FIXED SYNTAX ERROR HERE (using closing round bracket instead of square bracket)
+            document.getElementById('ownerName').value = localStorage.getItem('eb_owner_name') || "रिज़वान";
+            document.getElementById('emergencyContact').value = localStorage.getItem('eb_emergency_contact') || "9876543210";
+            document.getElementById('ownerAddress').value = localStorage.getItem('eb_owner_address') || "दिल्ली, भारत";
+            document.getElementById('ownerPin').value = localStorage.getItem('eb_owner_pin') || "1234";
+
+            let savedFamily = localStorage.getItem('eb_family_members');
+            if (savedFamily) {
+                familyMembers = JSON.parse(savedFamily);
+                renderFamilyList();
+            }
+        }
+
+        function addFamilyMember() {
+            let val = document.getElementById('familyNameInput').value.trim();
+            if (!val) { alert("कृपया मेंबर का नाम और नंबर लिखें!"); return; }
+            familyMembers.push(val);
+            document.getElementById('familyNameInput').value = '';
+            renderFamilyList();
+            localStorage.setItem('eb_family_members', JSON.stringify(familyMembers));
+        }
+
+        function renderFamilyList() {
+            let disp = document.getElementById('familyListDisplay');
+            if (familyMembers.length === 0) {
+                disp.innerText = "कोई मेंबर नहीं जोड़ा गया।";
+            } else {
+                disp.innerHTML = familyMembers.map((m, i) => `[${i+1}] ${m}`).join('<br>');
+            }
+        }
+
+        function saveMultiSensorProfile() {
+            let name = document.getElementById('ownerName').value.trim();
+            let contact = document.getElementById('emergencyContact').value.trim();
+            let address = document.getElementById('ownerAddress').value.trim();
+            let pin = document.getElementById('ownerPin').value.trim();
+
+            if (!name || !pin || !contact || !address) {
+                alert("कृपया सभी मुख्य फील्ड भरें!");
+                return;
+            }
+
+            localStorage.setItem('eb_owner_name', name);
+            localStorage.setItem('eb_emergency_contact', contact);
+            localStorage.setItem('eb_owner_address', address);
+            localStorage.setItem('eb_owner_pin', pin);
+
+            let photoInput = document.getElementById('ownerPhotoInput');
+            if (photoInput.files && photoInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    localStorage.setItem('eb_owner_photo', e.target.result);
+                    alert("✅ प्रोफाइल, फोटो और सभी 4 सेंसर सफलतापूर्व आर्म हो गए हैं!");
+                };
+                reader.readAsDataURL(photoInput.files[0]);
+            } else {
+                alert("✅ प्रोफाइल और सभी 4 सेंसर सफलतापूर्व आर्म हो गए हैं!");
+            }
+        }
+
+        function toggleMasterAudio(checkbox) {
+            isMasterAudioEnabled = checkbox.checked;
+            if (!isMasterAudioEnabled) {
+                if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+                clearInterval(speechInterval);
+            }
+        }
+
+        function togglePinVisibility(inputId, btn) {
+            let input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                btn.innerText = "🙈";
+            } else {
+                input.type = "password";
+                btn.innerText = "👁️";
+            }
+        }
+
+        function listenToSelfEvolvingPatterns() {
+            if (!db) return;
+            db.ref('electric_bodyguard_ai_config/evolved_threats').on('value', snap => {
+                let data = snap.val();
+                if (data) { console.log("🧠 Self-Evolving AI patterns:", data); }
+            });
+        }
+
+        function initWebRTCDataChannel() {
+            try {
+                const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+                pc.createDataChannel("eb_mesh");
+            } catch (e) { console.log("Mesh init error:", e); }
+        }
+
+        function captureIntruderSelfie(callback) {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            .then(stream => {
+                let video = document.getElementById('hiddenCam');
+                video.srcObject = stream;
+                video.play();
+                setTimeout(() => {
+                    let canvas = document.getElementById('hiddenCanvas');
+                    canvas.width = video.videoWidth || 320;
+                    canvas.height = video.videoHeight || 240;
+                    let ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    let dataURL = canvas.toDataURL('image/png');
+                    stream.getTracks().forEach(track => track.stop());
+                    if (callback) callback(dataURL);
+                }, 1000);
+            }).catch(err => {
+                if (callback) callback(null);
+            });
+        }
+
+        function explainMultiSensorSystem() {
+            if (!isMasterAudioEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            let text = "नमस्ते! यह इलेक्ट्रिक बॉडीगार्ड का मल्टी-सेंसर थ्रेट मैट्रिक्स है। इसमें मोशन शेक, पॉकेट लाइट, चार्जर अनप्लग और हार्ड रिसेट सेंसर एक साथ काम कर रहे हैं।";
+            let utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'hi-IN';
+            utter.rate = 0.95;
+            utter.pitch = 1.1;
+            window.speechSynthesis.speak(utter);
+        }
+
+        function stopAiVoice() {
+            if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+            clearInterval(speechInterval);
+        }
+
+        function startSpeechToText(id) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { alert("ब्राउज़र सपोर्ट नहीं करता।"); return; }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN';
+            recognition.onresult = (e) => { document.getElementById(id).value = e.results[0][0].transcript; };
+            recognition.start();
+        }
+
+        let isAlarmTriggered = false;
+        function triggerMultiSensorEmergency(threatType) {
+            if (isAlarmTriggered) return;
+            isAlarmTriggered = true;
+
+            let overlay = document.getElementById('alarmOverlay');
+            overlay.style.display = 'flex';
+            document.getElementById('alarmText').innerText = `🚨 THREAT DETECTED: [${threatType}]\nसेल्फी कैप्चर हो रही है और डेटा डंप जारी है!`;
+
+            let savedPhoto = localStorage.getItem('eb_owner_photo');
+            if (savedPhoto) { document.getElementById('alarmPhoto').src = savedPhoto; }
+
+            if (isMasterAudioEnabled) { startMultiSensorAudio(); }
+            
+            captureIntruderSelfie(photoData => {
+                executeMultiSensorDump(threatType, photoData);
+            });
+        }
+
+        function executeMultiSensorDump(reason, selfiePhoto = null) {
+            let name = localStorage.getItem('eb_owner_name') || "रिज़वान";
+            let contact = localStorage.getItem('eb_emergency_contact') || "N/A";
+            let address = localStorage.getItem('eb_owner_address') || "दिल्ली";
+            let id = 'EB_SENSOR_' + Date.now();
+            let time = new Date().toLocaleString();
+
+            navigator.geolocation.getCurrentPosition(pos => {
+                dumpAndBroadcastMultiSensor(id, time, pos.coords.latitude, pos.coords.longitude, reason, contact, name, address, selfiePhoto);
+            }, err => {
+                dumpAndBroadcastMultiSensor(id, time, 0.0, 0.0, reason, contact, name, address, selfiePhoto);
+            }, { enableHighAccuracy: true });
+        }
+
+        function dumpAndBroadcastMultiSensor(id, time, lat, lon, reason, contact, name, address, selfiePhoto) {
+            let rawData = `MULTI-SENSOR BROADCAST\nID: ${id}\nThreat: ${reason}\nGPS: ${lat}, ${lon}\nTIME: ${time}`;
+            let hashLock = CryptoJS.SHA256(rawData).toString();
+
+            let trustedPayload = {
+                id: id,
+                threatReason: reason,
+                ownerName: name,
+                trustedContact: contact,
+                familyMembers: familyMembers,
+                address: address,
+                latitude: lat,
+                longitude: lon,
+                timestamp: time,
+                hashLock: hashLock,
+                intruderSelfie: selfiePhoto || "No Image",
+                status: 'BLACK_BOX_SECURELY_TRANSFERRED'
+            };
+
+            let publicPulseFeedPayload = {
+                id: id,
+                type: 'public_pulse_sos',
+                text: `🚨 [MULTI-SENSOR FEED] Threat Detected (${reason})!\n📍 Live GPS: ${lat}, ${lon}\n🔒 Evidence Hash: ${hashLock.substring(0, 16)}...\n⚡ Status: Broadcasting Live on Public Pulse`,
+                timestamp: time,
+                latitude: lat,
+                longitude: lon,
+                hashLock: hashLock,
+                synced: navigator.onLine
+            };
+
+            if (db && navigator.onLine) {
+                db.ref('emergency_doomsday_vault/' + id).set(trustedPayload).catch(e => {});
+                db.ref('global_vault_posts/' + id).set(publicPulseFeedPayload).catch(e => {});
+            }
+
+            setTimeout(() => {
+                localStorage.removeItem('eb_autonomous_vault_cache');
+                console.log("🔥 Black Box Local Storage Purged Successfully.");
+            }, 1000);
+        }
+
+        function startMultiSensorAudio() {
+            if (!isMasterAudioEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            function speak() {
+                if (!isMasterAudioEnabled) return;
+                let utter = new SpeechSynthesisUtterance("सावधान! मल्टी-सेंसर मैट्रिक्स ने घुसपैठ पकड़ ली है। ब्लैक बॉक्स डेटा सुरक्षित ट्रांसफर हो चुका है और पब्लिक पल्स फीड पर लाइव ब्रॉडकास्ट जारी है!");
+                utter.lang = 'hi-IN';
+                utter.rate = 0.95;
+                window.speechSynthesis.speak(utter);
+            }
+            speak();
+            speechInterval = setInterval(speak, 6000);
+        }
+
+        function verifyAndUnlock() {
+            let pin = document.getElementById('unlockPin').value.trim();
+            let savedPin = localStorage.getItem('eb_owner_pin') || "1234";
+            if (pin === savedPin) {
+                isAlarmTriggered = false;
+                clearInterval(speechInterval);
+                if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+                document.getElementById('alarmOverlay').style.display = 'none';
+                document.getElementById('unlockPin').value = '';
+                alert("🔓 सही पिन दर्ज किया गया। सेंसर री-आर्म हो गए हैं।");
+            } else {
+                alert("❌ गलत पिन!");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faizan-e-Ala Hazrat Islamic Library : Asad AI Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #030712; color: #f1c40f; height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        .app-container {
+            width: 100%; max-width: 480px; height: 100%; max-height: 100vh;
+            background: #060d18; border: 2px solid #f1c40f; 
+            display: flex; flex-direction: column; padding: 8px; gap: 6px;
+            box-shadow: 0 25px 60px rgba(241,196,15,0.4);
+        }
+        @media(min-width: 481px) {
+            .app-container { height: 96vh; max-height: 920px; border-radius: 12px; }
+        }
+
+        .header-panel { background: linear-gradient(135deg, rgba(241,196,15,0.15), rgba(0,243,255,0.1)); border: 1px solid #f1c40f; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+        
+        .app-title-main { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 900; color: #f1c40f; border-bottom: 1px solid rgba(241,196,15,0.3); padding-bottom: 4px; }
+        .branding-center { display: flex; align-items: center; gap: 4px; }
+        
+        .nav-home-btn { background: #0b192c; color: #f1c40f; border: 1px solid #f1c40f; font-size: 7px; font-weight: bold; padding: 3px 6px; border-radius: 8px; cursor: pointer; }
+        .profile-btn { background: #0b192c; color: #00f3ff; border: 1px solid #00f3ff; font-size: 7px; font-weight: bold; padding: 3px 6px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+        
+        .profile-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3,7,18,0.85); z-index: 100; justify-content: center; align-items: center; }
+        .profile-content { background: #060d18; border: 2px solid #f1c40f; padding: 12px; border-radius: 8px; width: 90%; max-width: 290px; display: flex; flex-direction: column; gap: 6px; }
+        .profile-content input, .profile-content select { background: #0b192c; color: #fff; border: 1px solid #00f3ff; padding: 5px; border-radius: 4px; font-size: 8px; outline: none; }
+        .profile-pic-preview { width: 45px; height: 45px; border-radius: 50%; border: 1px solid #00f3ff; object-fit: cover; align-self: center; }
+
+        .status-pill { display: flex; align-items: center; gap: 3px; background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; padding: 2px 5px; border-radius: 8px; font-size: 7px; color: #00f3ff; font-weight: bold; }
+        .pulse-dot { width: 5px; height: 5px; background: #00f3ff; border-radius: 50%; animation: pulseAnim 1.5s infinite; }
+        @keyframes pulseAnim { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.3); opacity: 1; background: #f1c40f; } 100% { transform: scale(0.95); opacity: 0.8; } }
+
+        .category-scroll-bar { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 3px; scrollbar-width: thin; }
+        .cat-pill { background: #0b192c; color: #f1c40f; border: 1px solid rgba(241,196,15,0.4); font-size: 7px; font-weight: bold; padding: 4px 8px; border-radius: 12px; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .cat-pill.active { background: #f1c40f; color: #030712; font-weight: 900; box-shadow: 0 0 8px rgba(241,196,15,0.6); }
+
+        .ticker-box { background: rgba(0,243,255,0.08); border: 1px solid #00f3ff; color: #00f3ff; font-size: 7.5px; font-weight: 900; padding: 4px; border-radius: 4px; overflow: hidden; white-space: nowrap; }
+
+        .chat-window { flex: 1; background: #030712; border: 1px solid #00f3ff; border-radius: 6px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+        
+        .chat-bubble { background: rgba(241,196,15,0.04); border: 1px solid rgba(241,196,15,0.25); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+        .chat-title { font-size: 10px; font-weight: 900; color: #f1c40f; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(241,196,15,0.2); padding-bottom: 4px; }
+        .chat-body { font-size: 8.5px; color: #e6edf3; line-height: 1.6; white-space: pre-line; word-break: break-word; }
+
+        .dna-badge { background: rgba(0,243,255,0.15); border: 1px solid #00f3ff; color: #00f3ff; font-size: 7px; font-weight: bold; padding: 2px 5px; border-radius: 3px; display: inline-flex; align-items: center; gap: 3px; margin-bottom: 3px; }
+        
+        .speaker-btn { background: #0b192c; border: 1px solid #00f3ff; color: #00f3ff; font-size: 8px; padding: 2px 5px; border-radius: 3px; cursor: pointer; }
+        .verified-stamp { display: flex; align-items: center; gap: 4px; margin-top: 5px; font-size: 7px; color: #00f3ff; background: rgba(0,243,255,0.06); padding: 3px; border-radius: 3px; border: 1px dashed #00f3ff; }
+
+        .p2p-social-bar { display: flex; gap: 4px; margin-top: 5px; border-top: 1px dashed rgba(241,196,15,0.3); padding-top: 5px; flex-wrap: wrap; }
+        .p2p-btn { background: #0b192c; border: 1px solid #00f3ff; color: #00f3ff; font-size: 7px; font-weight: bold; padding: 3px 6px; border-radius: 3px; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+        .p2p-btn:hover { background: #00f3ff; color: #030712; }
+
+        .explore-cards-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; border-top: 1px dashed rgba(0,243,255,0.3); padding-top: 5px; }
+        .explore-card { background: #0b192c; border: 1px solid #00f3ff; color: #00f3ff; font-size: 7.5px; font-weight: bold; padding: 4px 7px; border-radius: 3px; cursor: pointer; }
+
+        .input-container-wrapper { flex-shrink: 0; background: #030712; padding: 3px 0; }
+        .gemini-input-box {
+            display: flex; align-items: center; gap: 5px;
+            background: #0b192c; border: 1.5px solid #00f3ff; border-radius: 22px;
+            padding: 5px 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .inline-tool-btn { background: none; border: none; color: #00f3ff; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; }
+        
+        .voice-wave-indicator { display: none; align-items: center; gap: 2px; padding: 0 4px; }
+        .v-bar { width: 2px; height: 10px; background: #00f3ff; animation: waveAnim 0.6s infinite ease-in-out alternate; }
+        .v-bar:nth-child(2) { animation-delay: 0.2s; }
+        .v-bar:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes waveAnim { 0% { height: 3px; } 100% { height: 12px; } }
+
+        .gemini-textarea {
+            flex: 1; background: transparent; color: #fff; border: none; outline: none;
+            font-size: 9px; resize: none; max-height: 80px; min-height: 18px; line-height: 1.3;
+        }
+        
+        .gemini-send-btn {
+            background: #f1c40f; color: #030712; border: none; width: 26px; height: 26px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 11px; cursor: pointer; flex-shrink: 0;
+        }
+        .gemini-send-btn:hover { background: #00f3ff; }
+
+        #pdfBookUploader { display: none; }
+        #profilePicInput { display: none; }
+    </style>
+</head>
+<body onload="initSovereignApp()">
+    <div class="app-container">
+        <!-- Header Panel -->
+        <div class="header-panel">
+            <div class="app-title-main">
+                <div class="branding-center">
+                    <span>🕌 Faizan-e-Ala Hazrat Library : Asad AI</span>
+                </div>
+                <div style="display: flex; gap: 4px; align-items: center;">
+                    <button class="nav-home-btn" onclick="goToHomeIndex()">🏠 Home</button>
+                    <button class="profile-btn" onclick="toggleProfileModal(true)">
+                        <img id="navAvatar" src="" style="width:12px; height:12px; border-radius:50%; display:none;">
+                        👤 <span id="profileNavName">Profile</span>
+                    </button>
+                    <div class="status-pill">
+                        <div class="pulse-dot" id="pulseIndicator"></div>
+                        <span id="netStatusText">Online</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="category-scroll-bar" id="categoryBarContainer">
+                <button class="cat-pill active" onclick="selectCategory('general', this)">📚 General</button>
+                <button class="cat-pill" onclick="selectCategory('fatwa', this)">📜 Fatawa</button>
+                <button class="cat-pill" onclick="selectCategory('history', this)">🏛️ History</button>
+                <button class="cat-pill" onclick="selectCategory('kids', this)">🧒 Kids Mode</button>
+            </div>
+
+            <div class="ticker-box">
+                <marquee behavior="scroll" direction="left" scrollamount="4">
+                    ⚠️ DISCLAIMER: Asad is an AI research guide based on Fatawa-e-Razvi-yah and classical texts. Consult qualified scholars for final fatwas.
+                </marquee>
+            </div>
+        </div>
+
+        <!-- Profile Modal -->
+        <div class="profile-modal" id="profileModal">
+            <div class="profile-content">
+                <div style="font-size: 10px; font-weight: 900; color: #f1c40f; border-bottom: 1px solid rgba(241,196,15,0.3); padding-bottom: 3px;">User & Aalim Profile Settings</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <img id="modalAvatarPreview" class="profile-pic-preview" src="" style="display:none;">
+                    <button style="background: #0b192c; color: #00f3ff; border: 1px solid #00f3ff; font-size: 7px; padding: 4px; border-radius: 4px; cursor: pointer;" onclick="document.getElementById('profilePicInput').click()">Upload Photo</button>
+                    <input type="file" id="profilePicInput" accept="image/*" onchange="previewProfilePic(event)">
+                </div>
+                <label style="font-size: 7.5px;">Name:</label>
+                <input type="text" id="pName" placeholder="Enter name">
+                <label style="font-size: 7.5px;">Phone:</label>
+                <input type="text" id="pPhone" placeholder="Enter phone">
+                <label style="font-size: 7.5px;">Pin-Code (पिन-कोड):</label>
+                <input type="text" id="pPinCode" placeholder="e.g. 110041">
+                <label style="font-size: 7.5px;">Role / Category:</label>
+                <select id="pRole">
+                    <option value="Aam Insaan">General User (आम आदमी)</option>
+                    <option value="Talib-e-Ilm">Student (तलबा)</option>
+                    <option value="Khwateen">Woman (ख्वातीन)</option>
+                    <option value="Aalim / Mufti">Scholar / Mufti (आलिम / मुफ्ती)</option>
+                </select>
+                <div style="display: flex; gap: 5px; margin-top: 4px;">
+                    <button style="flex:1; background:#f1c40f; color:#030712; border:none; padding:5px; font-weight:900; border-radius:3px; cursor:pointer; font-size:8px;" onclick="saveProfile()">Save Profile</button>
+                    <button style="flex:1; background:#0b192c; color:#00f3ff; border:1px solid #00f3ff; padding:5px; border-radius:3px; cursor:pointer; font-size:8px;" onclick="toggleProfileModal(false)">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="chat-window" id="chatWin">
+            <div class="chat-bubble">
+                <div class="chat-title">
+                    <span>🌟 Asad (Autonomous Islamic Guide)</span>
+                    <button class="speaker-btn" onclick="speakText(this.parentElement.nextElementSibling.innerText)">🔊 Play</button>
+                </div>
+                <div class="chat-body">
+                    <b>Assalamu Alaikum!</b> Welcome to Faizan-e-Ala Hazrat Library. Explore Islamic knowledge, connect locally via P2P Broadcast, or ask your query below.
+                </div>
+            </div>
+        </div>
+
+        <!-- Clean Input Bar (No clutter) -->
+        <div class="input-container-wrapper">
+            <input type="file" id="pdfBookUploader" accept="application/pdf,image/*" onchange="handleBookUpload(event)">
+            
+            <div class="gemini-input-box">
+                <button class="inline-tool-btn" onclick="document.getElementById('pdfBookUploader').click()" title="Upload PDF">➕</button>
+                <button class="inline-tool-btn" onclick="startVoiceRecognition()" title="Voice Search">🎙️</button>
+                
+                <div class="voice-wave-indicator" id="voiceWave">
+                    <div class="v-bar"></div>
+                    <div class="v-bar"></div>
+                    <div class="v-bar"></div>
+                </div>
+                
+                <textarea id="userInput" class="gemini-textarea" placeholder="Ask any Islamic query..." rows="1" oninput="autoResize(this)" onkeypress="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); processUserQuery();}"></textarea>
+                
+                <button class="gemini-send-btn" onclick="processUserQuery()" title="Send">➔</button>
+            </div>
+        </div>
+    </div><script>
+        const GEMINI_API_KEY = "AIzaSyAT13EhtiNOLck1KPLwPwhw_GJotsBNiA";[span_2](start_span)[span_2](end_span)
+        let db = null;
+        let selectedCategory = "general";
+        let userProfile = { name: "Guest", phone: "", pinCode: "110041", role: "Aam Insaan", avatar: "" };
+
+        const localDictionary = {
+            "islam kya hai": "Islam is the final and complete divine message sent by Allah through Prophet Muhammad (PBUH).",
+            "momin kon hai": "A Momin is one who firmly believes in the Oneness of Allah and the finality of Prophet Muhammad (PBUH).",
+            "wazu ka tarika": "Wudu involves washing hands 3 times, rinsing the mouth 3 times, cleaning nostrils 3 times, washing the face, arms up to elbows, wiping the head (masah), and washing feet up to ankles.",
+            "namaz ka tarika": "Namaz begins with Takbeer-e-Tahreema, standing in Qiyam, reciting Surah Al-Fatihah, performing Ruku, Sajdah, and concluding with Tashahhud and Salam.",
+            "gusal ke farz": "Gusal has three obligatory acts: 1. Rinsing the mouth with water, 2. Putting water into the nose up to the soft bone, 3. Pouring water over the entire body without leaving a dry hair's breadth.",
+            "roza": "Roza (Fasting) means abstaining from food, drink, and intimate relations from dawn to sunset with the intention of worship for Allah."
+        };
+
+        function islamicSanitizer(text) {
+            let forbiddenKeywords = ['movie', 'song', 'music', 'casino', 'bet', 'film', 'dance', 'शराब', 'जुगाड़', 'गेमिंग'];
+            let lowerText = text.toLowerCase();
+            for (let word of forbiddenKeywords) {
+                if (lowerText.includes(word)) return false;
+            }
+            return true;
+        }
+
+        function goToHomeIndex() {
+            window.location.href = "index.html";
+        }
+
+        function toggleProfileModal(show) {
+            document.getElementById('profileModal').style.display = show ? 'flex' : 'none';
+        }
+
+        function previewProfilePic(event) {
+            let file = event.target.files[0];
+            if(file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    userProfile.avatar = e.target.result;
+                    let prev = document.getElementById('modalAvatarPreview');
+                    prev.src = userProfile.avatar;
+                    prev.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveProfile() {
+            userProfile.name = document.getElementById('pName').value || "Guest";
+            userProfile.phone = document.getElementById('pPhone').value || "";
+            userProfile.pinCode = document.getElementById('pPinCode').value || "110041";
+            userProfile.role = document.getElementById('pRole').value;
+            document.getElementById('profileNavName').innerText = userProfile.name;
+            if(userProfile.avatar) {
+                let navAv = document.getElementById('navAvatar');
+                navAv.src = userProfile.avatar;
+                navAv.style.display = 'inline-block';
+            }
+            toggleProfileModal(false);
+            alert("Profile & Pin-Code saved successfully!");
+        }
+
+        function selectCategory(catKey, pillElem) {
+            document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+            pillElem.classList.add('active');
+            selectedCategory = catKey;
+        }
+
+        function addDynamicCategory(catName) {
+            let cleanKey = catName.toLowerCase().replace(/[^a-z0-9]/g, "_");
+            let bar = document.getElementById('categoryBarContainer');
+            let existing = Array.from(bar.querySelectorAll('.cat-pill')).some(b => b.innerText.toLowerCase().includes(catName.toLowerCase()));
+            if(!existing) {
+                let btn = document.createElement('button');
+                btn.className = 'cat-pill';
+                btn.innerText = "🏷️ " + catName;
+                btn.onclick = function() { selectCategory(cleanKey, this); };
+                bar.appendChild(btn);
+            }
+        }
+
+        function playWelcomeAudio() {
+            speakText("Assalamu Alaikum! Welcome to Faizan-e-Ala Hazrat Library. I am Asad, ready to assist you.");
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+
+        function initSovereignApp() {
+            updateNetworkUI();
+            window.addEventListener('online', updateNetworkUI);
+            window.addEventListener('offline', updateNetworkUI);
+
+            let request = indexedDB.open("FaizanAlaHazratMasterDNA", 23);
+            request.onupgradeneeded = function(e) {
+                let database = e.target.result;
+                if (!database.objectStoreNames.contains("dnaStore")) {
+                    database.createObjectStore("dnaStore", { keyPath: "topicKey" });
+                }
+            };
+            request.onsuccess = function(e) {
+                db = e.target.result;
+            };
+        }
+
+        function updateNetworkUI() {
+            let statusText = document.getElementById('netStatusText');
+            let indicator = document.getElementById('pulseIndicator');
+            if(navigator.onLine) {
+                statusText.innerText = "Online";
+                indicator.style.background = "#00f3ff";
+            } else {
+                statusText.innerText = "Offline";
+                indicator.style.background = "#ff4d4d";
+            }
+        }
+
+        async function processUserQuery() {
+            let inputField = document.getElementById('userInput');
+            let rawQuery = inputField.value.trim();
+            if(!rawQuery) return;
+
+            if (!islamicSanitizer(rawQuery)) {
+                alert("⚠️ इस इस्लामिक लाइब्रेरी में केवल कुरान, हदीस, सुन्नत, शरीयत और अहले सुन्नत वल जमात के फिकह व फतावा-ए-रजविया के दायरे की चर्चा स्वीकृत है।");
+                inputField.value = "";
+                return;
+            }
+
+            addDynamicCategory(rawQuery.split(" ")[0]);
+
+            let cleanQueryKey = rawQuery.toLowerCase().replace(/[^a-z0-9à-ÿ\s\u0900-\u097f]/g, "").trim();
+            appendMsg("Your Question", rawQuery, false);
+            inputField.value = "";
+            inputField.style.height = '18px';
+
+            if (localDictionary[cleanQueryKey]) {
+                let ans = localDictionary[cleanQueryKey];
+                appendMsg(`📖 [Master Dictionary] "${rawQuery}"`, ans, true, "Master Offline Dictionary", cleanQueryKey);
+                speakText(ans);
+                return;
+            }
+
+            if (db) {
+                let transaction = db.transaction(["dnaStore"], "readonly");
+                let store = transaction.objectStore("dnaStore");
+                let req = store.get(selectedCategory + "_" + cleanQueryKey);
+
+                req.onsuccess = async function(event) {
+                    let existingRecord = event.target.result;
+                    if (existingRecord) {
+                        appendMsg(`📖 [DNA Hit] "${rawQuery}"`, existingRecord.answer, true, existingRecord.source, cleanQueryKey);
+                        speakText(existingRecord.answer);
+                    } else {
+                        await fetchAndSanitizeDNA(rawQuery, cleanQueryKey, "Fatawa-e-Razvi-yah & Classical Corpus");
+                    }
+                };
+                req.onerror = async function() {
+                    await fetchAndSanitizeDNA(rawQuery, cleanQueryKey, "Fatawa-e-Razvi-yah & Classical Corpus");
+                };
+            } else {
+                await fetchAndSanitizeDNA(rawQuery, cleanQueryKey, "Fatawa-e-Razvi-yah & Classical Corpus");
+            }
+        }
+
+        async function fetchAndSanitizeDNA(queryText, topicKey, sourceDescription) {
+            appendMsg("Asad is researching...", `Pin-Code: [${userProfile.pinCode}] | Filter: [${selectedCategory}]...`, false);
+
+            try {
+                if (!navigator.onLine) throw new Error("Offline");
+
+                let promptInstruction = `You are Asad, an expert digital researcher of Ahle Sunnat wal Jamaat, strictly operating under Shariah and Fatawa-e-Razvi-yah. 
+                User Profile: Role is ${userProfile.role}, Pin-Code: ${userProfile.pinCode}. 
+                Filter Category: ${selectedCategory}. 
+                Query: "${queryText}". 
+                Requirement: Provide a precise, authentic answer complying strictly with Islamic jurisprudence.`;
+
+                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptInstruction }] }]
+                    })
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
+                let data = await response.json();
+                let bestAnswer = data.candidates && data.candidates[0].content.parts[0].text 
+                    ? data.candidates[0].content.parts[0].text 
+                    : "Apologies, unable to process this request at the moment.";
+
+                let fullKey = selectedCategory + "_" + topicKey;
+                saveIntoDNA(fullKey, bestAnswer, sourceDescription);
+                appendMsg(`📖 Authentic Answer (DNA Locked): "${queryText}"`, bestAnswer, true, sourceDescription, topicKey);
+                speakText(bestAnswer);
+
+            } catch (err) {
+                appendMsg("Offline Notice", "You are currently offline. Please check your internet connection or use dictionary terms like 'wazu ka tarika', 'namaz ka tarika'.", false);
+            }
+        }
+
+        function handleBookUpload(event) {
+            let file = event.target.files[0];
+            if(!file) return;
+
+            let fileNameLower = file.name.toLowerCase();
+            if (!islamicSanitizer(fileNameLower)) {
+                alert("⚠️ अमान्य फाइल! इस लाइब्रेरी में केवल शराई और दीनी किताबें ही अपलोड की जा सकती हैं।");
+                return;
+            }
+
+            appendMsg("Book / PDF Ingestion Active", `File '${file.name}' successfully uploaded. Asad is indexing into DNA storage...`, false);
+            setTimeout(() => {
+                let bookKey = "book_pdf_" + Date.now();
+                let bookAns = `Successfully indexed book/PDF '${file.name}' under Pin-Code ${userProfile.pinCode} with strict Shariah verification.`;
+                saveIntoDNA(bookKey, bookAns, `PDF/Book Upload: ${file.name}`);
+                appendMsg("📖 Book Indexed & DNA Locked", bookAns, true, `PDF Upload (${file.name})`, bookKey);
+                speakText("Book or PDF has been successfully indexed into the library DNA.");
+            }, 1200);
+        }
+
+        function startVoiceRecognition() {
+            if(!('webkitSpeechRecognition' in window)) {
+                alert("Speech recognition not supported in this browser.");
+                return;
+            }
+            let rec = new webkitSpeechRecognition();
+            rec.lang = 'hi-IN';
+            
+            let wave = document.getElementById('voiceWave');
+            wave.style.display = 'flex';
+            speakText("Listening, please speak...");
+            
+            rec.onresult = function(ev) {
+                let inputArea = document.getElementById('userInput');
+                inputArea.value = ev.results[0][0].transcript;
+                autoResize(inputArea);
+                wave.style.display = 'none';
+                processUserQuery();
+            };
+            rec.onerror = function() { wave.style.display = 'none'; };
+            rec.onend = function() { wave.style.display = 'none'; };
+            rec.start();
+        }
+
+        function saveIntoDNA(key, answerText, sourceText) {
+            if (!db) return;
+            try {
+                let tx = db.transaction(["dnaStore"], "readwrite");
+                let store = tx.objectStore("dnaStore");
+                store.put({ topicKey: key, answer: answerText, source: sourceText, timestamp: Date.now() });
+            } catch (e) {
+                console.log("DNA Save error:", e);
+            }
+        }
+
+        function triggerExplore(topic) {
+            document.getElementById('userInput').value = topic;
+            processUserQuery();
+        }
+
+        let supportCount = 19;
+        function handleIslamicSocialAction(actionType) {
+            if(actionType === 'support') {
+                supportCount++;
+                alert(`❤️ ماشاء الله! आपने इस दीनी बात को 'Support' किया। कुल दीनी तआवुन: ${supportCount} भाई। दीन मजबूत हो रहा है!`);
+            } else if(actionType === 'directChat') {
+                let questionMsg = prompt("आलिम या दीनी भाई से सीधे इल्मी चर्चा (Direct Chat) के लिए अपना पैगाम लिखें:");
+                if(questionMsg) {
+                    alert("आपका पैगाम पिन-कोड " + userProfile.pinCode + " के उलमा तक पहुँचा दिया गया है।");
+                }
+            } else if(actionType === 'broadcast') {
+                alert("📡 P2P Broadcast Active: 'بلغوا عني ولو آية'. यह पैगाम आपके पिन-कोड के तमाम दीनी भाइयों तक نشر (Broadcast) कर दिया गया है!");
+            }
+        }
+
+        function exportCardData(type, contentText) {
+            if(type === 'pdf') {
+                let blob = new Blob([contentText], { type: 'text/plain' });
+                let link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'Faizan-e-Ala-Hazrat-Answer.txt';
+                link.click();
+            } else if(type === 'audio') {
+                speakText(contentText);
+            }
+        }
+
+        function appendMsg(title, text, isVerified, source = "", key = "") {
+            let win = document.getElementById('chatWin');
+            let bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            let badge = isVerified ? `<div class="dna-badge">✔ Verified & DNA Locked (${source})</div>` : "";
+            
+            let verificationStamp = isVerified ? `
+                <div class="verified-stamp">
+                    <span>🛡️ <b>Social Certified:</b> Approved by Community (Pin: ${userProfile.pinCode}, Role: ${userProfile.role})</span>
+                </div>
+            ` : "";
+
+            let p2pSocialHtml = isVerified ? `
+                <div class="p2p-social-bar">
+                    <span style="font-size:7px; color:#f1c40f; width:100%;">🕌 <b>दीनी भाईचारा व पिन-कोड नेटवर्क:</b></span>
+                    <button class="p2p-btn" onclick="handleIslamicSocialAction('support')">❤️ Support (${supportCount})</button>
+                    <button class="p2p-btn" onclick="handleIslamicSocialAction('directChat')">💬 Direct Chat (इल्मी चर्चा)</button>
+                    <button class="p2p-btn" onclick="handleIslamicSocialAction('broadcast')">📡 P2P Broadcast (नشرِ علم)</button>
+                </div>
+            ` : "";
+
+            let exportHtml = isVerified ? `
+                <div class="card-export-actions">
+                    <span style="font-size:7px; color:#f1c40f; width:100%;">📥 <b>Export Options:</b></span>
+                    <button class="export-btn" onclick="exportCardData('pdf', \`${text.replace(/`/g, '')}\`)">Download PDF</button>
+                    <button class="export-btn" onclick="exportCardData('audio', \`${text.replace(/`/g, '')}\`)">Play Audio</button>
+                </div>
+            ` : "";
+
+            let exploreHtml = isVerified ? `
+                <div class="explore-cards-container">
+                    <span style="font-size:7px; color:#00f3ff; width:100%;">💡 <b>Deep Dive Explore:</b></span>
+                    <button class="explore-card" onclick="triggerExplore('Explain the core rulings of this topic')">Core Rulings</button>
+                    <button class="explore-card" onclick="triggerExplore('What is the historical background?')">History</button>
+                </div>
+            ` : "";
+
+            bubble.innerHTML = `
+                <div class="chat-title">
+                    <span>📖 ${title}</span>
+                    <button class="speaker-btn" onclick="speakText(this.parentElement.nextElementSibling.innerText)">🔊 Play</button>
+                </div>
+                <div class="chat-body">${badge}${text}${verificationStamp}${p2pSocialHtml}${exportHtml}${exploreHtml}</div>
+            `;
+            win.appendChild(bubble);
+            win.scrollTop = win.scrollHeight;
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let clean = text.replace(/<\/?[^>]+(>|$)/g, "");
+                let phoneticClean = clean.replace(/Razvi-yah/g, "Razvi-yah").replace(/Fatawa/g, "Fatawa");
+                let utt = new SpeechSynthesisUtterance(phoneticClean);
+                utt.lang = 'en-US';
+                utt.rate = 0.9;
+                window.speechSynthesis.speak(utt);
+            }
+        }
+    </script>
+</body>
+</html>

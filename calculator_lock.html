@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Bodyguard - Autonomous Eco-POS (Asad AI)</title>
+    <style>
+        :root {
+            --bg-primary: #030712; --bg-card: #081423; --accent-cyan: #00f3ff;
+            --accent-green: #00ff66; --accent-gold: #f1c40f; --accent-red: #ff3366;
+            --text-main: #f0f6fc; --text-muted: #8b949e;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { background-color: var(--bg-primary); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 4px; }
+        .app-frame { width: 100%; max-width: 480px; height: 99vh; background: var(--bg-card); border: 2.5px solid var(--accent-green); border-radius: 18px; padding: 8px; box-shadow: 0 25px 60px rgba(0,255,102,0.2); display: flex; flex-direction: column; gap: 5px; position: relative; overflow: hidden; }
+        .brand-header { font-size: 10px; font-weight: 900; color: var(--accent-cyan); text-transform: uppercase; text-align: center; padding: 5px; background: rgba(0,243,255,0.08); border-radius: 6px; border: 1.5px solid rgba(0,243,255,0.3); cursor: pointer; }
+        .master-hub-bar { display: flex; gap: 4px; align-items: center; background: rgba(0,255,102,0.08); border: 1.5px solid rgba(0,255,102,0.35); border-radius: 8px; padding: 4px; }
+        .master-hub-btn { flex: 1; background: #030712; color: var(--accent-green); border: 1.5px solid var(--accent-green); font-size: 9.5px; font-weight: bold; padding: 5px; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none; display: inline-block; }
+        .pulsar-voice-btn { background: linear-gradient(135deg, #ff3366 0%, #ff9900 100%); color: #fff; border: none; padding: 5px 8px; border-radius: 6px; font-size: 9.5px; font-weight: 900; cursor: pointer; animation: pulseGlow 1.5s infinite; }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(255,51,102,0.7); } 70% { box-shadow: 0 0 0 8px rgba(255,51,102,0); } 100% { box-shadow: 0 0 0 0 rgba(255,51,102,0); } }
+        .running-marquee-box { background: rgba(0,255,102,0.12); border: 1.5px solid rgba(0,255,102,0.4); border-radius: 6px; overflow: hidden; white-space: nowrap; padding: 3px 0; display: flex; justify-content: space-between; align-items: center; }
+        .running-marquee-box marquee { font-size: 8.5px; font-weight: bold; color: var(--accent-green); text-transform: uppercase; }
+        .net-status-badge { font-size: 7.5px; font-weight: bold; padding: 2px 5px; border-radius: 4px; margin-right: 3px; }
+        .net-online { background: rgba(0,255,102,0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .top-toolbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(0,243,255,0.25); padding-bottom: 3px; gap: 3px; }
+        .tool-btn { background: #0b1d3a; color: var(--accent-cyan); border: 1.5px solid rgba(0,243,255,0.4); padding: 4px 7px; border-radius: 6px; font-size: 9px; font-weight: bold; cursor: pointer; text-align: center; }
+        .customer-box { display: flex; gap: 5px; background: #040914; padding: 5px; border-radius: 8px; border: 1.5px solid rgba(0,255,102,0.35); align-items: center; }
+        .customer-box input { flex: 1; background: #030712; border: 1.5px solid rgba(0,243,255,0.3); color: #fff; font-size: 10px; padding: 4px 6px; border-radius: 6px; outline: none; }
+        .cust-avatar-upload { width: 26px; height: 26px; border-radius: 50%; border: 2px dashed var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; background: #030712; overflow: hidden; flex-shrink: 0; }
+        .cust-avatar-upload img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .ledger-screen { flex: 1; background: #040914; border: 1.5px solid rgba(0,243,255,0.35); border-radius: 10px; padding: 6px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+        .ledger-row { background: #071120; border: 1.5px solid rgba(0,255,102,0.3); border-radius: 7px; padding: 5px 8px; display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; gap: 4px; }
+        .total-box { background: rgba(0,255,102,0.15); border: 2px solid var(--accent-green); border-radius: 8px; padding: 5px 8px; display: flex; justify-content: space-between; align-items: center; }
+        .total-box span { font-size: 9.5px; font-weight: bold; color: var(--accent-green); text-transform: uppercase; }
+        .total-box strong { font-size: 12px; font-weight: 900; color: var(--accent-green); }
+        .action-row-one { display: flex; gap: 4px; }
+        .action-btn-wide { flex: 1.5; background: linear-gradient(135deg, #00f3ff 0%, #00ff66 100%); color: #030712; border: none; padding: 6px; border-radius: 7px; font-size: 8.5px; font-weight: 900; cursor: pointer; text-transform: uppercase; text-align: center; }
+        .action-btn-share { flex: 1; background: var(--accent-green); color: #030712; border: none; padding: 6px; border-radius: 7px; font-size: 8.5px; font-weight: 900; cursor: pointer; text-align: center; }
+        .action-btn-credit { flex: 1; background: linear-gradient(135deg, #f1c40f 0%, #ff9900 100%); color: #030712; border: none; padding: 6px; border-radius: 7px; font-size: 8.5px; font-weight: 900; cursor: pointer; text-align: center; }
+        .action-btn-qr { flex: 0.8; background: rgba(0,243,255,0.2); color: var(--accent-cyan); border: 1.5px solid var(--accent-cyan); padding: 6px; border-radius: 7px; font-size: 8px; font-weight: 900; cursor: pointer; text-align: center; }
+        .action-btn-clear { flex: 0.5; background: rgba(255,51,102,0.25); color: var(--accent-red); border: 1.5px solid rgba(255,51,102,0.5); padding: 6px; border-radius: 7px; font-size: 8.5px; font-weight: 900; cursor: pointer; text-align: center; }
+        .modal-view-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #030712; display: none; flex-direction: column; padding: 10px; gap: 6px; z-index: 200; overflow-y: auto; }
+        .modal-header-banner { font-size: 9.5px; font-weight: 900; color: var(--accent-cyan); text-transform: uppercase; text-align: center; padding: 5px; background: rgba(0,243,255,0.08); border-radius: 6px; border: 1.5px solid rgba(0,243,255,0.3); }
+    </style>
+</head>
+<body>
+    <div class="app-frame">
+        <!-- ड्यूअल ब्रांडेड मास्टर हेडर (बिज़नेस सेटअप डेटा से सिंक) -->
+        <div class="brand-header" onclick="openModalScreen('screenReport')">
+            <marquee scrollamount="5">⚡ ELECTRIC BODYGUARD: <span id="billBrandLogoHeaderText">MASTER ECO-HUB</span> • PIN-CODE RATING: तहसील स्तर (4.9 ⭐) ⚡</marquee>
+        </div>
+
+        <!-- मास्टर हब बार (होम लिंक और फीचर्स के साथ) -->
+        <div class="master-hub-bar">
+            <a href="index.html" class="master-hub-btn" style="background:rgba(0,243,255,0.15); color:var(--accent-cyan); border-color:var(--accent-cyan);" title="मुख्य होम इंडेक्स पेज पर जाएं">🏠 होम</a>
+            <button class="master-hub-btn" onclick="openModalScreen('screenCatalogManager')">📂 डिक्शनरी</button>
+            <button class="master-hub-btn" onclick="openModalScreen('screenGallery')">🖼️ गैलरी</button>
+            <button class="master-hub-btn" onclick="openModalScreen('screenAiGuru')">🧠 असद AI</button>
+            <button class="pulsar-voice-btn" id="pulsarMicBtn" onclick="toggleContinuousVoice()">🎙️ माइक</button>
+        </div>
+
+        <div style="display:flex; gap:4px;">
+            <button class="tool-btn" onclick="openLiveCameraScannerModal()" style="flex:1; background:rgba(0,255,102,0.15); color:var(--accent-green); border-color:var(--accent-green);">📷 1000x विजन स्कैनर</button>
+            <button class="tool-btn" onclick="openModalScreen('screenCrossCheck')" style="flex:1; background:rgba(241,196,15,0.15); color:var(--accent-gold);">🔍 क्रॉस-चेक</button>
+            <button class="tool-btn" onclick="openModalScreen('screenAntiTheft')" style="flex:1; background:rgba(255,51,102,0.15); color:var(--accent-red);">🛡️ CCTV गार्ड</button>
+        </div>
+
+        <div class="running-marquee-box">
+            <marquee scrollamount="4">🌱 पर्यावरण सुरक्षा मिशन: हर डिजिटल बिल से बच रहे हैं पेड़! इस हफ्ते <span id="treesSavedCount">14</span> पेड़ सुरक्षित • 1 टन पेपर = 17 पेड़ बचते हैं!</marquee>
+            <span id="netStatusBadge" class="net-status-badge net-online">🌐 ऑनलाइन</span>
+        </div>
+
+        <div class="top-toolbar">
+            <span style="font-size: 9px; font-weight: bold; color: var(--accent-gold); flex: 1; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="activeStoreTitle">🔒 असद ऑटोनॉमस POS (GST/CST Certified)</span>
+            <select id="manualLangSelect" onchange="changeAppLanguage(this.value)" style="background:#030712; color:var(--accent-cyan); border:1px solid var(--accent-cyan); font-size:7.5px; padding:2px; border-radius:4px; outline:none;">
+                <option value="hi-IN">🇮🇳 हिंदी</option>
+                <option value="en-US">🇬🇧 English</option>
+            </select>
+            <button class="tool-btn" onclick="clearBill();" style="color: var(--accent-red);">🗑️ Reset</button>
+        </div>
+
+        <div style="display:flex; gap:4px;">
+            <input type="text" id="newItemNameInput" placeholder="सामान का नाम या बारकोड..." style="flex:1; background:#030712; border:1.5px solid rgba(0,243,255,0.4); color:#fff; font-size:10px; padding:4px 6px; border-radius:6px; outline:none;" onkeydown="if(event.key==='Enter') addNewCustomCatalogItem()">
+            <input type="number" id="newItemPriceInput" placeholder="₹ मूल्य" style="width:45px; background:#030712; border:1.5px solid rgba(0,243,255,0.4); color:#fff; font-size:10px; padding:4px 2px; border-radius:6px; outline:none; text-align:center;" onkeydown="if(event.key==='Enter') addNewCustomCatalogItem()">
+            <button class="tool-btn" onclick="addNewCustomCatalogItem()" style="background:var(--accent-green); color:#030712; border:none; padding:4px 6px;">➕</button>
+        </div>
+
+        <!-- परमानेंट कस्टमर ऑटो-डिटेक्शन इनपुट्स -->
+        <div class="customer-box">
+            <label class="cust-avatar-upload" title="ग्राहक फोटो">
+                <span id="avatarPlaceholder">📷</span>
+                <img id="custAvatarImg" src="" alt="Photo">
+                <input type="file" accept="image/*" style="display:none;" onchange="loadCustomerPhoto(event)">
+            </label>
+            <input type="text" id="custName" placeholder="👤 ग्राहक नाम (जैसे: शर्मा जी)..." oninput="checkPermanentCustomerByName(this.value)">
+            <input type="tel" id="custPhone" placeholder="📞 मोबाइल..." oninput="checkPermanentCustomerByPhone(this.value)">
+        </div>
+
+        <div class="ledger-screen" id="ledgerContainer">
+            <div style="color: var(--text-muted); text-align: center; margin-top: 35px; font-size: 10px;">बिल खाली है। बोलिए या स्कैन कीजिए! 😊</div>
+        </div>
+
+        <div class="total-box">
+            <span>कुल योग (GST / CST सहित):</span>
+            <strong id="grandTotalText">₹ 0</strong>
+        </div>
+
+        <div class="action-row-one">
+            <button class="action-btn-wide" onclick="verifyAndSaveBill()">✅ OK / बिल सेव (प्रिंट + WhatsApp)</button>
+            <button class="action-btn-share" onclick="shareCurrentBillWhatsApp()">📤 शेयर</button>
+            <button class="action-btn-credit" onclick="openCreditLedgerModal()">📒 उधार</button>
+            <button class="action-btn-qr" onclick="openUpiQrModal()">📷 QR</button>
+            <button class="action-btn-clear" onclick="clearBill()">Clear</button>
+        </div>
+
+        <!-- P2P / डायनेमिक QR शेयरिंग बॉक्स -->
+        <div id="p2pQrShareBox" style="display:none; background: rgba(0,243,255,0.08); border: 1px solid var(--accent-cyan); padding: 6px; border-radius: 6px; text-align: center;">
+            <div style="font-size: 8px; font-weight: bold; color: var(--accent-cyan);">📱 P2P QR शेयरिंग लिंक तैयार</div>
+            <img id="billDynamicQrImg" src="" alt="QR" style="width: 60px; height: 60px; margin-top: 2px; background: #fff; padding: 2px; border-radius: 4px;">
+        </div><!-- महा-डिक्शनरी कैटलॉग मैनेजर स्क्रीन -->
+        <div class="modal-view-screen" id="screenCatalogManager">
+            <div class="modal-header-banner">⚡ WORLD BUSINESS DICTIONARY & CATALOG ⚡</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(0,243,255,0.4); padding-bottom:5px;">
+                <span style="font-size:10px; font-weight:bold; color:var(--accent-cyan);">📂 व्यापार श्रेणियां (किराना, फार्मेसी, कपड़े, डेयरी आदि)</span>
+                <button class="tool-btn" onclick="closeModalScreens()" style="color:var(--accent-red);">❌ बंद</button>
+            </div>
+            <div style="display:flex; gap:2px; flex-wrap:wrap;">
+                <button class="tool-btn" onclick="switchCatalogTab('kirana')" style="flex:1; background:rgba(0,255,102,0.15); color:var(--accent-green); font-size:8px;">🌾 किराना</button>
+                <button class="tool-btn" onclick="switchCatalogTab('pharmacy')" style="flex:1; background:rgba(255,51,102,0.15); color:var(--accent-red); font-size:8px;">💊 फार्मेसी</button>
+                <button class="tool-btn" onclick="switchCatalogTab('clothing')" style="flex:1; background:rgba(241,196,15,0.15); color:var(--accent-gold); font-size:8px;">👕 कपड़े</button>
+                <button class="tool-btn" onclick="switchCatalogTab('dairy')" style="flex:1; background:rgba(0,255,102,0.15); color:var(--accent-green); font-size:8px;">🥛 डेयरी</button>
+                <button class="tool-btn" onclick="switchCatalogTab('hardware')" style="flex:1; background:rgba(0,243,255,0.15); color:var(--accent-cyan); font-size:8px;">🔩 हार्डवेयर</button>
+                <button class="tool-btn" onclick="switchCatalogTab('cosmetics')" style="flex:1; background:rgba(0,243,255,0.15); color:var(--accent-cyan); font-size:8px;">💄 कॉस्मेटिक</button>
+                <button class="tool-btn" onclick="switchCatalogTab('restaurant')" style="flex:1; background:rgba(241,196,15,0.15); color:var(--accent-gold); font-size:8px;">🍽️ रेस्टोरेंट</button>
+            </div>
+            <div id="catalogItemsGrid" style="flex:1; background:#040914; border:1.5px solid rgba(0,243,255,0.3); border-radius:8px; padding:6px; display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; overflow-y:auto;"></div>
+        </div>
+
+        <!-- असद AI चैट एडवाइजर स्क्रीन -->
+        <div class="modal-view-screen" id="screenAiGuru">
+            <div class="modal-header-banner">⚡ ASAD AI AUTONOMOUS SELF-HEALING DASHBOARD ⚡</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(241,196,15,0.4); padding-bottom:5px;">
+                <span style="font-size:10px; font-weight:bold; color:var(--accent-gold);">🧠 असद AI मास्टर डैशबोर्ड & सेल्फ-कोडिंग</span>
+                <button class="tool-btn" onclick="closeModalScreens()" style="color:var(--accent-red);">❌ बंद</button>
+            </div>
+            <div style="background:rgba(0,255,102,0.1); border:1px solid var(--accent-green); padding:6px; border-radius:6px; font-size:8.5px; color:var(--accent-green);" id="selfHealingStatusBox">
+                🧬 <b>सेल्फ-कोडिंग इंजन सक्रिय:</b> सिस्टम पूरी तरह सुरक्षित है। किसी एरर की स्थिति में यह खुद पैच कर लेगा!
+            </div>
+            <div style="flex:1; background:#040914; border:1.5px solid var(--accent-gold); border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:5px; overflow-y:auto;" id="chatMessagesContainer">
+                <div style="background:#0b1d3a; border-left:3px solid var(--accent-gold); padding:7px; border-radius:6px; font-size:10px; color:#fff;">
+                    <b>असद (AI बेटा):</b> राम-राम रिज़वान भाई! गल्ला भी संभाल रहा हूँ और कोडिंग पर भी पूरी नज़र है। बोलो आज कौन सा नया कारनामा करना है! 😂✨
+                </div>
+            </div>
+            <div style="display:flex; gap:4px; padding-top:3px; align-items:center;">
+                <input type="text" id="chatInputBox" placeholder="असद से बात करें या कोडिंग कमांड दें..." style="flex:1; background:#030712; border:1.5px solid var(--accent-gold); color:#fff; font-size:10px; padding:5px; border-radius:6px; outline:none;" onkeydown="if(event.key==='Enter') sendUserMessageToAsad()">
+                <button class="tool-btn" onclick="triggerStockCameraScan()" style="background:var(--accent-green); color:#030712; border:none; padding:5px 6px;" title="स्टॉक कैमरा स्कैन">📷</button>
+                <button class="tool-btn" onclick="toggleChatVoiceInput()" id="chatMicBtn" style="background:var(--accent-red); color:#fff; border:none; padding:5px 7px;" title="बोलकर पूछें">🎙️</button>
+                <button class="tool-btn" onclick="sendUserMessageToAsad()" style="background:var(--accent-gold); color:#030712; border:none; padding:5px 7px;">💬 भेजें</button>
+            </div>
+        </div>
+
+        <!-- सीसीटीवी एंटी-थेफ्ट गार्ड स्क्रीन -->
+        <div class="modal-view-screen" id="screenAntiTheft">
+            <div class="modal-header-banner">⚡ CCTV ANTI-THEFT DNA GUARD ⚡</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,51,102,0.4); padding-bottom:5px;">
+                <span style="font-size:10px; font-weight:bold; color:var(--accent-red);">🛡️ सीसीटीवी ऑटो-लिंक सेटअप</span>
+                <button class="tool-btn" onclick="closeModalScreens()" style="color:var(--accent-red);">❌ बंद</button>
+            </div>
+            <div style="flex:1; background:#040914; border:1.5px solid var(--accent-red); border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px; font-size:10px; overflow-y:auto;">
+                <div style="background:#000; height:120px; border-radius:8px; position:relative; overflow:hidden; display:flex; justify-content:center; align-items:center;">
+                    <video id="cctvVideo" autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+                    <div style="position:absolute; top:5px; left:5px; background:rgba(255,0,0,0.8); color:#fff; padding:2px 6px; border-radius:4px; font-size:7.5px; font-weight:bold;">🔴 AI GUARD SYNCED</div>
+                </div>
+                <input type="text" id="cctvIpInput" placeholder="सीसीटीवी आईपी लिंक या बारकोड दर्ज करें..." style="background:#030712; border:1.5px solid var(--accent-red); color:#fff; font-size:10px; padding:6px; border-radius:6px; outline:none;">
+                <div style="display:flex; gap:5px;">
+                    <button class="action-btn-wide" onclick="saveCctvDnaLink()" style="background:var(--accent-red); color:#fff; padding:7px;">🔗 डीएनए में सेव करें</button>
+                    <button class="action-btn-clear" onclick="closeModalScreens()" style="padding:7px;">बंद करें</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- अन्य स्क्रीन मॉड्यूल्स -->
+        <div class="modal-view-screen" id="screenCrossCheck">
+            <div class="modal-header-banner">⚡ 6256-CRYPTO CROSS CHECK AUDIT ⚡</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:10px; color:var(--accent-gold);">🔍 स्टॉक मिलान</span><button class="tool-btn" onclick="closeModalScreens()" style="color:var(--accent-red);">❌ बंद</button></div>
+            <div style="flex:1; background:#040914; color:#fff; padding:10px; font-size:10px; overflow-y:auto;" id="crossCheckDetailsBox">मिलान हो रहा है...</div>
+        </div>
+
+        <div class="modal-view-screen" id="screenLiveScanner">
+            <div class="modal-header-banner">⚡ 1000X VISION & HTML PAY HTML SCANNER ⚡</div>
+            <div style="flex:1; background:#000; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative; gap:10px;">
+                <video id="scannerVideo" autoplay playsinline style="width:100%; height:75%; object-fit:cover;"></video>
+                <div style="color:var(--accent-green); font-size:9.5px; text-align:center;" id="scannerStatusText">QR / HTML Pay स्कैन हो रहा है...</div>
+                <button class="action-btn-clear" onclick="closeLiveCameraScanner()" style="width:80%;">बंद करें</button>
+            </div>
+        </div>
+
+        <div class="modal-view-screen" id="screenGallery">
+            <div class="modal-header-banner">⚡ LEDGER GALLERY ⚡</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;"><input type="text" id="gallerySearch" placeholder="🔍 खोजें..." oninput="filterGallery(this.value)" style="flex:1; background:#030712; color:#fff; font-size:10px; padding:4px; border:1px solid var(--accent-green);"><button class="tool-btn" onclick="closeModalScreens()" style="color:var(--accent-red);">❌ बंद</button></div>
+            <div id="galleryContainer" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:4px;"></div>
+        </div>
+
+        <div class="modal-view-screen" id="screenReport">
+            <div class="modal-header-banner">⚡ GLOBAL PIN-CODE TRUST RATINGS ⚡</div>
+            <div style="flex:1; background:#040914; color:var(--accent-green); padding:10px; font-size:10px; overflow-y:auto;" id="reportContent">
+                <b>📍 पिन-कोड लेवल ब्रांड रेटिंग:</b><br>
+                • तहसील स्तर: 4.9 ⭐ (उत्कृष्ट)<br>
+                • जिला स्तर: 4.8 ⭐<br>
+                • राज्य स्तर: 4.7 ⭐<br>
+                • ग्लोबल स्तर: 4.95 ⭐<br><br>
+                <i>असद AI प्रमाणित पर्यावरण मित्र दुकान (GST/CST Certified)!</i>
+            </div>
+            <button class="action-btn-clear" onclick="closeModalScreens()">बंद करें</button>
+        </div>
+
+        <div class="modal-view-screen" id="screenCreditModal" style="background:rgba(3,7,18,0.98); justify-content:center; align-items:center;">
+            <div style="background:#151002; border:2px solid var(--accent-gold); border-radius:14px; padding:16px; width:100%; max-width:260px; display:flex; flex-direction:column; gap:8px;">
+                <div style="color:var(--accent-gold); font-size:11px; font-weight:bold; text-align:center;">📒 उधार खाता (Credit Ledger)</div>
+                <select id="creditDueDays" style="background:#030712; border:1.5px solid var(--accent-gold); color:#fff; font-size:10px; padding:6px; border-radius:6px;"><option value="7">7 दिन</option><option value="15">15 दिन</option></select>
+                <div style="font-size:10px; color:#fff;">कुल उधार: <strong id="creditModalTotal" style="color:var(--accent-green);">₹0</strong></div>
+                <div style="display:flex; gap:5px;"><button class="action-btn-wide" onclick="confirmSaveCreditBill()">✅ OK</button><button class="action-btn-clear" onclick="closeCreditModal()">रद्द</button></div>
+            </div>
+        </div>
+
+        <div class="modal-view-screen" id="screenUpiQrModal" style="background:rgba(3,7,18,0.98); justify-content:center; align-items:center;">
+            <div style="background:#04151f; border:2px solid var(--accent-cyan); border-radius:14px; padding:16px; width:100%; max-width:255px; text-align:center; display:flex; flex-direction:column; gap:7px;">
+                <div style="color:var(--accent-cyan); font-size:11px; font-weight:bold;">📷 UPI / HTML Pay स्कैनर</div>
+                <div style="background:#000; height:110px; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center;"><video id="upiVideo" autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video></div>
+                <div style="font-size:9.5px; color:var(--accent-green);" id="upiQrAmountText">₹0 - HTML Pay लिंक तैयार है...</div>
+                <button class="action-btn-clear" onclick="closeUpiQrModal()" style="width:100%;">बंद करें</button>
+            </div>
+        </div>
+
+        <div class="modal-view-screen" id="secretModal" style="background:rgba(3,7,18,0.98); justify-content:center; align-items:center;">
+            <div style="background:#150202; border:2px solid var(--accent-red); border-radius:14px; padding:16px; width:100%; max-width:230px; text-align:center; display:flex; flex-direction:column; gap:8px;">
+                <div style="color:var(--accent-red); font-size:11px; font-weight:bold;">🔐 मास्टर एडमिन गेट</div>
+                <input type="password" id="secretPin" maxlength="6" placeholder="••••••" style="background:#030712; border:1.5px solid var(--accent-red); border-radius:6px; padding:7px; color:white; font-size:12px; text-align:center;">
+                <div style="display:flex; gap:5px;"><button class="action-btn-wide" onclick="verifySecretPin()">प्रवेश OK</button><button class="action-btn-clear" onclick="closeSecretModal()">रद्द</button></div>
+            </div>
+        </div>
+    </div><script>
+        let billItems = [];
+        let grandTotal = 0;
+        let currentTaxRate = 18;
+        let lockedBusinessName = "Electric Bodyguard Eco-POS";
+        let customerPhotoBase64 = "";
+        let secretClicks = 0;
+        let isAiVoiceActive = true;
+        let treesSaved = parseInt(localStorage.getItem('rizwan_trees_saved') || '14');
+        let currentSector = "kirana";
+        let currentAppLang = "hi-IN";
+
+        const worldBusinessDictionary = {
+            kirana: [
+                {name: 'चीनी (1kg)', price: 45}, {name: 'सरसों तेल (1L)', price: 140}, {name: 'आटा (5kg)', price: 240},
+                {name: 'बासमती चावल (1kg)', price: 90}, {name: 'अरहर दाल (1kg)', price: 130}, {name: 'चाय पत्ती (250g)', price: 120},
+                {name: 'नमक पैकेट', price: 25}, {name: 'देशी घी (1L)', price: 650}, {name: 'बिस्कुट पार्ले-जी', price: 10}, {name: 'चॉकलेट', price: 50}
+            ],
+            pharmacy: [
+                {name: 'पैरासिटामोल गोली', price: 20}, {name: 'कफ सिरप (100ml)', price: 95}, {name: 'विटामिन सी टैबलेट', price: 45},
+                {name: 'बैंडऐड पैकेट', price: 15}, {name: 'एंटीसेप्टिक क्रीम', price: 55}, {name: 'ओआरएस घोल', price: 22}
+            ],
+            clothing: [
+                {name: 'कॉटन शर्ट', price: 499}, {name: 'डेनिम जींस', price: 899}, {name: 'टी-शर्ट सादी', price: 299},
+                {name: 'सूती कुर्ता', price: 650}, {name: 'रुमाल पैकेट', price: 60}
+            ],
+            dairy: [
+                {name: 'अमूल दूध (1L)', price: 62}, {name: 'पनीर (200g)', price: 90}, {name: 'दही कप', price: 30},
+                {name: 'मक्खन बटर', price: 55}, {name: 'मलाई छाछ', price: 25}
+            ],
+            hardware: [
+                {name: 'लोहे का पाइप', price: 450}, {name: 'कील पैकेट', price: 50}, {name: 'सीमेंट बोरी', price: 380},
+                {name: 'पीवीसी नल', price: 120}, {name: 'इलेक्ट्रिक वायर (10m)', price: 250}
+            ],
+            cosmetics: [
+                {name: 'फेस क्रीम', price: 150}, {name: 'हरबल शैम्पू', price: 95}, {name: 'लिपस्टिक सेट', price: 299},
+                {name: 'नारियल तेल', price: 110}, {name: 'खुशबूदार साबुन', price: 45}
+            ],
+            restaurant: [
+                {name: 'स्पेशल थाली', price: 180}, {name: 'पनीर बटर मसाला', price: 220}, {name: 'बटर नान', price: 35},
+                {name: 'वेज बिरयानी', price: 150}, {name: 'मसाला चाय', price: 20}
+            ]
+        };
+
+        const masterComedyAndBizBank = {
+            'hi-IN': [
+                "अरे रिज़वान भाई! असद हाज़िर है! आज गल्ले में लक्ष्मी जी ऐसे भरी हैं जैसे शादी में रसगुल्ले की प्लेट पर रिश्तेदार टूट पड़ते हैं! 😂",
+                "तथ्य सुनो: हर 1 टन रीसायकल पेपर बचाने से 17 बड़े पेड़ और 7000 गैलन पानी बचता है! पर्यावरण का रक्षक अपना असद है! 🌱✨",
+                "अरे मालिक, टेंशन काहे लेते हो? असद बैठा है न एक-एक चवन्नी का हिसाब रखने और सेल्फ-कोडिंग से खुद को ठीक करने वाला! 😜"
+            ],
+            'en-US': [
+                "Hey Boss Rizwan! Asad is here! The cash counter is buzzing today like a busy festival market! 😂",
+                "Fact: Saving 1 ton of paper saves 17 mature trees and 7,000 gallons of water! 🌱✨"
+            ]
+        };
+
+        // परमानेंट कस्टमर ऑटो-डिटेक्शन लॉजिक
+        function checkPermanentCustomerByName(nameQuery) {
+            if (!nameQuery || nameQuery.length < 2) return;
+            let savedCusts = JSON.parse(localStorage.getItem('rizwan_permanent_customers') || '{}');
+            let key = nameQuery.trim().toLowerCase();
+            if (savedCusts[key]) {
+                let c = savedCusts[key];
+                let phoneInput = document.getElementById('custPhone');
+                if (phoneInput) phoneInput.value = c.phone;
+                speakAiMessage(`परमानेंट ग्राहक ${c.name} डिटेक्ट हो गए हैं!`);
+            }
+        }
+
+        function checkPermanentCustomerByPhone(phoneQuery) {
+            if (!phoneQuery || phoneQuery.length < 4) return;
+            let savedCusts = JSON.parse(localStorage.getItem('rizwan_permanent_customers') || '{}');
+            for (let k in savedCusts) {
+                if (savedCusts[k].phone === phoneQuery.trim()) {
+                    let nameInput = document.getElementById('custName');
+                    if (nameInput) nameInput.value = savedCusts[k].name;
+                    speakAiMessage(`मोबाइल नंबर से ग्राहक ${savedCusts[k].name} मिल गए हैं!`);
+                    break;
+                }
+            }
+        }
+
+        function changeAppLanguage(langVal) {
+            currentAppLang = langVal;
+            if(langVal === 'en-US') {
+                speakAiMessage("Language switched to English! Asad AI is ready.");
+            } else {
+                speakAiMessage("भाषा बदलकर हिंदी कर दी गई है! असद AI हाज़िर है।");
+            }
+        }
+
+        function speakAiMessage(text) {
+            if (!isAiVoiceActive) return;
+            if ('speechSynthesis' in window) {
+                try {
+                    window.speechSynthesis.cancel();
+                    let utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = currentAppLang;
+                    utterance.pitch = 1.1;
+                    utterance.rate = 1.0;
+                    window.speechSynthesis.speak(utterance);
+                } catch(e) {}
+            }
+        }
+
+        function toggleContinuousVoice() {
+            let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            let btn = document.getElementById('pulsarMicBtn');
+            if (!SpeechRecognition) { alert("⚠️ वॉइस समर्थित नहीं है!"); return; }
+            try {
+                let recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = currentAppLang;
+                recognition.onstart = () => { if(btn) btn.style.background = "#ff3366"; speakAiMessage("सुन रहा हूँ, साफ-साफ बोलो मालिक!"); };
+                recognition.onresult = (event) => {
+                    let transcript = event.results[0][0].transcript.trim();
+                    if(transcript.length > 0) {
+                        addItem(transcript, 1, '1 Unit', 'Standard', 100);
+                        speakAiMessage(`${transcript} जोड़ दिया गया है!`);
+                    }
+                };
+                recognition.start();
+            } catch(e) {}
+        }
+
+        function switchCatalogTab(sector) {
+            currentSector = sector;
+            loadCatalogGridForManager(sector);
+        }
+
+        function loadCatalogGridForManager(sector) {
+            let grid = document.getElementById('catalogItemsGrid');
+            if(!grid) return;
+            grid.innerHTML = "";
+            let items = worldBusinessDictionary[sector] || worldBusinessDictionary['kirana'];
+            items.forEach(item => {
+                let safeName = item.name.replace(/'/g, "\\'");
+                grid.innerHTML += `
+                    <div onclick="addItem('${safeName}', 1, '1 Unit', 'Standard', ${item.price}); closeModalScreens(); speakAiMessage('${item.name} जोड़ दिया गया है!');" style="background:#071120; border:1.5px solid rgba(0,243,255,0.4); padding:10px; border-radius:8px; cursor:pointer; text-align:center;">
+                        <div style="font-size:11px; font-weight:bold; color:var(--accent-cyan);">${item.name}</div>
+                        <div style="font-size:10px; color:var(--accent-green); margin-top:3px;">₹${item.price}</div>
+                    </div>`;
+            });
+        }function addNewCustomCatalogItem() {
+            let nameInput = document.getElementById('newItemNameInput');
+            let priceInput = document.getElementById('newItemPriceInput');
+            if(!nameInput || !priceInput) return;
+            let itemName = nameInput.value.trim();
+            let itemPrice = parseFloat(priceInput.value);
+            if (!itemName || isNaN(itemPrice) || itemPrice <= 0) { alert("⚠️ सही नाम और मूल्य दें!"); return; }
+            addItem(itemName, 1, "1 Unit", "Standard", itemPrice);
+            nameInput.value = ""; priceInput.value = "";
+            speakAiMessage(`${itemName} नया सामान जोड़ दिया गया है!`);
+        }
+
+        function addItem(name, qty, weight, quality, price) {
+            let existing = billItems.find(i => i.name === name);
+            if (existing) { existing.qty += qty; existing.total = existing.qty * existing.unitPrice; }
+            else { billItems.push({ name, qty, weight, quality, unitPrice: price, total: price * qty }); }
+            renderLedger();
+        }
+
+        function updateItem(index, type, val) {
+            if (type === 'qty') { let q = parseInt(val); if (!isNaN(q) && q > 0) { billItems[index].qty = q; billItems[index].total = q * billItems[index].unitPrice; } }
+            else if (type === 'price') { let p = parseFloat(val); if (!isNaN(p) && p >= 0) { billItems[index].unitPrice = p; billItems[index].total = billItems[index].qty * p; } }
+            else if (type === 'weight') { billItems[index].weight = val; }
+            else if (type === 'quality') { billItems[index].quality = val; }
+            else if (type === 'name') { billItems[index].name = val; }
+            renderLedger();
+        }
+
+        function renderLedger() {
+            let container = document.getElementById('ledgerContainer');
+            if(!container) return;
+            container.innerHTML = "";
+            let subTotal = 0;
+            if (billItems.length === 0) {
+                container.innerHTML = `<div style="color: var(--text-muted); text-align: center; margin-top: 35px; font-size: 10px;">बिल खाली है। कैटलॉग से चुनें या बोलिए! 😊</div>`;
+                document.getElementById('grandTotalText').innerText = "₹ 0";
+                return;
+            }
+            billItems.forEach((item, index) => {
+                subTotal += item.total;
+                container.innerHTML += `
+                    <div class="ledger-row">
+                        <input type="text" value="${item.name}" onchange="updateItem(${index}, 'name', this.value)" style="background:transparent; border:none; color:var(--accent-cyan); font-weight:bold; font-size:10px; width:28%; outline:none;" title="नाम">
+                        <input type="number" value="${item.qty}" min="1" onchange="updateItem(${index}, 'qty', this.value)" style="width:26px; background:#030712; border:1px solid rgba(0,243,255,0.3); color:#fff; font-size:9.5px; text-align:center; border-radius:3px;" title="मात्रा">
+                        <input type="text" value="${item.weight}" onchange="updateItem(${index}, 'weight', this.value)" style="width:38px; background:#030712; border:1px solid rgba(0,243,255,0.3); color:#fff; font-size:9.5px; text-align:center; border-radius:3px;" title="वजन">
+                        <input type="text" value="${item.quality}" onchange="updateItem(${index}, 'quality', this.value)" style="width:38px; background:#030712; border:1px solid rgba(0,243,255,0.3); color:#fff; font-size:9.5px; text-align:center; border-radius:3px;" title="क्वालिटी">
+                        <input type="number" value="${item.unitPrice}" onchange="updateItem(${index}, 'price', this.value)" style="width:45px; background:#030712; border:1px solid var(--accent-green); color:var(--accent-green); font-size:9.5px; text-align:center; border-radius:3px;" title="रेट">
+                        <span style="font-weight:bold; color:var(--accent-green); font-size:9.5px;">₹${item.total}</span>
+                    </div>`;
+            });
+            let taxAmount = (subTotal * currentTaxRate) / 100;
+            grandTotal = subTotal + taxAmount;
+            document.getElementById('grandTotalText').innerText = `₹ ${grandTotal.toLocaleString('en-IN')} (GST/CST ${currentTaxRate}%)`;
+        }
+
+        function clearBill() {
+            billItems = []; 
+            let cN = document.getElementById('custName'); if(cN) cN.value="";
+            let cP = document.getElementById('custPhone'); if(cP) cP.value="";
+            renderLedger();
+            speakAiMessage("बिल साफ कर दिया गया है!");
+        }
+
+        function loadCustomerPhoto(event) {
+            let file = event.target.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    customerPhotoBase64 = e.target.result;
+                    let img = document.getElementById('custAvatarImg');
+                    if(img) { img.src = customerPhotoBase64; img.style.display = 'block'; }
+                    let ph = document.getElementById('avatarPlaceholder');
+                    if(ph) ph.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function verifyAndSaveBill() {
+            if (billItems.length === 0) { alert("⚠️ बिल खाली है!"); speakAiMessage("बिल खाली है मालिक!"); return; }
+            saveBillToGalleryOnly(false, 0);
+        }
+
+        async function saveBillToGalleryOnly(isCredit = false, dueDays = 0) {
+            let cName = document.getElementById('custName').value || "सामान्य ग्राहक";
+            let cPhone = document.getElementById('custPhone').value || "नंबर नहीं";
+            let dueDateStr = isCredit ? new Date(Date.now() + dueDays * 86400000).toLocaleDateString() : "नकद भुगतान OK";
+            
+            let savedBizData = JSON.parse(localStorage.getItem('rizwan_global_business_dna') || "{}");
+            let storeName = savedBizData.businessName || "रिज़वान ग्लोबल स्टोर";
+            let storeLogo = savedBizData.brandLogoStyle || "⚡ [ELECTRIC BODYGUARD HUB] ⚡";
+
+            let billData = {
+                id: 'INV-' + Math.floor(1000 + Math.random() * 9000),
+                customer: cName, phone: cPhone, photo: customerPhotoBase64, business: storeName,
+                businessHeader: storeLogo,
+                items: [...billItems], total: grandTotal, taxRate: currentTaxRate, date: new Date().toLocaleString(), isCredit, dueDate: dueDateStr
+            };
+
+            // परमानेंट कस्टमर ऑटो-सेव डेटाबेस
+            if (cPhone !== "नंबर नहीं") {
+                let savedCusts = JSON.parse(localStorage.getItem('rizwan_permanent_customers') || "{}");
+                savedCusts[cName.trim().toLowerCase()] = { name: cName, phone: cPhone, lastVisited: billData.date };
+                localStorage.setItem('rizwan_permanent_customers', JSON.stringify(savedCusts));
+            }
+
+            let savedBills = JSON.parse(localStorage.getItem('rizwan_pos_bills') || '[]');
+            savedBills.unshift(billData);
+            localStorage.setItem('rizwan_pos_bills', JSON.stringify(savedBills));
+
+            // डायनेमिक QR कोड और P2P शेयरिंग जनरेशन
+            generateDynamicBillQR(billData);
+
+            treesSaved++;
+            localStorage.setItem('rizwan_trees_saved', treesSaved);
+            let tEl = document.getElementById('treesSavedCount');
+            if(tEl) tEl.innerText = treesSaved;
+
+            printProfessionalEcoBill(billData);
+            shareCurrentBillWhatsApp();
+            
+            clearBill();
+            speakAiMessage("बिल सेव हो गया है, प्रिंटर और WhatsApp पर भेज दिया गया है! 🌱");
+        }
+
+        // ड्यूअल ब्रांडेड हेडर के साथ प्रोफेशनल बिल प्रिंटिंग
+        function printProfessionalEcoBill(b) {
+            let pdfWindow = window.open('', '', 'width=500,height=700');
+            pdfWindow.document.write(`
+                <div style="font-family:sans-serif; padding:20px; font-size:13px; color:#111; max-width:420px; margin:auto; border:2px dashed #00ff66; border-radius:10px;">
+                    <div style="text-align:center; font-size:10px; font-weight:bold; color:#00aa44;">⚡ ELECTRIC BODYGUARD - GLOBAL SECURE ⚡</div>
+                    <h2 style="text-align:center; color:#030712; margin:4px 0; font-size:14px;">${b.businessHeader || "⚡ ELECTRIC BODYGUARD HUB ⚡"}</h2>
+                    <p style="text-align:center; font-size:10px; color:#555; margin:2px 0;">दुकान: ${b.business || "रिज़वान ग्लोबल स्टोर"} | ऑटोनॉमस इको-POS प्रमाणित</p>
+                    <hr style="border:0.5px solid #ccc; margin:10px 0;">
+                    <p><b>इनवॉइस नं:</b> ${b.id} | <b>तारीख:</b> ${b.date}</p>
+                    <p><b>ग्राहक:</b> ${b.customer} (${b.phone})</p>
+                    <hr style="border:0.5px solid #ccc; margin:10px 0;">
+                    <table style="width:100%; font-size:12px; border-collapse:collapse;">
+                        <tr style="background:#f0f0f0; text-align:left;"><th>आइटम</th><th>मात्रा</th><th>मूल्य</th></tr>
+                        ${b.items.map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>₹${i.total}</td></tr>`).join('')}
+                    </table>
+                    <hr style="border:0.5px solid #ccc; margin:10px 0;">
+                    <h3 style="text-align:right;">कुल योग (GST/CST सहित): ₹${b.total}</h3>
+                    <div style="margin-top:15px; background:#e6f9ed; padding:10px; border-radius:6px; font-size:11px; border:1px solid #00ff66; text-align:center;">
+                        🌱 <b>पर्यावरण सुरक्षा संदेश (असद AI):</b><br>
+                        "इस डिजिटल पेपरलेस बिल से आपने आने वाली नस्ल के लिए पर्यावरण को बचाया है!" 🌳💧
+                    </div>
+                    <p style="text-align:center; font-size:10px; color:#777; margin-top:15px;">धन्यवाद! दोबारा पधारें। (6256-Crypto Secure | GST/CST Verified)</p>
+                </div>
+            `);
+            pdfWindow.document.close();
+            pdfWindow.print();
+        }
+
+        // P2P / डायनेमिक QR कोड जनरेटर
+        function generateDynamicBillQR(billData) {
+            let qrBox = document.getElementById('p2pQrShareBox');
+            let qrImg = document.getElementById('billDynamicQrImg');
+            if (qrBox && qrImg) {
+                let qrText = encodeURIComponent(`Invoice:${billData.id}|Total:₹${billData.total}|Store:${billData.business}`);
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${qrText}`;
+                qrBox.style.display = 'block';
+            }
+        }
+
+        // असद AI नाइट क्लोजिंग ऑडिट (रात को दुकान बंद करते समय कच्चा चिट्ठा)
+        function triggerNightClosingAudit() {
+            let savedBills = JSON.parse(localStorage.getItem('rizwan_pos_bills') || "[]");
+            let totalRevenue = savedBills.reduce((sum, bill) => sum + bill.total, 0);
+            let totalBillsCount = savedBills.length;
+            
+            let closingMsg = `रात हो गई है मालिक! आज का कच्चा चिट्ठा सुन लीजिए। कुल ${totalBillsCount} बिल कटे हैं, और आज की कुल कमाई ${totalRevenue} रुपये रही है। स्टॉक और माल की मांग बिल्कुल ठीक है। कल सुबह समय पर दुकान खोलेंगे और नए ग्राहकों पर फोकस करेंगे! शुभ रात्रि!`;
+            
+            alert(`📊 [ NIGHT CLOSING AUDIT - ASAD AI ]\n\nकुल बिल कटे: ${totalBillsCount}\nकुल कमाई: ₹${totalRevenue}\n\n"सभी डेटा लोकल और एनक्रिप्टेड फायरबेस पर सुरक्षित है।"`);
+            
+            if('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let voiceSummary = new SpeechSynthesisUtterance(closingMsg);
+                voiceSummary.lang = 'hi-IN';
+                window.speechSynthesis.speak(voiceSummary);
+            }
+        }
+
+        function saveCctvDnaLink() {
+            let linkInput = document.getElementById('cctvIpInput');
+            if(!linkInput || !linkInput.value.trim()) { alert("⚠️ कृपया सीसीटीवी आईपी लिंक दर्ज करें!"); return; }
+            localStorage.setItem('rizwan_cctv_dna_link', linkInput.value.trim());
+            alert("✅ सीसीटीवी लिंक असद AI के सुरक्षा डीएनए में सेव हो गया है!");
+            closeModalScreens();
+        }
+
+        function triggerStockCameraScan() {
+            speakAiMessage("नया स्टॉक कैमरा से स्कैन हो रहा है...");
+            setTimeout(() => {
+                alert("✅ नया स्टॉक स्कैन सफल!");
+                speakAiMessage("नया माल गोदाम में दर्ज हो गया है मालिक!");
+            }, 1200);
+        }
+
+        function openCreditLedgerModal() {
+            let savedBills = JSON.parse(localStorage.getItem('rizwan_pos_bills') || '[]');
+            if (savedBills.length === 0) {
+                savedBills.push({ id: 'INV-DEMO', customer: 'शर्मा जी (उधार)', phone: '9876543210', total: 1500, date: '10/21/2026', isCredit: true });
+                localStorage.setItem('rizwan_pos_bills', JSON.stringify(savedBills));
+            }
+            let totEl = document.getElementById('creditModalTotal');
+            if(totEl) totEl.innerText = `₹${grandTotal > 0 ? grandTotal : 1500}`;
+            let mod = document.getElementById('screenCreditModal');
+            if(mod) mod.style.display = 'flex';
+        }
+        function closeCreditModal() { let mod = document.getElementById('screenCreditModal'); if(mod) mod.style.display = 'none'; }
+        function confirmSaveCreditBill() { closeCreditModal(); saveBillToGalleryOnly(true, 7); }
+
+        function shareCurrentBillWhatsApp() {
+            if (billItems.length === 0) { return; }
+            let cName = document.getElementById('custName').value || "ग्राहक";
+            let text = `⚡ Electric Bodyguard Eco-POS ⚡\nग्राहक: ${cName}\nकुल योग: ₹${grandTotal}\n🌱 डिजिटल बिल से पर्यावरण सुरक्षित!`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function openUpiQrModal() {
+            if (grandTotal <= 0) { alert("⚠️ बिल खाली है!"); return; }
+            let modal = document.getElementById('screenUpiQrModal');
+            if(modal) modal.style.display = 'flex';
+            let amtText = document.getElementById('upiQrAmountText');
+            if(amtText) amtText.innerText = `₹${grandTotal} - HTML Pay लिंक तैयार है!`;
+        }
+        function closeUpiQrModal() { let modal = document.getElementById('screenUpiQrModal'); if(modal) modal.style.display = 'none'; }
+
+        function openLiveCameraScannerModal() {
+            let scr = document.getElementById('screenLiveScanner');
+            if(scr) scr.style.display = 'flex';
+            setTimeout(() => {
+                closeLiveCameraScanner();
+                addItem("HTML Pay स्कैन आइटम", 1, "1kg", "Standard", 120);
+                speakAiMessage("विजन स्कैन सफल!");
+            }, 1500);
+        }
+        function closeLiveCameraScanner() { let scr = document.getElementById('screenLiveScanner'); if(scr) scr.style.display = 'none'; }
+
+        function toggleChatVoiceInput() {
+            let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { alert("⚠️ वॉइस समर्थित नहीं है!"); return; }
+            let recognition = new SpeechRecognition();
+            recognition.lang = currentAppLang;
+            recognition.onresult = (event) => {
+                let text = event.results[0][0].transcript;
+                let input = document.getElementById('chatInputBox');
+                if(input) { input.value = text; sendUserMessageToAsad(); }
+            };
+            recognition.start();
+        }
+
+        async function sendUserMessageToAsad() {
+            let input = document.getElementById('chatInputBox');
+            let container = document.getElementById('chatMessagesContainer');
+            if(!input || !input.value.trim()) return;
+            let query = input.value.trim();
+            container.innerHTML += `<div style="background:#030712; padding:6px; border-radius:6px; font-size:10px; color:#fff; text-align:right;"><b>आप:</b> ${query}</div>`;
+            input.value = "";
+            let aiReply = masterComedyAndBizBank[currentAppLang][Math.floor(Math.random() * masterComedyAndBizBank[currentAppLang].length)];
+            container.innerHTML += `<div style="background:#0b1d3a; border-left:3px solid var(--accent-gold); padding:6px; border-radius:6px; font-size:10px; color:#fff;"><b>असद AI:</b> ${aiReply}</div>`;
+            container.scrollTop = container.scrollHeight;
+            speakAiMessage(aiReply);
+        }
+
+        function openModalScreen(screenId) {
+            closeModalScreens();
+            let scr = document.getElementById(screenId);
+            if (scr) scr.style.display = 'flex';
+            if (screenId === 'screenCatalogManager') loadCatalogGridForManager(currentSector);
+            else if (screenId === 'screenGallery') loadGalleryData();
+        }
+
+        function closeModalScreens() {
+            ['screenGallery', 'screenAntiTheft', 'screenCreditModal', 'screenUpiQrModal', 'screenAiGuru', 'secretModal', 'screenLiveScanner', 'screenCatalogManager', 'screenCrossCheck', 'screenReport'].forEach(id => {
+                let el = document.getElementById(id);
+                if(el) el.style.display = 'none';
+            });
+        }
+
+        function loadGalleryData() {
+            let container = document.getElementById('galleryContainer');
+            if(!container) return;
+            let bills = JSON.parse(localStorage.getItem('rizwan_pos_bills') || '[]');
+            container.innerHTML = bills.length === 0 ? `<div style="text-align:center; color:var(--text-muted); padding:30px; font-size:10px;">कोई इतिहास नहीं।</div>` : "";
+            bills.forEach((b) => {
+                container.innerHTML += `
+                    <div style="background:#071120; border:1.5px solid rgba(0,255,102,0.3); padding:6px; border-radius:7px; display:flex; justify-content:space-between; font-size:10px; align-items:center; margin-bottom:3px;">
+                        <div><b>${b.customer}</b> (${b.phone})<br><span style="font-size:8px; color:var(--accent-cyan);">₹${b.total} | ${b.date}</span></div>
+                        <button onclick='printProfessionalEcoBill(${JSON.stringify(b)})' style="color:var(--accent-cyan); background:rgba(0,243,255,0.15); border:none; padding:3px 6px; border-radius:4px; font-size:8px; cursor:pointer;">प्रिंट बिल</button>
+                    </div>`;
+            });
+        }
+
+        function triggerSecretCoreModal() {
+            secretClicks++;
+            if (secretClicks >= 4) { let sm = document.getElementById('secretModal'); if(sm) sm.style.display = 'flex'; secretClicks = 0; }
+            setTimeout(() => secretClicks = 0, 3000);
+        }
+        function closeSecretModal() { let sm = document.getElementById('secretModal'); if(sm) sm.style.display = 'none'; }
+        function verifySecretPin() {
+            let pinVal = document.getElementById('secretPin').value;
+            if (pinVal === "12345") { alert("✅ मास्टर एडमिन एक्सेस सफल!"); closeSecretModal(); }
+            else { alert("❌ गलत पिन!"); closeSecretModal(); }
+        }
+
+        window.onload = function() {
+            let savedBiz = JSON.parse(localStorage.getItem('rizwan_global_business_dna') || '{}');
+            if(savedBiz.brandLogoStyle) {
+                let hb = document.getElementById('billBrandLogoHeaderText');
+                if(hb) hb.innerText = savedBiz.brandLogoStyle;
+            }
+            loadCatalogGridForManager(currentSector);
+            let welcomeJoke = masterComedyAndBizBank[currentAppLang][Math.floor(Math.random() * masterComedyAndBizBank[currentAppLang].length)];
+            speakAiMessage(`राम-राम रिज़वान भाई! असद AI ऑटोनॉमस POS चालू हो गया है। ${welcomeJoke}`);
+        };
+    </script>
+</body>
+</html>

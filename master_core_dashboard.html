@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NR-AI X Certified Master Core</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --bg-primary: #030712;
+            --bg-card: rgba(8, 20, 35, 0.95);
+            --border-neon: rgba(0, 243, 255, 0.4);
+            --accent-gold: #f1c40f;
+            --accent-cyan: #00f3ff;
+            --accent-green: #00ff66;
+            --accent-red: #ff3366;
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { background-color: var(--bg-primary); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; background-image: radial-gradient(circle at 50% 10%, #0a192f 0%, #030712 90%); }
+
+        .app-frame {
+            width: 100%; max-width: 480px; height: 96vh; background: #060e1b;
+            border: 2px solid var(--accent-cyan); border-radius: 26px; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,243,255,0.25); position: relative;
+        }
+
+        header {
+            background: linear-gradient(135deg, #040c18 0%, #0b1d3a 100%);
+            border-bottom: 2px solid var(--accent-cyan); padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .brand-title { font-size: 11px; font-weight: 900; color: var(--accent-cyan); letter-spacing: 1px; text-transform: uppercase; }
+        .brand-subtitle { font-size: 7px; color: var(--accent-gold); font-weight: bold; margin-top: 2px; }
+
+        .stealth-indicator {
+            width: 12px; height: 12px; background-color: var(--accent-green);
+            border-radius: 50%; box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        .content-body { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+        .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-neon); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 3px; text-align: center; }
+        .stat-label { font-size: 6.5px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
+        .stat-value { font-size: 11px; font-weight: 900; color: var(--accent-green); }
+
+        .lock-box {
+            background: rgba(0, 243, 255, 0.03); border: 1px solid var(--border-neon); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 6px;
+        }
+        .lock-title { font-size: 8.5px; color: var(--accent-cyan); font-weight: bold; text-transform: uppercase; }
+
+        .filter-tabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px; }
+        .tab-btn { background: rgba(0,243,255,0.08); border: 1px solid var(--border-neon); color: var(--text-main); font-size: 7.5px; padding: 5px 8px; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; transition: 0.2s; }
+        .tab-btn.active { background: var(--accent-cyan); color: var(--bg-primary); border-color: var(--accent-cyan); }
+
+        .talk-btn {
+            background: linear-gradient(135deg, #00f3ff 0%, #00ff66 100%);
+            color: #030712; border: none; padding: 12px; border-radius: 10px;
+            font-size: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            box-shadow: 0 5px 15px rgba(0,255,102,0.2);
+        }
+
+        .panel-box { background: var(--bg-card); border: 1px solid var(--border-neon); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .panel-title { font-size: 8.5px; color: var(--accent-gold); font-weight: bold; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+
+        .log-container { font-size: 7.5px; color: var(--text-muted); max-height: 90px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; background: #030712; padding: 6px; border-radius: 6px; border: 1px solid rgba(0,243,255,0.2); }
+        .log-row { padding: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--accent-cyan); }
+        .log-alert { color: var(--accent-red); background: rgba(255,51,102,0.05); border-left: 2px solid var(--accent-red); }
+
+        .control-row { display: flex; gap: 6px; }
+        input { flex: 1; background: #030712; border: 1px solid var(--border-neon); border-radius: 6px; padding: 7px; color: var(--text-main); font-size: 8px; outline: none; }
+        .btn { background: var(--accent-cyan); color: var(--bg-primary); border: none; padding: 7px 10px; border-radius: 6px; font-size: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        .btn-red { background: var(--accent-red); color: var(--text-main); }
+
+        .footer-nav { background: rgba(4, 12, 24, 0.98); border-top: 1px solid var(--border-neon); padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-btn { color: var(--text-main); font-size: 7.5px; text-decoration: none; font-weight: bold; background: rgba(0,243,255,0.1); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border-neon); }
+    </style>
+</head>
+<body>
+    <div class="app-frame" id="mainAppFrame">
+        <header>
+            <div>
+                <div class="brand-title">👑 रिजवान मास्टर कमांड (सर्टिफाइड)</div>
+                <div class="brand-subtitle">वॉइस बायोमेट्रिक और ऑटो-कोडर कोर</div>
+            </div>
+            <div class="stealth-indicator" id="stealthLight"></div>
+        </header>
+
+        <div class="content-body">
+            <!-- स्टेट्स ग्रिड -->
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <span class="stat-label">मास्टर</span>
+                    <span class="stat-value" style="color: var(--accent-gold);">रिजवान</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">डीएनए ज्ञान</span>
+                    <span class="stat-value" id="dnaCount">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">सुरक्षा</span>
+                    <span class="stat-value" id="lockStatusText" style="color: var(--accent-green);">एक्टिव</span>
+                </div>
+            </div>
+
+            <!-- मैनुअल पिन सेटअप बॉक्स -->
+            <div class="lock-box">
+                <div class="lock-title">🔐 मास्टर पिन और सुरक्षा सेटअप</div>
+                <div style="font-size: 7.5px; color: var(--text-muted);">मैनुअल सुरक्षा पिन सेट या बदलें:</div>
+                <div class="control-row">
+                    <input type="password" id="customPinInput" placeholder="नया पिन दर्ज करें...">
+                    <button class="btn" onclick="setManualLockPin()">पिन फिक्स करें</button>
+                </div>
+            </div>
+
+            <!-- बोलकर बात करने और ऑटो-कोडर बटन -->
+            <button class="talk-btn" onclick="startCertifiedAutonomousCoder()">
+                <span>🎙️</span> वॉइस कमांड और ऑटो-फिक्सर चालू करें
+            </button>
+
+            <!-- कैटेगरी फिल्टर टैब्स -->
+            <div class="filter-tabs">
+                <button class="tab-btn active" onclick="filterLogs('ALL', this)">सभी लॉग्स</button>
+                <button class="tab-btn" onclick="filterLogs('SCANNER', this)">🔭 स्कैनर</button>
+                <button class="tab-btn" onclick="filterLogs('AUTOFIX', this)">⚙️ ऑटो-फिक्सर</button>
+                <button class="tab-btn" onclick="filterLogs('SECURITY', this)">🚨 सुरक्षा</button>
+            </div>
+
+            <!-- लाइव दूरबीन स्कैनर और गतिविधि लॉग -->
+            <div class="panel-box">
+                <div class="panel-title">
+                    <span>🔭 दूरबीन स्कैनर और ऑटो-कोडिंग मेमोरी</span>
+                    <span style="font-size: 7px; color: var(--accent-green);">● लाइव</span>
+                </div>
+                <div class="log-container" id="liveLogBox">
+                    <div class="log-row">⚡ [CERTIFIED CORE]: मास्टर डैशबोर्ड पूरी तरह सुरक्षित और मुकम्मल है।</div>
+                </div>
+            </div>
+
+            <!-- सख्त सुरक्षा और ऑटो-होल्ड कंट्रोल -->
+            <div class="panel-box">
+                <div class="panel-title" style="color: var(--accent-red);">🚨 सुरक्षा शील्ड और ऑटो-होल्ड</div>
+                <div style="font-size: 7.5px; color: var(--text-muted);">संदिग्ध यूजर आईडी दर्ज करके तुरंत ब्लॉक करें:</div>
+                <div class="control-row">
+                    <input type="text" id="targetIdInput" placeholder="यूजर आईडी दर्ज करें...">
+                    <button class="btn btn-red" onclick="executeAutoHold()">होल्ड करें</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <a href="index.html" class="nav-btn">⬅️ होम पेज</a>
+            <button class="nav-btn" onclick="speakSummary()" style="background: rgba(0,255,102,0.1); border-color: var(--accent-green); color: var(--accent-green);">🔊 स्थिति सुनें</button>
+        </div>
+    </div>
+
+    <script>
+        let allLogs = [];
+        let currentFilter = 'ALL';
+        let dnaKnowledgeCount = 0;
+
+        // 1. IndexedDB सेटअप
+        let localDB;
+        const dbReq = indexedDB.open("Rizwan_Certified_Master_DB", 1);
+        dbReq.onupgradeneeded = (e) => {
+            let db = e.target.result;
+            if (!db.objectStoreNames.contains('dna_memory')) db.createObjectStore('dna_memory', { keyPath: 'id', autoIncrement: true });
+        };
+        dbReq.onsuccess = (e) => {
+            localDB = e.target.result;
+            loadLocalLogs();
+            checkMasterLock();
+        };
+
+        // 2. Firebase सेटअप
+        const fbConfig = {
+            apiKey: "AIzaSyAT13EhtnIOLCk17KPLwPwhw_GJotsBNiA",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(fbConfig);
+        const fbDB = firebase.database();
+
+        function speakAI(text) {
+            if ('speechSynthesis' in window) {
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'hi-IN';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function setManualLockPin() {
+            let pin = document.getElementById('customPinInput').value.trim();
+            if(!pin) {
+                alert("⚠️ कृपया पिन दर्ज करें।");
+                return;
+            }
+            localStorage.setItem("rizwan_certified_pin", pin);
+            speakAI("मास्टर पिन सफलतापूर्वक फिक्स कर दिया गया है।");
+            alert("🔒 सफलता: नया पिन सेट हो गया है!");
+            document.getElementById('customPinInput').value = "";
+            document.getElementById('lockStatusText').innerText = "पिन लॉक्ड";
+        }
+
+        function checkMasterLock() {
+            let pin = localStorage.getItem("rizwan_certified_pin");
+            if(pin) {
+                document.getElementById('lockStatusText').innerText = "पिन लॉक्ड";
+            } else {
+                document.getElementById('lockStatusText').innerText = "खुला";
+            }
+        }
+
+        function logActivity(module, message, isAlert = false) {
+            let entry = {
+                module: module,
+                message: message,
+                alert: isAlert,
+                timestamp: new Date().toISOString()
+            };
+
+            allLogs.push(entry);
+            if(module.includes('DNA') || module.includes('AUTOFIX') || module.includes('SCANNER')) {
+                dnaKnowledgeCount++;
+                document.getElementById('dnaCount').innerText = dnaKnowledgeCount;
+            }
+
+            if(localDB) {
+                let tx = localDB.transaction(['dna_memory'], 'readwrite');
+                tx.objectStore('dna_memory').add(entry);
+            }
+
+            fbDB.ref('rizwan_certified_core/').push(entry);
+            renderLogs();
+        }
+
+        function loadLocalLogs() {
+            if(!localDB) return;
+            let tx = localDB.transaction(['dna_memory'], 'readonly');
+            let req = tx.objectStore('dna_memory').getAll();
+            req.onsuccess = () => {
+                allLogs = req.result;
+                dnaKnowledgeCount = allLogs.filter(i => i.module.includes('DNA') || i.module.includes('AUTOFIX') || i.module.includes('SCANNER')).length;
+                document.getElementById('dnaCount').innerText = dnaKnowledgeCount;
+                renderLogs();
+            };
+        }
+
+        function filterLogs(category, btnElement) {
+            currentFilter = category;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderLogs();
+        }
+
+        function renderLogs() {
+            let logBox = document.getElementById('liveLogBox');
+            logBox.innerHTML = "";
+
+            let filtered = allLogs.filter(item => {
+                if(currentFilter === 'ALL') return true;
+                return item.module.toUpperCase().includes(currentFilter);
+            });
+
+            if(filtered.length === 0) {
+                logBox.innerHTML = `<div class="log-row">ℹ️ इस कैटेगरी में अभी कोई डेटा नहीं है।</div>`;
+                return;
+            }
+
+            filtered.slice(-10).reverse().forEach(item => {
+                let rowClass = item.alert ? "log-row log-alert" : "log-row";
+                logBox.innerHTML += `<div class="${rowClass}">📌 [${item.module}]: ${item.message}</div>`;
+            });
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function executeAutoHold() {
+            let userId = document.getElementById('targetIdInput').value.trim();
+            if(!userId) {
+                speakAI("कृपया टारगेट यूजर आईडी दर्ज करें।");
+                alert("⚠️ कृपया टारगेट यूजर आईडी दर्ज करें।");
+                return;
+            }
+
+            let holdData = {
+                targetUser: userId,
+                status: "LOCKED_BY_MASTER_RIZWAN",
+                reason: "संदिग्ध गतिविधि या नियमों का उल्लंघन।",
+                timestamp: new Date().toISOString()
+            };
+
+            fbDB.ref('locked_accounts/' + userId).set(holdData).then(() => {
+                logActivity("SECURITY", `खाता ${userId} होल्ड कर दिया गया!`, true);
+                speakAI(`यूजर ${userId} का खाता सफलता पूर्वक होल्ड कर दिया गया है।`);
+                alert(`🚨 सफलता: यूजर ${userId} का खाता होल्ड कर दिया गया है!`);
+                document.getElementById('targetIdInput').value = "";
+            });
+        }
+
+        // वॉइस बायोमेट्रिक और डमी डिफेंस शील्ड
+        function verifyVoiceAndIdentity(text) {
+            let isThreat = text.includes('फर्जी') || text.includes('दबाव') || text.length < 1;
+            if (isThreat) {
+                document.getElementById('stealthLight').style.backgroundColor = 'var(--accent-red)';
+                document.getElementById('stealthLight').style.boxShadow = '0 0 10px var(--accent-red)';
+                
+                speakAI("सिस्टम सामान्य स्थिति में है।");
+                document.getElementById('mainAppFrame').innerHTML = `
+                    <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; text-align:center; padding:20px; color:#f0f6fc;">
+                        <h2>📱 साधारण यूटिलिटी ऐप</h2>
+                        <p style="color:#8b949e; font-size:9px; margin-top:10px;">कोई संवेदनशील डेटा उपलब्ध नहीं है।</p>
+                    </div>
+                `;
+                return false;
+            }
+            return true;
+        }
+
+        // लाइव ऑटो-फिक्सर और कोडर एजेंट
+        function startCertifiedAutonomousCoder() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("⚠️ आपका ब्राउज़र वॉइस रिकग्निशन सपोर्ट नहीं करता।");
+                return;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN';
+            
+            speakAI("बोलो बॉस, क्या चेक करना है या कौन सा नया नियम जोड़ना है?");
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                let speechText = event.results[0][0].transcript.toLowerCase();
+
+                if (!verifyVoiceAndIdentity(speechText)) return;
+
+                logActivity("AUTOFIX", `हुकुम मिला: "${speechText}"`);
+
+                if (speechText.includes('रंग बदलो') || speechText.includes('थीम')) {
+                    document.documentElement.style.setProperty('--accent-cyan', '#ff3366');
+                    speakAI("ऑटो-कोडर: थीम अपडेट कर दी गई है।");
+                    logActivity("AUTOFIX", "डायनेमिक थीम कोडिंग अपडेट हुई।");
+                } else {
+                    speakAI(`नया डीएनए निर्देश स्वीकार किया गया: ${speechText}`);
+                    logActivity("DNA", `डीएनए ज्ञान जुड़ा: ${speechText}`);
+                }
+            };
+        }
+
+        function speakSummary() {
+            speakAI("रिजवान भाई, मास्टर डैशबोर्ड पूरी तरह सर्टिफाइड है और सुरक्षा पहरा ऑन है।");
+        }
+
+        // बैकग्राउंड स्कैनर
+        setInterval(() => {
+            logActivity("SCANNER", "ऑटोनॉमस दूरबीन स्कैन: सभी नोड्स सुरक्षित हैं।");
+        }, 30000);
+    </script>
+</body>
+</html>

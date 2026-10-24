@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Bodyguard - Next-Gen Quantum Asad AI Studio</title>
+    <!-- Firebase SDK Setup -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --bg-primary: #030712; --bg-card: #081423; --accent-cyan: #00f3ff;
+            --accent-green: #00ff66; --accent-gold: #f1c40f; --accent-red: #ff3366;
+            --text-main: #f0f6fc; --text-muted: #8b949e;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { background-color: var(--bg-primary); color: var(--text-main); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        /* ऐप फ्रेम की हाइट को बिल्कुल फिक्स और संतुलित किया ताकि नेविगेशन न कटे */
+        .app-frame { 
+            width: 100%; max-width: 480px; height: 96vh; background: var(--bg-card); 
+            border: 2px solid var(--accent-cyan); border-radius: 12px; padding: 6px; 
+            box-shadow: 0 20px 50px rgba(0,243,255,0.15); display: flex; flex-direction: column; 
+            gap: 5px; position: relative; overflow: hidden; box-sizing: border-box;
+        }
+        
+        .brand-header { font-size: 9.5px; font-weight: 900; color: var(--accent-cyan); text-transform: uppercase; text-align: center; padding: 4px; background: rgba(0,243,255,0.08); border-radius: 5px; border: 1px solid rgba(0,243,255,0.3); flex-shrink: 0; }
+        .running-marquee-box { background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); border-radius: 4px; overflow: hidden; white-space: nowrap; padding: 2px 0; flex-shrink: 0; }
+        .running-marquee-box marquee { font-size: 7.5px; font-weight: bold; color: var(--accent-green); text-transform: uppercase; }
+        
+        .running-marquee-subbox { background: rgba(241,196,15,0.05); border: 1px solid rgba(241,196,15,0.2); border-radius: 4px; overflow: hidden; white-space: nowrap; padding: 2px 0; flex-shrink: 0; }
+        .running-marquee-subbox marquee { font-size: 7.5px; font-weight: bold; color: var(--accent-gold); text-transform: uppercase; }
+
+        .top-toolbar { display: flex; gap: 3px; align-items: center; width: 100%; flex-shrink: 0; }
+        .nav-btn { flex: 1; background: #030712; color: var(--accent-green); border: 1px solid var(--accent-green); font-size: 8px; font-weight: bold; padding: 4px; border-radius: 4px; cursor: pointer; text-align: center; text-decoration: none; display: inline-block; }
+        .lang-select { background: #030712; color: var(--accent-gold); border: 1px solid var(--accent-gold); font-size: 8px; font-weight: bold; padding: 4px; border-radius: 4px; outline: none; cursor: pointer; text-align: center; flex: 1; }
+        
+        .director-box { background: rgba(0,243,255,0.08); border: 1px solid var(--accent-cyan); border-radius: 5px; padding: 4px; display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
+        .director-screen { background: #030712; border: 1px solid var(--accent-gold); border-radius: 4px; padding: 4px; font-size: 9px; color: var(--accent-gold); height: 36px; overflow-y: auto; line-height: 1.1; }
+        
+        .custom-category-row { display: flex; gap: 3px; align-items: center; width: 100%; }
+        .custom-category-row input { flex: 1; background: #030712; border: 1px solid var(--accent-gold); color: #fff; font-size: 8.5px; padding: 4px; border-radius: 4px; outline: none; width: 100%; }
+        
+        /* ग्रिड एरिया जो सिर्फ अपने तय हिस्से में स्क्रॉल होगा और नेविगेशन को नहीं छुएगा */
+        .sector-grid { flex: 1; min-height: 0; background: #040914; border: 1px solid rgba(0,243,255,0.3); border-radius: 5px; padding: 5px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; overflow-y: auto; width: 100%; }
+        .sector-card { background: #071120; border: 1px solid rgba(0,255,102,0.4); padding: 6px; border-radius: 5px; cursor: pointer; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; transition: 0.2s; min-height: 52px; }
+        .sector-card:hover { border-color: var(--accent-cyan); background: rgba(0,243,255,0.1); }
+        .sector-icon { font-size: 14px; }
+        .sector-name { font-size: 8.5px; font-weight: bold; color: var(--accent-cyan); }
+        .sector-fingerprint-tag { font-size: 6px; color: var(--accent-gold); background: rgba(241,196,15,0.1); padding: 1px 3px; border-radius: 2px; }
+
+        /* बॉटम नेविगेशन बार अब पूरी तरह से सुरक्षित और फिक्स है */
+        .bottom-navigation { display: flex; gap: 3px; background: #040914; padding: 5px; border-radius: 5px; border: 1px solid rgba(0,243,255,0.2); flex-shrink: 0; }
+        .bottom-nav-btn { flex: 1; background: #030712; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); font-size: 8.5px; font-weight: bold; padding: 5px; border-radius: 4px; text-align: center; text-decoration: none; cursor: pointer; }
+        .bottom-nav-btn.active-studio { background: rgba(0,255,102,0.15); color: var(--accent-green); border-color: var(--accent-green); }
+    </style>
+</head>
+<body>
+    <div class="app-frame">
+        <div class="brand-header">
+            ⚡ ELECTRIC BODYGUARD: QUANTUM ASAD AI STUDIO ⚡
+        </div>
+        <div class="running-marquee-box">
+            <marquee scrollamount="4">🌐 One ID, One User, One Quantum DNA: Zero Overlapping Guaranteed for Billions of Users Worldwide!</marquee>
+        </div>
+        <div class="running-marquee-subbox">
+            <marquee scrollamount="4">✨ असद AI स्मार्ट गार्डियन: वैश्विक कानूनों, मानवता और 100 साल के फ्यूचरिस्टिक मानकों के साथ सक्रिय!</marquee>
+        </div>
+
+        <div class="top-toolbar">
+            <a href="index.html" class="nav-btn" style="color:var(--accent-cyan); border-color:var(--accent-cyan);">🏠 होम</a>
+            <a href="calculator_lock.html" class="nav-btn">🛡️ POS</a>
+            <select id="appLanguageSelect" class="lang-select" onchange="changeAppLanguage(this.value)">
+                <option value="hi-IN">🇮🇳 हिंदी</option>
+                <option value="ur-PK">🇵🇰 اردو</option>
+                <option value="pa-IN">🇮🇳 ਪੰਜਾਬੀ</option>
+                <option value="en-US">🇬🇧 English</option>
+                <option value="ar-SA">🇸🇦 العربية</option>
+            </select>
+            <button class="nav-btn" onclick="resetSmartAdmin()" style="background:var(--accent-red); color:#fff; border:none;">🔓 रीसेट</button>
+        </div>
+
+        <div class="director-box" id="directorBoxContainer">
+            <div style="font-size: 8px; font-weight: bold; color: var(--accent-gold);">✨ असद AI ग्लोबल डायरेक्टर गाइड:</div>
+            <div class="director-screen" id="directorScreenBox">
+                असद की जादुई दुनिया में आपका स्वागत है! अपना सही कारोबार चुनिए।
+            </div>
+            <div class="custom-category-row">
+                <input type="text" id="customCatInput" placeholder="➕ अपना नया कारोबार यहाँ लिखें..." onkeydown="if(event.key==='Enter') addNewCustomCategory()">
+                <button class="nav-btn" onclick="toggleVoiceInputForCategory()" style="background:var(--accent-red); color:#fff; border:none; padding:3px 5px;">🎙️ माइक</button>
+                <button class="nav-btn" onclick="addNewCustomCategory()" style="flex:0.5; background:var(--accent-gold); color:#030712; border:none;">जोड़ें</button>
+            </div>
+        </div>
+
+        <div class="sector-grid" id="sectorsContainer"></div>
+
+        <div class="bottom-navigation">
+            <a href="category_selection.html" class="bottom-nav-btn" style="color:var(--accent-cyan); border-color:var(--accent-cyan);">📂 कैटेगरीज</a>
+            <a href="studio.html" class="bottom-nav-btn active-studio">🎥 स्टूडियो (जहाँ जाएं)</a>
+            <a href="calculator_lock.html" class="bottom-nav-btn">🛡️ POS सुरक्षा</a>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAT13EhtniOLCk17KPLwPwhw_GjotsBNiA",
+            authDomain: "vendorawaaz-4a0a5.firebaseapp.com",
+            databaseURL: "https://vendorawaaz-4a0a5-default-rtdb.firebaseio.com",
+            projectId: "vendorawaaz-4a0a5",
+            storageBucket: "vendorawaaz-4a0a5.appspot.com"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const dbRef = firebase.database().ref('users_quantum_unique_registry');
+
+        let currentAppLang = localStorage.getItem('rizwan_app_lang') || "hi-IN";
+        document.getElementById('appLanguageSelect').value = currentAppLang;
+
+        let fiftySectorsList = [
+            {id: 'kirana', name: '🌾 किराना एवं जनरल स्टोर', icon: '🌾', desc: 'किराना और रोजमर्रा के सामान का कारोबार।'},
+            {id: 'pharmacy', name: '💊 मेडिकल / फार्मेसी', icon: '💊', desc: 'दवाइयों और हेल्थकेयर का मेडिकल स्टोर कारोबार।'},
+            {id: 'clothing', name: '👕 कपड़े एवं गारमेंट्स', icon: '👕', desc: 'फैशन, कपड़े और गारमेंट्स की दुकान का कारोबार।'},
+            {id: 'dairy', name: '🥛 डेयरी फार्म एवं मिल्क', icon: '🥛', desc: 'दूध, दही और डेयरी उत्पादों का कारोबार।'},
+            {id: 'hardware', name: '🔩 हार्डवेयर एवं पेंट्स', icon: '🔩', desc: 'हार्डवेयर टूल्स और रंगों का कारोबार।'},
+            {id: 'cosmetics', name: '💄 कॉस्मेटिक्स एवं श्रृंगार', icon: '💄', desc: 'सौंदर्य प्रसाधन और श्रृंगार का स्टोर।'},
+            {id: 'restaurant', name: '🍽️ रेस्तरां एवं फास्ट फूड', icon: '🍽️', desc: 'खान-पान, रेस्तरां और फास्ट फूड का कारोबार।'},
+            {id: 'electronics', name: '📱 मोबाइल एवं इलेक्ट्रॉनिक्स', icon: '📱', desc: 'मोबाइल फोन और इलेक्ट्रॉनिक उपकरणों की दुकान।'},
+            {id: 'veg_vendor', name: '🥔 सब्जी मंडी / ठेला', icon: '🥔', desc: 'ताजी सब्जियां, फल और ठेला मार्केट का कारोबार।'},
+            {id: 'juice_bar', name: '🧃 जूस एवं शेक कॉर्नर', icon: '🧃', desc: 'ताजे फलों के जूस और शेक का स्टॉल।'},
+            {id: 'sweets', name: '🍮 हलवाई एवं मिठाई', icon: '🍮', desc: 'पारंपरिक मिठाइयां और नमकीन का कारोबार।'},
+            {id: 'bakery', name: '🍞 बेकरी एवं केक शॉप', icon: '🍞', desc: 'ब्रेड, केक और बेकरी आइटम्स की दुकान।'},
+            {id: 'salon', name: '💇 हेयर सैलून एवं पार्लर', icon: '💇', desc: 'हेयर कटिंग सैलून और ब्यूटी पार्लर।'},
+            {id: 'gym', name: '🏋️ फिटनेस जिम', icon: '🏋️', desc: 'बॉडी बिल्डिंग और फिटनेस सेंटर।'},
+            {id: 'tailor', name: '🪡 टेलरिंग एवं बुटीक', icon: '🪡', desc: 'कपड़ों की सिलाई और बुटीक का काम।'},
+            {id: 'shoe_shop', name: '👞 जूता-चप्पल स्टोर', icon: '👞', desc: 'फुटवियर और जूतों की दुकान।'},
+            {id: 'book_store', name: '📚 स्टेशनरी एवं बुक्स', icon: '📚', desc: 'किताबें, कॉपियां और स्टेशनरी का स्टोर।'},
+            {id: 'furniture', name: '🪑 फर्नीचर एवं डेकोर', icon: '🪑', desc: 'लकड़ी और मेटल के फर्नीचर का कारोबार।'},
+            {id: 'auto_repair', name: '🏍️ बाइक/कार वर्कशॉप', icon: '🏍️', desc: 'गाड़ी सुधारने की कार्यशाला और सर्विसिंग।'},
+            {id: 'tent_house', name: '⛺ टेंट हाउस एवं केटरिंग', icon: '⛺', desc: 'शादी-विवाह का सामान और टेंट हाउस।'},
+            {id: 'opticals', name: '👓 ऑप्टिकल्स एवं चश्मा', icon: '👓', desc: 'चश्मे और आँखों की लेंस की दुकान।'},
+            {id: 'gift_shop', name: '🎁 गिफ्ट एवं टॉय शॉप', icon: '🎁', desc: 'उपहार और बच्चों के खिलौनों का स्टोर।'},
+            {id: 'pan_shop', name: '🌿 पान मसाला एवं टी स्टॉल', icon: '🌿', desc: 'पान की दुकान और चाय की टपरी।'},
+            {id: 'organic_farm', name: '🌱 ऑर्गेनिक फार्मिंग', icon: '🌱', desc: 'शुद्ध जैविक खेती और उत्पाद।'},
+            {id: 'poultry', name: '🥚 पोल्ट्री एवं एग फार्म', icon: '🥚', desc: 'अंडे और चिकन का पोल्ट्री फॉर्म।'},
+            {id: 'cctv_sec', name: '🛡️ सीसीटीवी एवं सुरक्षा', icon: '🛡️', desc: 'सुरक्षा कैमरे और अलार्म सिस्टम।'},
+            {id: 'solar_energy', name: '☀️ सोलर पैनल एवं इन्वर्टर', icon: '☀️', desc: 'सौर ऊर्जा उपकरण और इन्वर्टर।'},
+            {id: 'plumbing', name: '🔧 प्लंबिंग एवं सैनिटरी', icon: '🔧', desc: 'नल, पाइप और सैनिटरी फिटिंग का काम।'},
+            {id: 'electrician', name: '⚡ इलेक्ट्रिकल रिपेयरिंग', icon: '⚡', desc: 'बिजली उपकरण सुधार और वायरिंग।'},
+            {id: 'property', name: '🏠 प्रॉपर्टी डीलर', icon: '🏠', desc: 'जमीन, मकान और प्लाट की खरीद-बिक्री।'},
+            {id: 'pesticides', name: '🌾 कृषि खाद एवं बीज', icon: '🌾', desc: 'खाद, उर्वरक और खेती के बीज।'},
+            {id: 'dry_clean', name: '🧥 ड्राई क्लीनर्स', icon: '🧥', desc: 'कपड़ों की धुलाई और ड्राई क्लीनिंग।'},
+            {id: 'watch_store', name: '⌚ घड़ी एवं रिपेयर', icon: '⌚', desc: 'घड़ियां और उनकी मरम्मत की दुकान।'},
+            {id: 'gymnastics', name: '🧘 योग एवं फिटनेस', icon: '🧘', desc: 'योग कक्षाएं और स्वास्थ्य साधना।'},
+            {id: 'pet_shop', name: '🐶 पेट्स एवं डॉग फूड', icon: '🐶', desc: 'पालतू जानवर और उनका आहार।'},
+            {id: 'papad_maker', name: '🫓 पापड़ एवं आचार उद्योग', icon: '🫓', desc: 'घरेलू पापड़ और अचार बनाने का काम।'},
+            {id: 'sweet_corn', name: '🌽 भुट्टा एवं चाट स्टॉल', icon: '🌽', desc: 'भुट्टा और स्वादिष्ट चाट का स्टॉल।'},
+            {id: 'tea_stall', name: '☕ कुल्हड़ चाय स्टॉल', icon: '☕', desc: 'मिट्टी के कुल्हड़ वाली स्पेशल चाय।'},
+            {id: 'general_mill', name: '🌾 आटा चक्की एवं मिल', icon: '🌾', desc: 'अनाज पिसाई और आटा चक्की।'},
+            {id: 'iron_smith', name: '⚒️ लोहार एवं वेल्डिंग', icon: '⚒️', desc: 'लोहे का काम और वेल्डिंग शॉप।'},
+            {id: 'carpenter', name: '🪵 बढ़ई एवं लकड़ी काम', icon: '🪵', desc: 'लकड़ी की नक्काशी और बढ़ईगिरी।'},
+            {id: 'potter', name: '🏺 कुम्हार एवं बर्तन', icon: '🏺', desc: 'मिट्टी के बर्तन और हस्तकला।'},
+            {id: 'flower_shop', name: '🌸 फूल एवं माला स्टोर', icon: '🌸', desc: 'ताजे फूल और पूजा की मालाएं।'},
+            {id: 'cycle_repair', name: '🚲 साइकिल रिपेयर', icon: '🚲', desc: 'साइकिल पंचर और मरम्मत की दुकान।'},
+            {id: 'courier', name: '📦 कूरियर सर्विस', icon: '📦', desc: 'पार्सल और डाक सेवा।'},
+            {id: 'photo_studio', name: '📸 फोटो स्टूडियो', icon: '📸', desc: 'फोटोग्राफी और वीडियोग्राफी स्टूडियो।'},
+            {id: 'computer_lab', name: '💻 कंप्यूटर एवं प्रिंटिंग', icon: '💻', desc: 'कंप्यूटर कार्य और प्रिंटिंग प्रेस।'},
+            {id: 'astrology', name: '🔮 ज्योतिष केंद्र', icon: '🔮', desc: 'हस्तरेखा और ज्योतिषीय परामर्श।'},
+            {id: 'music_band', name: '🎺 बैंड बाजा एवं डीजे', icon: '🎺', desc: 'शादी समारोह का डीजे और बैंड।'},
+            {id: 'street_vendor', name: '🛒 ग्लोबल मार्केट वेंडर', icon: '🛒', desc: 'स्ट्रीट मार्केट और स्थानीय विक्रेता का कारोबार।'}
+        ];
+
+        function changeAppLanguage(lang) {
+            currentAppLang = lang;
+            localStorage.setItem('rizwan_app_lang', lang);
+            renderSectors();
+            speakAiDirector(lang === 'en-US' ? "Language updated successfully." : "भाषा बदल दी गई है।");
+        }
+
+        function speakAiDirector(text) {
+            let box = document.getElementById('directorScreenBox');
+            if(box) box.innerText = text;
+            if ('speechSynthesis' in window) {
+                try {
+                    window.speechSynthesis.cancel();
+                    let utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = currentAppLang;
+                    window.speechSynthesis.speak(utterance);
+                } catch(e) {}
+            }
+        }
+
+        function renderSectors() {
+            let container = document.getElementById('sectorsContainer');
+            if(!container) return;
+            container.innerHTML = "";
+            fiftySectorsList.forEach(sector => {
+                container.innerHTML += `
+                    <div class="sector-card" onclick="selectCardAndInform('${sector.id}', '${sector.name}', '${sector.desc}')">
+                        <div class="sector-icon">${sector.icon}</div>
+                        <div class="sector-name">${sector.name}</div>
+                        <div class="sector-fingerprint-tag">✨ चुनें</div>
+                    </div>
+                `;
+            });
+        }
+
+        function selectCardAndInform(sectorId, sectorName, sectorDesc) {
+            let uniqueQuantumDNA = 'Q-DNA-' + Math.random().toString(36).substring(2, 12).toUpperCase() + '-' + Date.now() + '-' + Math.floor(Math.random()*10000);
+            
+            localStorage.setItem('rizwan_assigned_user_sector', sectorId);
+            localStorage.setItem('rizwan_assigned_sector_name', sectorName);
+            localStorage.setItem('rizwan_user_quantum_dna', uniqueQuantumDNA);
+
+            dbRef.push({ 
+                sectorId: sectorId, 
+                sectorName: sectorName, 
+                quantumDNA: uniqueQuantumDNA, 
+                timestamp: new Date().toLocaleString() 
+            });
+
+            let message = `आपने ${sectorName} चुना है। ${sectorDesc} आपका यह कारोबार और यूनिक क्वांटम डीएनए पूरी तरह सुरक्षित और स्वतंत्र हो गया है। अब आप नीचे दिए गए स्टूडियो बटन पर क्लिक करके अपनी वीडियो बनाएं!`;
+            speakAiDirector(message);
+        }
+
+        function addNewCustomCategory() {
+            let input = document.getElementById('customCatInput');
+            if(!input || !input.value.trim()) return;
+            let rawName = input.value.trim();
+            let correctedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+            let customId = 'custom_' + Date.now();
+            input.value = "";
+            
+            selectCardAndInform(customId, '✨ ' + correctedName, 'यह आपका अपना नया जोड़ा गया वैश्विक कस्टम कारोबार है।');
+        }
+
+        function toggleVoiceInputForCategory() {
+            let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { speakAiDirector("मालिक, वॉइस रिकग्निशन समर्थित नहीं है!"); return; }
+            let recognition = new SpeechRecognition();
+            recognition.lang = currentAppLang;
+            recognition.onstart = () => { speakAiDirector("सुन रहा हूँ मालिक, अपना नया कारोबार बोलिए!"); };
+            recognition.onresult = (event) => {
+                let spoken = event.results[0][0].transcript.trim();
+                if(spoken.length > 0) {
+                    let correctedSpoken = spoken.charAt(0).toUpperCase() + spoken.slice(1);
+                    let customId = 'custom_' + Date.now();
+                    selectCardAndInform(customId, '✨ ' + correctedSpoken, 'यह आपके द्वारा माइक से बोला गया नया कारोबार है।');
+                }
+            };
+            recognition.start();
+        }
+
+        function resetSmartAdmin() {
+            let pin = prompt("मास्टर एडमिन पिन दर्ज करें (12345):");
+            if (pin === "12345") {
+                localStorage.removeItem('rizwan_assigned_user_sector');
+                localStorage.removeItem('rizwan_assigned_sector_name');
+                localStorage.removeItem('rizwan_user_quantum_dna');
+                alert("🔓 रिसेट सफल!");
+                location.reload();
+            } else if(pin !== null) { alert("❌ गलत पिन!"); }
+        }
+
+        window.onload = function() {
+            renderSectors();
+            let savedName = localStorage.getItem('rizwan_assigned_sector_name');
+            if(savedName) {
+                speakAiDirector(`असद की जादुई दुनिया में आपका स्वागत है! आपका वर्तमान कारोबार ${savedName} सेट है।`);
+            } else {
+                speakAiDirector("असद की जादुई दुनिया में आपका स्वागत है! अपना कारोबार चुनिए और पूरी जानकारी पाइए।");
+            }
+        };
+    </script>
+</body>
+</html>
