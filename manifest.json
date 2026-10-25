@@ -7,20 +7,41 @@
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait",
-  "description": "The Ultimate Sovereign Autonomous Security & Command Center for Global Protection",
-  "categories": ["security", "utilities", "tools", "lifestyle"],
+  "description": "The Ultimate Sovereign Autonomous Security & Command Center",
+  "categories": ["security", "utilities", "tools", "productivity"],
   "icons": [
     {
-      "src": "https://rijwanworldos.github.io/electric-bodyguard-core/icon.png",
+      "src": "./icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://rijwanworldos.github.io/electric-bodyguard-core/icon.png",
+      "src": "./icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "SOS Emergency",
+      "url": "./sos.html",
+      "icons": [{ "src": "./icon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Anti-Theft Shield",
+      "url": "./anti-theft.html",
+      "icons": [{ "src": "./icon.png", "sizes": "192x192" }]
+    }
+  ],
+  "share_target": {
+    "action": "./index.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }
