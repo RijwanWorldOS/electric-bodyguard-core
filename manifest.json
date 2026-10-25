@@ -1,0 +1,19 @@
+{
+  "name": "Electric Bodyguard Sovereign OS",
+  "short_name": "Bodyguard",
+  "start_url": "/electric-bodyguard-core/",
+  "scope": "/electric-bodyguard-core/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#FF0000",
+  "orientation": "portrait",
+  "description": "The Ultimate Sovereign Autonomous Security & Command Center",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
